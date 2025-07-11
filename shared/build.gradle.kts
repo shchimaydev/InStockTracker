@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.implementation
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -30,6 +31,11 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // put your Multiplatform dependencies here
+
+        }
+        jvmMain.dependencies {
+            // We don't need the Firestore dependency in the shared module
+            // The server module will handle Firestore-specific logic
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

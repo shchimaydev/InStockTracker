@@ -28,3 +28,10 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Server.
 For detailed information about the project, including setup instructions, architecture, technologies used, and development guidelines, please refer to the [DOCUMENTATION.md](DOCUMENTATION.md) file.
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+
+
+## Deplayment
+
+Google Cloud command to deploy to AppEngine.
+
+`gcloud app deploy build/libs/server-all.jar --project instocktracker-464721`

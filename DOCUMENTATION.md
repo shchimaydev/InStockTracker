@@ -16,7 +16,7 @@ The project is currently in its initial development phase, with basic structure 
 - `/composeApp`: Contains the Compose Multiplatform application code
   - `commonMain`: Code shared across all Compose platforms
   - Platform-specific folders for platform-specific implementations
-  
+
 - `/iosApp`: Contains the iOS application entry point and SwiftUI code
 
 - `/server`: Contains the Ktor server application
@@ -36,6 +36,11 @@ The project is currently in its initial development phase, with basic structure 
 - **Kotlin Multiplatform**: Version 2.2.0
 - **Compose Multiplatform**: Version 1.8.2
 - **Ktor**: Version 3.2.0 (Server framework)
+  - Server: Core, Netty, Test Host
+  - Client: Core, OkHttp (Android/JVM), Darwin (iOS)
+- **Google Cloud**: Version 26.40.0
+  - Firestore: Database service
+  - Scheduler: Task scheduling service
 
 ### Android-specific
 - Android SDK: compileSdk 35, minSdk 24, targetSdk 35
@@ -56,6 +61,14 @@ The project is currently in its initial development phase, with basic structure 
 - AndroidX Test Extensions: 1.2.1
 - Espresso: 3.6.1
 - Ktor Server Test Host
+
+### Build Tools
+- Gradle with the following plugins:
+  - Android Application/Library
+  - Compose Multiplatform
+  - Kotlin Multiplatform
+  - Ktor
+  - Shadow: 8.3.6 (For creating fat/uber JARs)
 
 ## Setup Instructions
 
