@@ -5,14 +5,20 @@ plugins {
     application
 }
 
+kotlin {
+    jvmToolchain(21)
+}
+
 group = "com.ist.instocktracker"
 version = "1.0.0"
 application {
-    mainClass.set("com.ist.instocktracker.ApplicationKt")
+    mainClass.set("com.ist.instocktracker.EngineKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
+    println("development: $isDevelopment")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
+
 
 
 dependencies {

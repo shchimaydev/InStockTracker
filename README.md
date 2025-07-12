@@ -29,6 +29,14 @@ For detailed information about the project, including setup instructions, archit
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
 
+## Local Server Run
+
+To have on-change update run 
+
+`./gradlew :server:build -t -x test
+`
+
+then run the app from IDEA.
 
 ## Deplayment
 
