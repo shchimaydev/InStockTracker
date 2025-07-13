@@ -5,6 +5,8 @@ import com.google.cloud.firestore.FirestoreOptions
 
 object FirestoreProvider {
 
+    val linksCollection = "links"
+
     // You can get your project ID from the Google Cloud Console
     private const val PROJECT_ID = "instocktracker-464721"
 

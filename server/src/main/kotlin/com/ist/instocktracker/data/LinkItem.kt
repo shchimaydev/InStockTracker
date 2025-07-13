@@ -12,6 +12,13 @@ fun DocumentSnapshot.toLinkItem(): LinkItem? {
         link = this.getString("link") ?: "",
         mode = this.getString("mode")?.let { Mode.valueOf(it) } ?: Mode.OUT_OF_STOCK,
         additionalInstructions = this.getString("additionalInstructions"),
-        isActive = this.getBoolean("isActive") ?: false
+        isActive = this.getBoolean("isActive") ?: false,
+        interval = this.get("interval")?.let { it as? Map<*, *> }?.let {
+            println("Interval: $it, ${it["unit"]}, ${it["duration"]}")
+            Interval(
+                (it["unit"] as? Long)?.toInt() ?: 1,
+                it["duration"]?.let { DurationUnit.valueOf(it.toString()) } ?: DurationUnit.HOURS
+            )
+        } ?: Interval()
     )
 }

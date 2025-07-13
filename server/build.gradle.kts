@@ -26,15 +26,13 @@ dependencies {
     implementation(libs.logback)
     implementation(libs.ktor.serverCore)
     implementation(libs.ktor.serverNetty)
+    implementation(libs.ktor.contentNegotiation)
+    implementation(libs.ktor.serialization.json)
+    implementation(libs.ktor.statusPages)
+    implementation(libs.kotlinx.serialization.json)
     implementation(platform(libs.google.cloud.bom))
     implementation(libs.google.cloud.firestore)
     implementation(libs.google.cloud.scheduler)
-//    implementation(libs.kotlinx.coroutines.guava)
-
-    // By adding guava here, you instruct Gradle to enforce the version
-    // provided by the google-cloud-bom, resolving the conflict.
-//    implementation(libs.guava)
-
 
 
     testImplementation(libs.ktor.serverTestHost)
