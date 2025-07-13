@@ -21,14 +21,7 @@ fun Route.postLinkItem() {
         val linkItem = call.receive<LinkItem>()
 
         // Create a map of the LinkItem fields
-        val itemData = mapOf(
-            "link" to linkItem.link,
-            "mode" to linkItem.mode.toString(),
-            "additionalInstructions" to (linkItem.additionalInstructions ?: ""),
-            "isActive" to linkItem.isActive,
-            "interval" to linkItem.interval
-        )
-
+        val itemData = linkItem.toMap()
         // Add the document to Firestore
         val docRef = if (linkItem.id.isBlank()) {
             // Auto-generate ID if not provided

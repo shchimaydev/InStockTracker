@@ -34,10 +34,22 @@ data class Interval (
 data class LinkItem(
     @DocumentId
     val id: String = "",
+    val label: String? = null,
     val link: String = "",
     val mode: Mode = Mode.IN_STOCK,
     val additionalInstructions: String? = null,
     val isActive: Boolean = false,
     val interval: Interval = Interval()
 
-)
+) {
+    fun toMap(): Map<String, Any?> {
+        return mapOf(
+            "link" to link,
+            "mode" to mode.name,
+            "additionalInstructions" to additionalInstructions,
+            "isActive" to isActive,
+            "interval" to interval
+        )
+    }
+
+}
