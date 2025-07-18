@@ -8,6 +8,7 @@ import com.google.cloud.scheduler.v1.HttpTarget
 import com.google.cloud.scheduler.v1.Job
 import com.google.cloud.scheduler.v1.JobName
 import com.google.cloud.scheduler.v1.LocationName
+import com.google.cloud.scheduler.v1.HttpMethod
 import com.google.cloud.Timestamp
 import com.google.protobuf.ByteString
 import com.ist.instocktracker.data.LinkItem
@@ -34,13 +35,14 @@ class SchedulerService(
             val parent = LocationName.of(projectId, location)
             
             // Generate a unique job ID
-            val jobId = "link-item-update-${UUID.randomUUID()}"
+            val jobId = "link-item-check-${UUID.randomUUID()}"
             val jobName = JobName.of(projectId, location, jobId).toString()
             
             // Create HTTP target for the job
             val httpTarget = HttpTarget.newBuilder()
-                .setUri("$serverBaseUrl/api/v1/link-item/run-update-job")
-                .setBody(ByteString.copyFromUtf8("{\"id\":\"${linkItem.id}\"}"))
+                .setUri("$serverBaseUrl/api/v1/link-item/${linkItem.id}/check")
+                .setHttpMethod(HttpMethod.POST)
+                //.setBody(ByteString.copyFromUtf8("{\"id\":\"${linkItem.id}\"}"))
                 .putHeaders("Content-Type", "application/json")
                 .build()
             

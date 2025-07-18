@@ -40,10 +40,8 @@ then run the app from IDEA.
 
 ## Deplayment of the Ktor server
 
-1. Build the server
-``./gradlew :server:buildFatJar``
+Custom Gradle task to deploy to AppEngine (buildFatJar + gcloud app deploy).
+
+`./gradlew :server:deployAppEngine`
 
 
-2. Google Cloud command to deploy to AppEngine. 
-
-``gcloud app deploy build/libs/server-all.jar --project instocktracker-464721``

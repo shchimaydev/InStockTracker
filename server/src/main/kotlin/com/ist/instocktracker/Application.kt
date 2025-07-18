@@ -44,7 +44,7 @@ fun Application.module() {
 
     println("Project ID from environment: ${System.getenv("GAE_APPLICATION")}")
     val projectId = System.getenv("GAE_APPLICATION")?.split("~")[1] ?: "instocktracker-464721"
-    
+
     val location = "europe-west3"
     val serverUrl = "https://$projectId.ey.r.appspot.com"
 
@@ -81,13 +81,17 @@ fun Application.module() {
                 putLinkItem()
                 deleteLinkItem()
 
-                // Route for running update job
-                post("run-update-job") {
-                    val body = call.receive<RunUpdateJobBody>()
+                post("{id}/check") {
+                    val id = call.parameters["id"] ?: return@post call.respond(
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to "Missing or invalid ID")
+                    )
                     // Empty handler for now
-                    call.respond(HttpStatusCode.OK, mapOf("status" to "Job received", "jobId" to body.id))
+                    call.respond(HttpStatusCode.OK, mapOf("status" to "Job received", "linkItemId" to id))
                 }
             }
+            // Route for running update job
+
         }
     }
 }

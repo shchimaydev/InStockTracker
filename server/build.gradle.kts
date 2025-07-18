@@ -19,6 +19,28 @@ application {
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
+// build.gradle
+
+tasks.register<Exec>("deployAppEngine") {
+    group = "Deployment"
+    description = "Deploys the server application to Google App Engine."
+
+    // This task should run after the jar has been built.
+    dependsOn("buildFatJar")
+
+    // The command to execute.
+    // Make sure 'gcloud' is available in your system's PATH.
+    commandLine(
+        "gcloud",
+        "app",
+        "deploy",
+        "build/libs/server-all.jar", // Path to the JAR within the server module
+        "--project",
+        "instocktracker-464721"
+    )
+}
+
+
 
 
 dependencies {
