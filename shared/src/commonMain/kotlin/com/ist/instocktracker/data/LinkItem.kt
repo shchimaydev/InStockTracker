@@ -1,8 +1,9 @@
 package com.ist.instocktracker.data
 
 import kotlinx.serialization.Serializable
-
 import kotlinx.serialization.SerialInfo
+
+
 
 /**
  * Declares a multiplatform annotation that is expected to be implemented
@@ -37,18 +38,22 @@ data class LinkItem(
     val label: String? = null,
     val link: String = "",
     val mode: Mode = Mode.IN_STOCK,
+    val startAt: String? = null,
     val additionalInstructions: String? = null,
     val isActive: Boolean = false,
-    val interval: Interval = Interval()
+    val interval: Interval = Interval(),
+    val scheduleJobId: String? = null
 
 ) {
     fun toMap(): Map<String, Any?> {
         return mapOf(
             "link" to link,
             "mode" to mode.name,
+            "startAt" to startAt,
             "additionalInstructions" to additionalInstructions,
             "isActive" to isActive,
-            "interval" to interval
+            "interval" to interval,
+            "scheduleJobId" to scheduleJobId
         )
     }
 

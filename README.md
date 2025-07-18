@@ -38,8 +38,12 @@ To have on-change update run
 
 then run the app from IDEA.
 
-## Deplayment
+## Deplayment of the Ktor server
 
-Google Cloud command to deploy to AppEngine.
+1. Build the server
+``./gradlew :server:buildFatJar``
 
-`gcloud app deploy build/libs/server-all.jar --project instocktracker-464721`
+
+2. Google Cloud command to deploy to AppEngine. 
+
+``gcloud app deploy build/libs/server-all.jar --project instocktracker-464721``

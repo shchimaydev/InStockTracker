@@ -15,11 +15,11 @@ fun DocumentSnapshot.toLinkItem(): LinkItem? {
         additionalInstructions = this.getString("additionalInstructions"),
         isActive = this.getBoolean("isActive") ?: false,
         interval = this.get("interval")?.let { it as? Map<*, *> }?.let {
-            println("Interval: $it, ${it["unit"]}, ${it["duration"]}")
             Interval(
                 (it["unit"] as? Long)?.toInt() ?: 1,
                 it["duration"]?.let { DurationUnit.valueOf(it.toString()) } ?: DurationUnit.HOURS
             )
-        } ?: Interval()
+        } ?: Interval(),
+        scheduleJobId = this.getString("scheduleJobId")
     )
 }
