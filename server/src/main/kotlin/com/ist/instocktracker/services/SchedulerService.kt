@@ -42,7 +42,7 @@ class SchedulerService(
             val httpTarget = HttpTarget.newBuilder()
                 .setUri("$serverBaseUrl/api/v1/link-item/${linkItem.id}/check")
                 .setHttpMethod(HttpMethod.POST)
-                //.setBody(ByteString.copyFromUtf8("{\"id\":\"${linkItem.id}\"}"))
+                .setBody(ByteString.copyFromUtf8("{}"))
                 .putHeaders("Content-Type", "application/json")
                 .build()
             
