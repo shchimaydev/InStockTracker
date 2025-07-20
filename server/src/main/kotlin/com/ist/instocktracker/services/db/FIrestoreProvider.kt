@@ -1,4 +1,4 @@
-package com.ist.instocktracker.db
+package com.ist.instocktracker.services.db
 
 import com.google.cloud.firestore.Firestore
 import com.google.cloud.firestore.FirestoreOptions

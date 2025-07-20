@@ -1,9 +1,8 @@
 package com.ist.instocktracker.apiHandlers.linkItem
 
-import com.ist.instocktracker.db.FirestoreProvider.db
-import com.ist.instocktracker.db.FirestoreProvider.linksCollection
+import com.ist.instocktracker.services.db.FirestoreProvider.db
+import com.ist.instocktracker.services.db.FirestoreProvider.linksCollection
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
