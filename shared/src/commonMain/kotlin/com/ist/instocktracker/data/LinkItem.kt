@@ -1,18 +1,8 @@
 package com.ist.instocktracker.data
 
+import com.ist.instocktracker.DocumentId
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerialInfo
 
-
-
-/**
- * Declares a multiplatform annotation that is expected to be implemented
- * on each target platform. On Android/iOS, this will map to the real
- * Firestore @DocumentId. On the JVM, it will be a simple annotation
- * with no special behavior.
- */
-@SerialInfo
-expect annotation class DocumentId()
 
 @Serializable
 enum class Mode {
