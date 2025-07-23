@@ -32,7 +32,9 @@ data class LinkItem(
     val additionalInstructions: String? = null,
     val isActive: Boolean = false,
     val interval: Interval = Interval(),
-    val scheduleJobId: String? = null
+    val scheduleJobId: String? = null,
+    val lastCheckResult: Boolean? = null,
+    val lastCheckDate: String? = null
 
 ) {
     fun toMap(): Map<String, Any?> {
@@ -43,7 +45,9 @@ data class LinkItem(
             "additionalInstructions" to additionalInstructions,
             "isActive" to isActive,
             "interval" to interval,
-            "scheduleJobId" to scheduleJobId
+            "scheduleJobId" to scheduleJobId,
+            "lastCheckResult" to lastCheckResult,
+            "lastCheckDate" to lastCheckDate
         )
     }
 

@@ -20,6 +20,8 @@ fun DocumentSnapshot.toLinkItem(): LinkItem? {
                 it["duration"]?.let { DurationUnit.valueOf(it.toString()) } ?: DurationUnit.HOURS
             )
         } ?: Interval(),
-        scheduleJobId = this.getString("scheduleJobId")
+        scheduleJobId = this.getString("scheduleJobId"),
+        lastCheckResult = this.getBoolean("lastCheckResult"),
+        lastCheckDate = this.getString("lastCheckDate")
     )
 }

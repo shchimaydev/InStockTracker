@@ -1,10 +1,13 @@
 package com.ist.instocktracker
 
 import com.ist.instocktracker.apiHandlers.linkItem.*
+import com.ist.instocktracker.apiHandlers.linkItem.check.postCheck
 import com.ist.instocktracker.data.toLinkItem
+import com.ist.instocktracker.services.GenAI
 import com.ist.instocktracker.services.db.FirestoreProvider.db
 import com.ist.instocktracker.services.db.FirestoreProvider.linksCollection
 import com.ist.instocktracker.services.SchedulerService
+import com.ist.instocktracker.services.db.FirestoreProvider
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -39,6 +42,10 @@ fun Application.module() {
         }
     }
 
+    println("Gemini api key: ${this.environment.config.property("app.gemini.apiKey").getString()}")
+    // Initialize AI model with application config variables
+    GenAI.init(this)
+
 
     println("Project ID from environment: ${System.getenv("GAE_APPLICATION")}")
     val projectId = System.getenv("GAE_APPLICATION")?.split("~")[1] ?: "instocktracker-464721"
@@ -56,19 +63,19 @@ fun Application.module() {
     routing {
         // Keep the original root endpoint for testing
         get("/") {
-            val documents = db.collection(linksCollection).listDocuments()
-            val snapshots = coroutineScope {
-                documents.map { docRef ->
-                    async {
-                        withContext(Dispatchers.IO) {
-                            docRef.get().get().toLinkItem()
-                        }
-                    }
-                }.awaitAll()
-            }
+            val collectionIds = FirestoreProvider.checkConnection()
+//            val snapshots = coroutineScope {
+//                documents.map { docRef ->
+//                    async {
+//                        withContext(Dispatchers.IO) {
+//                            docRef.get().get().toLinkItem()
+//                        }
+//                    }
+//                }.awaitAll()
+//            }
 
-            println("Snapshot test - $snapshots")
-            call.respondText("Snapshot test - $snapshots")
+            //println("Snapshot test - $snapshots")
+            call.respond(HttpStatusCode.OK, "Server is running")
         }
 
         // API v1 routes
@@ -79,14 +86,7 @@ fun Application.module() {
                 putLinkItem()
                 deleteLinkItem()
 
-                post("{id}/check") {
-                    val id = call.parameters["id"] ?: return@post call.respond(
-                        HttpStatusCode.BadRequest,
-                        mapOf("error" to "Missing or invalid ID")
-                    )
-                    // Empty handler for now
-                    call.respond(HttpStatusCode.OK, mapOf("status" to "Job received", "linkItemId" to id))
-                }
+                postCheck()
             }
             // Route for running update job
 

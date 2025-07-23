@@ -20,6 +20,8 @@ kotlinx-coroutines-core = "1.10.2"
 ktor = "3.2.0"
 logback = "1.5.18"
 selenium = "4.22.0"
+mockk = "1.14.5"
+
 
 
 [libraries]
@@ -52,7 +54,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core"}
 kotlinx-coroutines-jdk = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk9", version.ref = "kotlinx-coroutines-core" }
 selenium = { module = "org.seleniumhq.selenium:selenium-java", version.ref = "selenium" }
-
+mockk = { module = "io.mockk:mockk", version.ref = "mockk"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

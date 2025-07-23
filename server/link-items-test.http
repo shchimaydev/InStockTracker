@@ -32,9 +32,13 @@ Content-Type: application/json
   }
 }
 
-<> 2025-07-18T203745.201.json
-<> 2025-07-18T203341.500.json
-<> 2025-07-18T200127.500.json
+###
+
+### POST request to /link-item/{id}/check
+POST http://0.0.0.0:8080/api/v1/link-item/CbrKG3md23FOXLLbjbLd/check
+Content-Type: application/json
+
+{}
 
 ###
 

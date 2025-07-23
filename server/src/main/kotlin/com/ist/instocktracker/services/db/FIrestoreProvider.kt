@@ -21,4 +21,16 @@ object FirestoreProvider {
 
         firestoreOptions.service
     }
+
+    fun checkConnection() {
+        try {
+            println("Attempting to connect to Firestore...")
+            val collectionIds = db.listCollections().forEach { it.id }
+            println("Successfully connected to Firestore. Found collections: $collectionIds.")
+        } catch (e: Exception) {
+            println("Error connecting to Firestore: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
 }
