@@ -44,4 +44,7 @@ Custom Gradle task to deploy to AppEngine (buildFatJar + gcloud app deploy).
 
 `./gradlew :server:deployAppEngine`
 
+OR
+from `./server` module
 
+`gcloud app deploy build/libs/server-all.jar --project instocktracker-464721`

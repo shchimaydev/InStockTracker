@@ -1,22 +1,26 @@
 package com.ist.instocktracker.apiHandlers.linkItem.check
 
+import com.google.genai.types.Content
 import com.google.genai.types.GenerateContentResponse
+import com.google.genai.types.Part
 import com.ist.instocktracker.data.CheckResponse
 import com.ist.instocktracker.data.LinkItem
-import com.ist.instocktracker.data.LinkItemLog
 import com.ist.instocktracker.data.toLinkItem
 import com.ist.instocktracker.services.GenAI
 import com.ist.instocktracker.services.db.FirestoreProvider.db
 import com.ist.instocktracker.services.db.FirestoreProvider.linksCollection
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.openqa.selenium.OutputType
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.remote.RemoteWebDriver
 import java.net.URI
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -53,10 +57,10 @@ fun Route.postCheck() {
             println("Checking link item: $linkItem")
 
             // Get the HTML content of the page using Bright Data Browser API
-            val html = scrapePageWithBrightData(linkItem.link)
+            val (html, image, imageBytes) = scrapePageWithBrightData(linkItem.link)
 
             // Evaluate the HTML with GenAI
-            val aiResult = evaluateWithAI(html, linkItem)
+            val aiResult = evaluateWithAI(imageBytes, linkItem)
 
             // Get current timestamp
             val timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
@@ -86,7 +90,6 @@ fun Route.postCheck() {
                 batch.commit().get()
             }
 
-
             // Respond with success
             call.respond(
                 HttpStatusCode.OK,
@@ -109,27 +112,50 @@ fun Route.postCheck() {
 /**
  * Scrapes a web page using Bright Data Browser API
  */
-suspend fun scrapePageWithBrightData(url: String): String {
+data class ScrapePageResponse(val html: String?, val image: String?, val imageBytes: ByteArray)
+
+suspend fun scrapePageWithBrightData(url: String, saveScreenshot: Boolean = false): ScrapePageResponse {
     return withContext(Dispatchers.IO) {
         try {
             // Configure Chrome options for Bright Data
             val options = ChromeOptions()
-            
+
             // Connect to Bright Data Browser API
-            val webDriverUrl = URI.create("https://brd-customer-hl_b2c0135c-zone-scraping_browser1:tn4mq8z2kbxz@brd.superproxy.io:9515").toURL()
+            val webDriverUrl =
+                URI.create("https://brd-customer-hl_b2c0135c-zone-scraping_browser1:tn4mq8z2kbxz@brd.superproxy.io:9515")
+                    .toURL()
             val driver = RemoteWebDriver(webDriverUrl, options)
-            
+
             try {
                 // Navigate to the URL
                 driver.get(url)
-                
+
                 // Wait for the page to load (you might need to adjust this)
                 Thread.sleep(500)
-                
-                // Get the page source
-                val pageSource = driver.getPageSource()
-                
-                pageSource
+
+                var screenshotBytes: ByteArray
+                var imagePath: String? = null
+
+                if (saveScreenshot) {
+                    //do a screenshot
+                    val screenshotFile = driver.getScreenshotAs(OutputType.FILE)
+                    val destinationPath =
+                        Paths.get("./server/resources/screenshots/screenshot-${System.currentTimeMillis()}.png")
+                    // Create parent directories if they don't exist
+                    Files.createDirectories(destinationPath.parent)
+                    // Move file into /resources/screenshots
+                    Files.move(screenshotFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING)
+                    println("Original path of a screenshot: ${screenshotFile.toPath()}")
+                    println("Screenshot saved to: $destinationPath")
+
+                    imagePath = destinationPath.toString()
+                    screenshotBytes = screenshotFile.readBytes()
+                } else {
+                    screenshotBytes = driver.getScreenshotAs(OutputType.BYTES)
+                }
+
+
+                ScrapePageResponse(html = null, image = imagePath, imageBytes = screenshotBytes)
             } finally {
                 // Make sure to close the driver
                 driver.quit()
@@ -143,7 +169,7 @@ suspend fun scrapePageWithBrightData(url: String): String {
 /**
  * Evaluates the HTML content with GenAI to determine if the item status matches the expected mode
  */
-suspend fun evaluateWithAI(html: String, linkItem: LinkItem): Boolean {
+suspend fun evaluateWithAI(imageBytes: ByteArray, linkItem: LinkItem): Boolean {
     return withContext(Dispatchers.IO) {
         try {
             // Create a prompt for the AI
@@ -156,13 +182,16 @@ suspend fun evaluateWithAI(html: String, linkItem: LinkItem): Boolean {
                 - PRE_ORDER: The product is available for pre-order but not yet released
                 - OUT_OF_STOCK: The product is currently unavailable for purchase
                 
-                Please analyze the following HTML and respond with ONLY "true" if the product is in the state ${linkItem.mode.name}, or "false" if it's in any other state.
-                
-                HTML:
-                ${html.take(15000)} // Limit HTML size to avoid token limits
+                Please analyze the following attached image and identify if an item that is being sold in this page is in the state ${linkItem.mode.name}. Respond with ONLY "true" if the product availability match ${linkItem.mode.name}  or "false" if it doesn't match.
             """.trimIndent()
 
-            val response: GenerateContentResponse = GenAI.geminiClient.models.generateContent("gemini-2.5-flash", prompt, null)
+            //val imageBytes = Files.readAllBytes(Paths.get(imagePath))
+            val contents =
+                Content.builder().parts(Part.fromBytes(imageBytes, "image/png"), Part.fromText(prompt)).build()
+            val response: GenerateContentResponse = GenAI.geminiClient.models.generateContent(
+                "gemini-2.5-flash",
+                contents, null
+            )
             val responseText = response.text()
 
             println("GenAI response: $responseText")

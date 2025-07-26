@@ -21,7 +21,7 @@ application {
 
 // build.gradle
 
-tasks.register<Exec>("deployAppEngine") {
+tasks.register<Exec>("deploy") {
     group = "Deployment"
     description = "Deploys the server application to Google App Engine."
 
