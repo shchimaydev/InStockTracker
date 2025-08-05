@@ -35,7 +35,7 @@ Content-Type: application/json
 ###
 
 ### POST request to /link-item/{id}/check
-POST http://0.0.0.0:8080/api/v1/link-item/xwrRF4ppe7oWatgiFJTY/check
+POST http://0.0.0.0:8080/api/v1/link-item/CbrKG3md23FOXLLbjbLd/check
 Content-Type: application/json
 
 {}

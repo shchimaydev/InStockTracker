@@ -25,13 +25,17 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Server.
 
 ## Documentation
 
-For detailed information about the project, including setup instructions, architecture, technologies used, and development guidelines, please refer to the [DOCUMENTATION.md](DOCUMENTATION.md) file.
+For detailed information about the project, including setup instructions, architecture, technologies used, and
+development guidelines, please refer to the [DOCUMENTATION.md](DOCUMENTATION.md) file.
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
 
 ## Local Server Run
 
-To have on-change update run 
+Check if already running somethin on port 8080
+`lsof -i :8080`
+
+To have on-change update run
 
 `./gradlew :server:build -t -x test
 `
