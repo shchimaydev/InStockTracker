@@ -22,6 +22,10 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.navigation.compose)
+            implementation(libs.androidx.datastore.preferences)
+            implementation(libs.androidx.credential.manager)
+            implementation(libs.androidx.credential.manager.google)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
