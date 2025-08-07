@@ -6,6 +6,7 @@ import com.google.cloud.firestore.DocumentReference
 import com.google.cloud.firestore.DocumentSnapshot
 import com.google.cloud.firestore.Firestore
 import com.google.cloud.firestore.WriteResult
+import com.ist.instocktracker.apiHandlers.linkItem.check.ScrapePageResponse
 import com.ist.instocktracker.data.LinkItem
 import com.ist.instocktracker.data.Mode
 import com.ist.instocktracker.module
@@ -49,12 +50,20 @@ class PostCheckTest {
         // --- 2. Mock External Dependencies ---
 
         // Mock static functions for scraping and AI.
-        // NOTE: You must replace "com.ist.instocktracker.services.browser.BrightDataScraperKt"
-        // with the actual file path of where `scrapePageWithBrightData` is defined.
-        // Do the same for `evaluateWithAI`.
-        mockkStatic("com.ist.instocktracker.services.browser.BrightDataScraperKt")
-        mockkStatic("com.ist.instocktracker.services.ai.GenAiEvaluatorKt")
-        coEvery { scrapePageWithBrightData(any()) } returns fakeHtmlContent
+        mockkStatic("com.ist.instocktracker.apiHandlers.linkItem.check.PostCheckKt")
+        
+        // Create a mock ScrapePageResponse with the fake HTML content
+        val fakeImageBytes = ByteArray(0) // Empty byte array for testing
+        val fakeScrapeResponse = ScrapePageResponse(
+            html = fakeHtmlContent,
+            image = null,
+            imageBytes = fakeImageBytes
+        )
+        
+        // Mock the scrapePageWithBrightData function to return the fake response
+        coEvery { scrapePageWithBrightData(any(), any()) } returns fakeScrapeResponse
+        
+        // Mock the evaluateWithAI function to return true
         coEvery { evaluateWithAI(any(), any()) } returns true
 
         // Mock the FirestoreProvider singleton and the chain of Firestore calls

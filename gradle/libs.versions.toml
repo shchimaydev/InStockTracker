@@ -52,16 +52,17 @@ ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "kto
 google-cloud-bom = { group = "com.google.cloud", name = "libraries-bom", version.ref = "google-cloud" }
 google-cloud-firestore = { group = "com.google.cloud", name = "google-cloud-firestore" }
 google-cloud-scheduler = { group = "com.google.cloud", name = "google-cloud-scheduler" }
-google-genai = { module = "com.google.genai:google-genai", version.ref = "google-genai"}
+google-genai = { module = "com.google.genai:google-genai", version.ref = "google-genai" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core"}
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core" }
 kotlinx-coroutines-jdk = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk9", version.ref = "kotlinx-coroutines-core" }
 selenium = { module = "org.seleniumhq.selenium:selenium-java", version.ref = "selenium" }
-mockk = { module = "io.mockk:mockk", version.ref = "mockk"}
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "androidx-datastore" }
 androidx-credential-manager = { module = "androidx.credentials:credentials", version.ref = "credential-manager" }
 androidx-credential-manager-google = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credential-manager" }
+google-android-libraries-identity-googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version = "1.1.1" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -72,4 +73,4 @@ kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-shadow = {id = "com.gradleup.shadow", version = "8.3.6"}
+shadow = { id = "com.gradleup.shadow", version = "8.3.6" }

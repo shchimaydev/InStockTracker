@@ -1,17 +1,13 @@
 package com.ist.instocktracker.screens
 
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import android.widget.Toast
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +17,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.ist.instocktracker.data.TokenDataStore
 import kotlinx.coroutines.launch
 
@@ -36,7 +38,8 @@ fun AuthScreen(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    
+    val credentialManager = remember { CredentialManager.create(context) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -45,7 +48,7 @@ fun AuthScreen(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Spacer(modifier = Modifier.height(1.dp))
-        
+
         // Title in the middle
         Text(
             text = "InStock",
@@ -54,24 +57,80 @@ fun AuthScreen(
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         // Sign in button at the bottom
         Button(
             onClick = {
-                // For demonstration purposes, we'll simulate a successful sign-in
-                // In a real app, you would implement the Google Sign-In flow here
-                // using the Credential Manager API as described in the documentation
                 coroutineScope.launch {
-                    // Simulate getting a token
-                    val mockToken = "mock_google_id_token_for_demo"
-                    
-                    // Save token to DataStore
-                    tokenDataStore.saveGoogleIdToken(mockToken)
-                    
-                    // Navigate to main screen
-                    onSignInSuccess()
-                    
-                    Log.d("AuthScreen", "Signed in with mock token: $mockToken")
+                    try {
+                        // Create a credential request for Google Sign-In
+                        // Note: In a production app, you would use the client ID provided:
+                        // 646354819394-mifsg27c40t85l8gh09su46si6tvcjai.apps.googleusercontent.com
+                        val WEB_CLIENT_ID = "646354819394-mifsg27c40t85l8gh09su46si6tvcjai.apps.googleusercontent.com"
+                        val googleIdOption: GetSignInWithGoogleOption =
+                            GetSignInWithGoogleOption.Builder(serverClientId = WEB_CLIENT_ID)
+                                .build()
+
+                        val request = GetCredentialRequest.Builder()
+                            .addCredentialOption(googleIdOption)
+                            .build()
+
+                        // Start the sign-in flow
+                        val result = credentialManager.getCredential(
+                            request = request,
+                            context = context
+                        )
+
+                        Log.d("AuthScreen", "Credential result: $result")
+
+                        // Handle the result
+                        when (val credential = result.credential) {
+                            is CustomCredential -> {
+                                // Extract the token from the credential
+                                Log.d("AuthScreen", "Credential data: ${credential.data}")
+                                val googleIdTokenCredential = GoogleIdTokenCredential
+                                    .createFrom(credential.data)
+
+                                // Save token to DataStore
+                                tokenDataStore.saveGoogleIdToken(googleIdTokenCredential.idToken)
+
+                                // Log success
+                                Log.d("AuthScreen", "Successfully signed in with Google: $token")
+
+                                // Navigate to main screen
+                                onSignInSuccess()
+                            }
+
+                            else -> {
+                                // Handle other credential types
+                                val token = "credential_type_${credential.javaClass.simpleName}"
+                                tokenDataStore.saveGoogleIdToken(token)
+
+                                Log.d(
+                                    "AuthScreen",
+                                    "Signed in with credential type: ${credential.javaClass.simpleName}"
+                                )
+
+                                // Navigate to main screen
+                                onSignInSuccess()
+                            }
+                        }
+
+                    } catch (e: GetCredentialException) {
+                        // Handle sign-in errors
+                        Log.e("AuthScreen", "Error during sign-in: ${e.message}")
+                        Toast.makeText(
+                            context,
+                            "Sign-in failed: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        // For development purposes, we'll still navigate to the main screen
+                        // In a production app, you would handle the error appropriately
+//                        val mockToken = "mock_token_after_error"
+//                        tokenDataStore.saveGoogleIdToken(mockToken)
+//                        onSignInSuccess()
+                    }
                 }
             },
             modifier = Modifier

@@ -26,6 +26,7 @@ kotlin {
             implementation(libs.androidx.datastore.preferences)
             implementation(libs.androidx.credential.manager)
             implementation(libs.androidx.credential.manager.google)
+            implementation(libs.google.android.libraries.identity.googleid)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
