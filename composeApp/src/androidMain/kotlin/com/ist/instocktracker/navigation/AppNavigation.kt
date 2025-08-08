@@ -1,15 +1,19 @@
 package com.ist.instocktracker.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 import com.ist.instocktracker.data.TokenDataStore
-import com.ist.instocktracker.screens.AuthScreen
-import com.ist.instocktracker.screens.MainScreen
+import com.ist.instocktracker.feature.auth.AuthScreen
+import com.ist.instocktracker.feature.main.MainScaffold
+import com.ist.instocktracker.feature.main.MainScreen
+import com.ist.instocktracker.utils.LocalNavController
 
 /**
  * Navigation routes for the app
@@ -17,6 +21,7 @@ import com.ist.instocktracker.screens.MainScreen
 object AppRoutes {
     const val AUTH = "auth"
     const val MAIN = "main"
+    const val MAIN_LIST = "main/list"
 }
 
 /**
@@ -33,7 +38,7 @@ fun AppNavigation(
 ) {
     // Check if user is authenticated
     val isAuthenticated by tokenDataStore.isAuthenticated().collectAsState(initial = false)
-    
+
     // If user is authenticated, navigate to main screen
     if (isAuthenticated && navController.currentDestination?.route == AppRoutes.AUTH) {
         navController.navigate(AppRoutes.MAIN) {
@@ -41,23 +46,25 @@ fun AppNavigation(
         }
     }
 
-    NavHost(
-        navController = navController,
-        startDestination = startDestination
-    ) {
-        composable(AppRoutes.AUTH) {
-            AuthScreen(
-                onSignInSuccess = {
-                    navController.navigate(AppRoutes.MAIN) {
-                        popUpTo(AppRoutes.AUTH) { inclusive = true }
-                    }
-                },
-                tokenDataStore = tokenDataStore
-            )
-        }
-        
-        composable(AppRoutes.MAIN) {
-            MainScreen(tokenDataStore = tokenDataStore)
+    CompositionLocalProvider(LocalNavController provides navController) {
+        NavHost(
+            navController = navController,
+            startDestination = startDestination
+        ) {
+            composable(AppRoutes.AUTH) {
+                AuthScreen(
+                    tokenDataStore = tokenDataStore
+                )
+            }
+
+            navigation(startDestination = AppRoutes.MAIN_LIST, route = AppRoutes.MAIN) {
+                composable(AppRoutes.MAIN_LIST) {
+                    MainScaffold(tokenDataStore) { paddingValue -> MainScreen(tokenDataStore, paddingValue) }
+                }
+
+            }
+
         }
     }
+
 }
