@@ -49,14 +49,17 @@ dependencies {
     implementation(libs.ktor.contentNegotiation)
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.statusPages)
+    implementation(libs.ktor.sessions)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.jdk)
     implementation(platform(libs.google.cloud.bom))
     implementation(libs.google.cloud.firestore)
     implementation(libs.google.cloud.scheduler)
+    implementation(libs.google.api.client)
     implementation(libs.google.genai)
     implementation(libs.selenium)
+
 
 
     testImplementation(libs.ktor.serverTestHost)

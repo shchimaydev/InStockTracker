@@ -34,10 +34,19 @@ kotlin {
         commonMain.dependencies {
             // put your Multiplatform dependencies here
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.ktor.client.core)
         }
         jvmMain.dependencies {
-            // We don't need the Firestore dependency in the shared module
-            // The server module will handle Firestore-specific logic
+
+        }
+
+        androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
+        }
+
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

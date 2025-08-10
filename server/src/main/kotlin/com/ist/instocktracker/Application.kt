@@ -1,11 +1,13 @@
 package com.ist.instocktracker
 
-import com.ist.instocktracker.apiHandlers.linkItem.*
 import com.ist.instocktracker.apiHandlers.linkItem.check.postCheck
-import com.ist.instocktracker.data.toLinkItem
+import com.ist.instocktracker.apiHandlers.linkItem.deleteLinkItem
+import com.ist.instocktracker.apiHandlers.linkItem.getLinkItem
+import com.ist.instocktracker.apiHandlers.linkItem.postLinkItem
+import com.ist.instocktracker.apiHandlers.linkItem.putLinkItem
+import com.ist.instocktracker.apiHandlers.postGoogleIdTokenVerification
 import com.ist.instocktracker.services.GenAI
-import com.ist.instocktracker.services.db.FirestoreProvider.db
-import com.ist.instocktracker.services.db.FirestoreProvider.linksCollection
+import com.ist.instocktracker.services.IdTokenVerifierService
 import com.ist.instocktracker.services.SchedulerService
 import com.ist.instocktracker.services.db.FirestoreProvider
 import io.ktor.http.*
@@ -15,11 +17,6 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 fun Application.module() {
@@ -59,6 +56,7 @@ fun Application.module() {
         location = location,     // Replace with your actual location
         serverBaseUrl = serverUrl // Replace with your actual server URL
     )
+    val idTokenVerifierService = IdTokenVerifierService()
 
     routing {
         // Keep the original root endpoint for testing
@@ -88,8 +86,8 @@ fun Application.module() {
 
                 postCheck()
             }
-            // Route for running update job
 
+            postGoogleIdTokenVerification(idTokenVerifierService)
         }
     }
 }
