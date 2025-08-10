@@ -28,7 +28,7 @@ kotlin {
         }
     }
 
-    jvm()
+    jvm("server")
 
     sourceSets {
         commonMain.dependencies {
@@ -37,17 +37,20 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.ktor.client.core)
         }
-        jvmMain.dependencies {
-
-        }
 
         androidMain.dependencies {
+
             implementation(libs.ktor.client.okhttp)
         }
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
+
+        jvmMain.dependencies {
+            implementation(libs.ktor.client.cio)
+        }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }

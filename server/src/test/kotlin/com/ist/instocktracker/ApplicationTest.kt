@@ -10,11 +10,16 @@ class ApplicationTest {
 
     @Test
     fun testRoot() = testApplication {
+        environment {
+            config = io.ktor.server.config.MapApplicationConfig(
+                "ktor.development" to "false"
+            )
+        }
         application {
             module()
         }
         val response = client.get("/")
         assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals("Ktor: ${Greeting().greet()}", response.bodyAsText())
+        assertEquals("Server is running", response.bodyAsText())
     }
 }

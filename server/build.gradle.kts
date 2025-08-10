@@ -50,6 +50,8 @@ dependencies {
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.statusPages)
     implementation(libs.ktor.sessions)
+    implementation(libs.ktor.auth)
+    implementation(libs.ktor.auth.jwt)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.jdk)

@@ -36,7 +36,9 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(projects.shared)
+            implementation(projects.shared) {
+                //exclude(group = "io.ktor", module = "ktor-client-core-jvm")
+            }
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
