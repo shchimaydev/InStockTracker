@@ -3,6 +3,7 @@ package com.ist.instocktracker.apiHandlers
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.ist.instocktracker.data.PostGoogleIdVerificationBody
+import com.ist.instocktracker.data.TokenResponse
 import com.ist.instocktracker.data.User
 import com.ist.instocktracker.services.IdTokenVerifierService
 import io.ktor.http.*
@@ -10,16 +11,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
-import kotlinx.serialization.Serializable
 import java.util.*
 
-@Serializable
-private data class TokenResponse(
-    val accessToken: String,
-    val refreshToken: String,
-    val tokenType: String = "Bearer",
-    val expiresIn: Long
-)
 
 fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierService) {
     post("id-verification") {
@@ -29,6 +22,8 @@ fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierS
             message = "Could not get payload from Google Id Token",
             status = HttpStatusCode.Unauthorized
         )
+
+        println("Payload: $payload")
 
         val userId =
             payload.subject ?: return@post call.respond(HttpStatusCode.Unauthorized, "Missing subject in Google token")

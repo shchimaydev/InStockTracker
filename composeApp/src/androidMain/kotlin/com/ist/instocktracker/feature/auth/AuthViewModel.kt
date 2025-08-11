@@ -10,6 +10,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.AndroidViewModel
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.ist.instocktracker.Api
 import com.ist.instocktracker.data.TokenDataStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,6 +24,7 @@ class AuthViewModel(
 
 
     private val credentialManager by lazy { CredentialManager.create(appContext) }
+    private val api by lazy { Api }
     private val WEB_CLIENT_ID = "646354819394-mifsg27c40t85l8gh09su46si6tvcjai.apps.googleusercontent.com"
 
     private val _isSignedIn = MutableStateFlow(false)
@@ -43,6 +45,10 @@ class AuthViewModel(
                 val token = GoogleIdTokenCredential.createFrom(credential.data).idToken
                 Log.d("Token", token ?: "No token found")
                 tokenDataStore.saveGoogleIdToken(token)
+
+                val jwt = api.verifyIdToken(token)
+                tokenDataStore.saveJwt(jwt)
+
                 _isSignedIn.value = true
             }
 

@@ -26,6 +26,7 @@ kotlin {
             implementation(libs.androidx.credential.manager)
             implementation(libs.androidx.credential.manager.google)
             implementation(libs.google.android.libraries.identity.googleid)
+
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -36,9 +37,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(projects.shared) {
-                //exclude(group = "io.ktor", module = "ktor-client-core-jvm")
-            }
+            implementation(projects.shared)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

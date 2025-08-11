@@ -17,25 +17,46 @@ class TokenDataStore(private val context: Context) {
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_preferences")
         private val GOOGLE_ID_TOKEN_KEY = stringPreferencesKey("google_id_token")
+        private val JWT_KEY = stringPreferencesKey("jwt")
     }
 
-    /**
-     * Save the Google ID Token to DataStore
-     * @param token The Google ID Token to save
-     */
+
+    // Google ID Token
     suspend fun saveGoogleIdToken(token: String) {
         context.dataStore.edit { preferences ->
             preferences[GOOGLE_ID_TOKEN_KEY] = token
         }
     }
 
-    /**
-     * Get the Google ID Token from DataStore as a Flow
-     * @return Flow of the Google ID Token, or null if not found
-     */
     fun getGoogleIdToken(): Flow<String?> {
         return context.dataStore.data.map { preferences ->
             preferences[GOOGLE_ID_TOKEN_KEY]
+        }
+    }
+
+    suspend fun clearGoogleIdToken() {
+        context.dataStore.edit { preferences ->
+            preferences.remove(GOOGLE_ID_TOKEN_KEY)
+        }
+    }
+
+    // JWT
+    suspend fun saveJwt(token: TokenResponse) {
+        context.dataStore.edit { preferences ->
+            preferences[JWT_KEY] = token.toJson()
+
+        }
+    }
+
+    suspend fun getJwt(): Flow<TokenResponse?> {
+        return context.dataStore.data.map { preferences ->
+            TokenResponse.fromJson(preferences[JWT_KEY])
+        }
+    }
+
+    suspend fun clearJwt() {
+        context.dataStore.edit { preferences ->
+            preferences.remove(JWT_KEY)
         }
     }
 
@@ -49,12 +70,4 @@ class TokenDataStore(private val context: Context) {
         }
     }
 
-    /**
-     * Clear the Google ID Token from DataStore (logout)
-     */
-    suspend fun clearGoogleIdToken() {
-        context.dataStore.edit { preferences ->
-            preferences.remove(GOOGLE_ID_TOKEN_KEY)
-        }
-    }
 }
