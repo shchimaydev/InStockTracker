@@ -8,6 +8,7 @@ import com.ist.instocktracker.apiHandlers.linkItem.getLinkItem
 import com.ist.instocktracker.apiHandlers.linkItem.postLinkItem
 import com.ist.instocktracker.apiHandlers.linkItem.putLinkItem
 import com.ist.instocktracker.apiHandlers.postGoogleIdTokenVerification
+import com.ist.instocktracker.config.JwtConfig
 import com.ist.instocktracker.data.User
 import com.ist.instocktracker.services.GenAI
 import com.ist.instocktracker.services.IdTokenVerifierService
@@ -26,7 +27,8 @@ import io.ktor.server.sessions.*
 import kotlinx.serialization.json.Json
 
 fun Application.module() {
-    // Install content negotiation for JSON
+    val cfg = environment.config
+
     install(ContentNegotiation) {
         json(Json {
             encodeDefaults = true
@@ -35,7 +37,6 @@ fun Application.module() {
         })
     }
 
-    // Install status pages for error handling
     install(StatusPages) {
         exception<Throwable> { call, cause ->
             call.respond(
@@ -45,48 +46,39 @@ fun Application.module() {
         }
     }
 
-    println("Gemini api key: ${this.environment.config.property("app.gemini.apiKey").getString()}")
-    // Initialize AI model with application config variables
-    GenAI.init(this)
+    println("Gemini api key: ${environment.config.property("app.gemini.apiKey").getString()}")
 
+
+    GenAI.init(this)
     println("Project ID from environment: ${System.getenv("GAE_APPLICATION")}")
     val projectId = System.getenv("GAE_APPLICATION")?.split("~")?.getOrNull(1) ?: "instocktracker-464721"
-
     val location = "europe-west3"
     val serverUrl = "https://$projectId.ey.r.appspot.com"
+    val schedulerService = SchedulerService(
+        location = location,
+        serverBaseUrl = serverUrl
+    )
+    val idTokenVerifierService = IdTokenVerifierService()
+    val jwtConfig = JwtConfig.fromEnvironment(environment)
 
-    // JWT configuration
-    val cfg = environment.config
-    val jwtSecret =
-        cfg.propertyOrNull("app.jwt.secret")?.getString() ?: System.getenv("JWT_SECRET") ?: "dev-secret-change-me"
-    val jwtIssuer =
-        cfg.propertyOrNull("app.jwt.issuer")?.getString() ?: System.getenv("JWT_ISSUER") ?: "instocktracker-server"
-    val jwtAudience =
-        cfg.propertyOrNull("app.jwt.audience")?.getString() ?: System.getenv("JWT_AUDIENCE") ?: "instocktracker-clients"
-    val jwtRealm = cfg.propertyOrNull("app.jwt.realm")?.getString() ?: System.getenv("JWT_REALM") ?: "instocktracker"
-    val accessTtlSec = cfg.propertyOrNull("app.jwt.accessTokenTtlSec")?.getString()?.toLongOrNull() ?: 15 * 60L
-    val refreshTtlSec =
-        cfg.propertyOrNull("app.jwt.refreshTokenTtlSec")?.getString()?.toLongOrNull() ?: 30L * 24 * 60 * 60
-
-    val algorithm = Algorithm.HMAC256(jwtSecret)
 
     install(Sessions) {
         cookie<User>("user") {
             cookie.httpOnly = true
             cookie.secure = !(cfg.propertyOrNull("ktor.development")?.getString()?.toBoolean() ?: true)
-            cookie.maxAgeInSeconds = refreshTtlSec
+            cookie.maxAgeInSeconds = jwtConfig.refreshTokenTtlSec
             cookie.path = "/"
         }
     }
 
     install(Authentication) {
         jwt("auth-jwt") {
-            realm = jwtRealm
+            realm = jwtConfig.realm
             verifier(
                 JWT
-                    .require(algorithm)
-                    .withAudience(jwtAudience)
-                    .withIssuer(jwtIssuer)
+                    .require(Algorithm.HMAC256(jwtConfig.secret))
+                    .withAudience(jwtConfig.audience)
+                    .withIssuer(jwtConfig.issuer)
                     .build()
             )
             validate { credential ->
@@ -100,17 +92,6 @@ fun Application.module() {
         }
     }
 
-    // Provide helpers to generate tokens via attributes
-    environment.monitor.subscribe(ApplicationStarted) {
-        // no-op, placeholders if needed
-    }
-
-    // Initialize the SchedulerService
-    val schedulerService = SchedulerService(
-        location = location,
-        serverBaseUrl = serverUrl
-    )
-    val idTokenVerifierService = IdTokenVerifierService()
 
     routing {
         // Keep the original root endpoint for testing

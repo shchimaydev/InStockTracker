@@ -10,33 +10,31 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.ist.instocktracker.data.TokenDataStore
 import com.ist.instocktracker.navigation.AppNavigation
+import com.ist.instocktracker.services.ServiceLocator
 
 class MainActivity : ComponentActivity() {
-    private lateinit var tokenDataStore: TokenDataStore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        // Initialize TokenDataStore
-        tokenDataStore = TokenDataStore(applicationContext)
+        ServiceLocator.init(applicationContext)
 
         setContent {
-            InStockApp(tokenDataStore)
+            InStockApp()
         }
     }
 }
 
 @Composable
-fun InStockApp(tokenDataStore: TokenDataStore) {
+fun InStockApp() {
     MaterialTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            AppNavigation(tokenDataStore = tokenDataStore)
+            AppNavigation()
         }
     }
 }

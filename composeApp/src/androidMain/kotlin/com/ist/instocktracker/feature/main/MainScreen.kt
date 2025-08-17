@@ -12,7 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ist.instocktracker.data.TokenDataStore
+import com.ist.instocktracker.services.ServiceLocator
 
 /**
  * Main screen that displays the Google ID Token
@@ -20,11 +20,15 @@ import com.ist.instocktracker.data.TokenDataStore
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(tokenDataStore: TokenDataStore, paddingValues: PaddingValues) {
+fun MainScreen(paddingValues: PaddingValues) {
     val scope = rememberCoroutineScope()
 
-    val googleIdToken by tokenDataStore.getGoogleIdToken().collectAsState(initial = "")
-    
+    val tokenStore = ServiceLocator.tokenStore
+    val googleIdToken by tokenStore.getGoogleIdToken().collectAsState(initial = "")
+
+    val token by tokenStore.getJwt().collectAsState(initial = null)
+
+
 
     Column(
         modifier = Modifier
@@ -62,6 +66,11 @@ fun MainScreen(tokenDataStore: TokenDataStore, paddingValues: PaddingValues) {
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = token?.accessToken ?: "No token found",
+                    style = MaterialTheme.typography.bodyMedium
+                )
 
                 Text(
                     text = googleIdToken ?: "No token found",

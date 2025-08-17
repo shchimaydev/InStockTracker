@@ -3,8 +3,8 @@ package com.ist.instocktracker.apiHandlers
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.ist.instocktracker.data.PostGoogleIdVerificationBody
-import com.ist.instocktracker.data.TokenResponse
 import com.ist.instocktracker.data.User
+import com.ist.instocktracker.data.auth.TokenResponse
 import com.ist.instocktracker.services.IdTokenVerifierService
 import io.ktor.http.*
 import io.ktor.server.request.*

@@ -6,13 +6,15 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.ist.instocktracker.data.auth.TokenResponse
+import com.ist.instocktracker.data.interfaces.TokenStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
  * DataStore implementation for storing and retrieving the Google ID Token
  */
-class TokenDataStore(private val context: Context) {
+class TokenDataStore(private val context: Context) : TokenStore {
 
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_preferences")
@@ -22,39 +24,39 @@ class TokenDataStore(private val context: Context) {
 
 
     // Google ID Token
-    suspend fun saveGoogleIdToken(token: String) {
+    override suspend fun saveGoogleIdToken(token: String) {
         context.dataStore.edit { preferences ->
             preferences[GOOGLE_ID_TOKEN_KEY] = token
         }
     }
 
-    fun getGoogleIdToken(): Flow<String?> {
+    override fun getGoogleIdToken(): Flow<String?> {
         return context.dataStore.data.map { preferences ->
             preferences[GOOGLE_ID_TOKEN_KEY]
         }
     }
 
-    suspend fun clearGoogleIdToken() {
+    override suspend fun clearGoogleIdToken() {
         context.dataStore.edit { preferences ->
             preferences.remove(GOOGLE_ID_TOKEN_KEY)
         }
     }
 
     // JWT
-    suspend fun saveJwt(token: TokenResponse) {
+    override suspend fun saveJwt(token: TokenResponse) {
         context.dataStore.edit { preferences ->
             preferences[JWT_KEY] = token.toJson()
 
         }
     }
 
-    suspend fun getJwt(): Flow<TokenResponse?> {
+    override fun getJwt(): Flow<TokenResponse?> {
         return context.dataStore.data.map { preferences ->
             TokenResponse.fromJson(preferences[JWT_KEY])
         }
     }
 
-    suspend fun clearJwt() {
+    override suspend fun clearJwt() {
         context.dataStore.edit { preferences ->
             preferences.remove(JWT_KEY)
         }
@@ -64,7 +66,7 @@ class TokenDataStore(private val context: Context) {
      * Check if the user is authenticated (has a Google ID Token)
      * @return Flow of boolean indicating if the user is authenticated
      */
-    fun isAuthenticated(): Flow<Boolean> {
+    override fun isAuthenticated(): Flow<Boolean> {
         return getGoogleIdToken().map { token ->
             !token.isNullOrEmpty()
         }

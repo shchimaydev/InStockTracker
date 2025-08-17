@@ -1,9 +1,7 @@
 package com.ist.instocktracker.feature.auth
 
-import android.app.Application
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -18,10 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.credentials.exceptions.GetCredentialException
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ist.instocktracker.data.TokenDataStore
 import com.ist.instocktracker.navigation.AppRoutes
+import com.ist.instocktracker.services.ServiceLocator
 import com.ist.instocktracker.utils.LocalNavController
 import kotlinx.coroutines.launch
 
@@ -32,16 +28,11 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun AuthScreen(
-    //onSignInSuccess: () -> Unit,
-    tokenDataStore: TokenDataStore
 ) {
     val navController = LocalNavController.current
     val context = LocalContext.current
-    val authVm = viewModel(viewModelStoreOwner = context as ComponentActivity) {
-        AuthViewModel(
-            tokenDataStore = tokenDataStore, appContext = context.applicationContext as Application
-        )
-    }
+
+    val sessionManager = ServiceLocator.sessionManager
     val coroutineScope = rememberCoroutineScope()
 
 
@@ -66,11 +57,11 @@ fun AuthScreen(
             onClick = {
                 coroutineScope.launch {
                     try {
-                        authVm.signIn(context)
+                        sessionManager.signIn()
                         navController.navigate(AppRoutes.MAIN) {
                             popUpTo(AppRoutes.AUTH) { inclusive = true }
                         }
-                    } catch (e: GetCredentialException) {
+                    } catch (e: Exception) {
                         Log.e("AuthScreen", "Error during sign-in: ${e.message}")
                         Toast.makeText(
                             context,

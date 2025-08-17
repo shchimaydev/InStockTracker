@@ -1,7 +1,6 @@
-package com.ist.instocktracker.data
+package com.ist.instocktracker.data.auth
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Serializable
@@ -12,14 +11,14 @@ data class TokenResponse(
     val expiresIn: Long
 ) {
     fun toJson(): String {
-        return Json.encodeToString(this)
+        return Json.Default.encodeToString(this)
     }
 
     companion object {
         fun fromJson(jsonString: String?): TokenResponse? {
             return if (jsonString != null) {
                 try {
-                    Json.decodeFromString<TokenResponse>(jsonString)
+                    Json.Default.decodeFromString<TokenResponse>(jsonString)
                 } catch (e: Exception) {
                     // Handle potential parsing errors
                     null

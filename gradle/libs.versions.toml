@@ -25,6 +25,7 @@ logback = "1.5.18"
 selenium = "4.22.0"
 mockk = "1.14.5"
 google-api-client = "2.8.0"
+datastoreCoreAndroid = "1.1.7"
 
 
 
@@ -41,10 +42,11 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-ktor-serverCore = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
-ktor-serverNetty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
-ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm", version.ref = "ktor" }
-ktor-contentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host-jvm", version.ref = "ktor" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-statusPages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -53,6 +55,7 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-sessions = { module = "io.ktor:ktor-server-sessions", version.ref = "ktor" }
 ktor-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
+ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
 google-cloud-bom = { group = "com.google.cloud", name = "libraries-bom", version.ref = "google-cloud" }
 google-cloud-firestore = { group = "com.google.cloud", name = "google-cloud-firestore" }
@@ -69,6 +72,7 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 androidx-credential-manager = { module = "androidx.credentials:credentials", version.ref = "credential-manager" }
 androidx-credential-manager-google = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credential-manager" }
 google-android-libraries-identity-googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version = "1.1.1" }
+androidx-datastore-core-android = { group = "androidx.datastore", name = "datastore-core-android", version.ref = "datastoreCoreAndroid" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

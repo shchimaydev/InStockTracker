@@ -44,9 +44,9 @@ tasks.register<Exec>("deploy") {
 dependencies {
     implementation(projects.shared)
     implementation(libs.logback)
-    implementation(libs.ktor.serverCore)
-    implementation(libs.ktor.serverNetty)
-    implementation(libs.ktor.contentNegotiation)
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.statusPages)
     implementation(libs.ktor.sessions)
@@ -64,7 +64,7 @@ dependencies {
 
 
 
-    testImplementation(libs.ktor.serverTestHost)
+    testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.testJunit)
     testImplementation(libs.mockk)
 }
