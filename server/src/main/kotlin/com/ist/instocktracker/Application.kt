@@ -2,6 +2,7 @@ package com.ist.instocktracker
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.google.firebase.FirebaseApp
 import com.ist.instocktracker.apiHandlers.linkItem.check.postCheck
 import com.ist.instocktracker.apiHandlers.linkItem.deleteLinkItem
 import com.ist.instocktracker.apiHandlers.linkItem.getLinkItem
@@ -9,10 +10,10 @@ import com.ist.instocktracker.apiHandlers.linkItem.postLinkItem
 import com.ist.instocktracker.apiHandlers.linkItem.putLinkItem
 import com.ist.instocktracker.apiHandlers.postGoogleIdTokenVerification
 import com.ist.instocktracker.config.JwtConfig
-import com.ist.instocktracker.data.User
-import com.ist.instocktracker.services.GenAI
+import com.ist.instocktracker.plugins.UserFromPrincipal
 import com.ist.instocktracker.services.IdTokenVerifierService
 import com.ist.instocktracker.services.SchedulerService
+import com.ist.instocktracker.services.ServiceProvider
 import com.ist.instocktracker.services.db.FirestoreProvider
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -23,11 +24,11 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.sessions.*
 import kotlinx.serialization.json.Json
 
 fun Application.module() {
     val cfg = environment.config
+    FirebaseApp.initializeApp()
 
     install(ContentNegotiation) {
         json(Json {
@@ -49,7 +50,8 @@ fun Application.module() {
     println("Gemini api key: ${environment.config.property("app.gemini.apiKey").getString()}")
 
 
-    GenAI.init(this)
+    ServiceProvider.init(application = this)
+
     println("Project ID from environment: ${System.getenv("GAE_APPLICATION")}")
     val projectId = System.getenv("GAE_APPLICATION")?.split("~")?.getOrNull(1) ?: "instocktracker-464721"
     val location = "europe-west3"
@@ -61,15 +63,15 @@ fun Application.module() {
     val idTokenVerifierService = IdTokenVerifierService()
     val jwtConfig = JwtConfig.fromEnvironment(environment)
 
-
-    install(Sessions) {
-        cookie<User>("user") {
-            cookie.httpOnly = true
-            cookie.secure = !(cfg.propertyOrNull("ktor.development")?.getString()?.toBoolean() ?: true)
-            cookie.maxAgeInSeconds = jwtConfig.refreshTokenTtlSec
-            cookie.path = "/"
-        }
-    }
+//
+//    install(Sessions) {
+//        cookie<User>("user") {
+//            cookie.httpOnly = true
+//            cookie.secure = !(cfg.propertyOrNull("ktor.development")?.getString()?.toBoolean() ?: true)
+//            cookie.maxAgeInSeconds = jwtConfig.refreshTokenTtlSec
+//            cookie.path = "/"
+//        }
+//    }
 
     install(Authentication) {
         jwt("auth-jwt") {
@@ -82,9 +84,15 @@ fun Application.module() {
                     .build()
             )
             validate { credential ->
-                if (credential.payload.getClaim("sub").asString()
+                if (credential.payload
+                        .getClaim("sub")
+                        .asString()
                         .isNullOrBlank()
-                ) null else JWTPrincipal(credential.payload)
+                ) {
+                    null
+                } else {
+                    JWTPrincipal(credential.payload)
+                }
             }
             challenge { _, _ ->
                 call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Invalid or missing token"))
@@ -104,6 +112,8 @@ fun Application.module() {
         route("api/v1") {
             route("link-item") {
                 authenticate("auth-jwt") {
+                    install(UserFromPrincipal)
+
                     getLinkItem()
                     postLinkItem(schedulerService)
                     putLinkItem()

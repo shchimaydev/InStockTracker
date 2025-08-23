@@ -5,10 +5,8 @@ import com.google.genai.types.GenerateContentResponse
 import com.google.genai.types.Part
 import com.ist.instocktracker.data.CheckResponse
 import com.ist.instocktracker.data.LinkItem
-import com.ist.instocktracker.data.toLinkItem
-import com.ist.instocktracker.services.GenAI
+import com.ist.instocktracker.services.ServiceProvider
 import com.ist.instocktracker.services.db.FirestoreProvider.db
-import com.ist.instocktracker.services.db.FirestoreProvider.linksCollection
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -32,27 +30,19 @@ import java.util.*
 fun Route.postCheck() {
     post("{id}/check") {
         try {
+            val linkItemRepository = ServiceProvider.linkItemRepository
             // Get the link item ID from the path parameters
             val id = call.parameters["id"] ?: return@post call.respond(
                 HttpStatusCode.BadRequest,
                 mapOf("error" to "Missing or invalid ID")
             )
 
-            // Fetch the link item from Firestore
-            val docRef = db.collection(linksCollection).document(id)
-            val snapshot = withContext(Dispatchers.IO) {
-                docRef.get().get()
-            }
+            val docRef = linkItemRepository.getReference(id)
+            val linkItem = linkItemRepository.get(id) ?: return@post call.respond(
+                HttpStatusCode.NotFound,
+                "Link item was not found"
+            )
 
-            // Convert the snapshot to a LinkItem
-            val linkItem = snapshot.toLinkItem()
-            if (linkItem == null) {
-                call.respond(
-                    HttpStatusCode.NotFound,
-                    mapOf("error" to "Link item not found")
-                )
-                return@post
-            }
 
             println("Checking link item: $linkItem")
 
@@ -188,7 +178,7 @@ suspend fun evaluateWithAI(imageBytes: ByteArray, linkItem: LinkItem): Boolean {
             //val imageBytes = Files.readAllBytes(Paths.get(imagePath))
             val contents =
                 Content.builder().parts(Part.fromBytes(imageBytes, "image/png"), Part.fromText(prompt)).build()
-            val response: GenerateContentResponse = GenAI.geminiClient.models.generateContent(
+            val response: GenerateContentResponse = ServiceProvider.genAi.geminiClient.models.generateContent(
                 "gemini-2.5-flash",
                 contents, null
             )

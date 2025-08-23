@@ -6,16 +6,17 @@ import com.ist.instocktracker.data.PostGoogleIdVerificationBody
 import com.ist.instocktracker.data.User
 import com.ist.instocktracker.data.auth.TokenResponse
 import com.ist.instocktracker.services.IdTokenVerifierService
+import com.ist.instocktracker.services.ServiceProvider
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.sessions.*
 import java.util.*
 
 
 fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierService) {
     post("id-verification") {
+        val userRepository = ServiceProvider.userRepository
         val (id) = call.receive<PostGoogleIdVerificationBody>()
 
         val payload = idTokenVerifierService.verify(id) ?: return@post call.respond(
@@ -30,8 +31,12 @@ fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierS
         val email = payload.email
         val name = payload["name"] as? String
 
-        // Create user session
-        call.sessions.set(User(name = name, email = email, googleIdToken = id))
+
+        val user = User(id = userId, name = name, email = email, googleIdToken = id)
+        val doesUserExist = userRepository.exists(userId)
+        if (!doesUserExist) {
+            userRepository.save(user)
+        }
 
         // Read JWT configuration
         val cfg = call.application.environment.config

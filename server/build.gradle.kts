@@ -43,7 +43,7 @@ tasks.register<Exec>("deploy") {
 
 dependencies {
     implementation(projects.shared)
-    implementation(libs.logback)
+
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.content.negotiation)
@@ -52,18 +52,20 @@ dependencies {
     implementation(libs.ktor.sessions)
     implementation(libs.ktor.auth)
     implementation(libs.ktor.auth.jwt)
+
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.jdk)
+
     implementation(platform(libs.google.cloud.bom))
     implementation(libs.google.cloud.firestore)
     implementation(libs.google.cloud.scheduler)
     implementation(libs.google.api.client)
     implementation(libs.google.genai)
+    implementation(libs.google.firebase.admin)
+
     implementation(libs.selenium)
-
-
-
+    implementation(libs.logback)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.testJunit)
     testImplementation(libs.mockk)

@@ -5,11 +5,8 @@ import com.google.cloud.firestore.FirestoreOptions
 
 object FirestoreProvider {
 
-    val linksCollection = "links"
-
     // You can get your project ID from the Google Cloud Console
     private const val PROJECT_ID = "instocktracker-464721"
-
 
 
     // Use a lazy delegate to initialize the client only when it's first needed.
@@ -22,11 +19,12 @@ object FirestoreProvider {
         firestoreOptions.service
     }
 
+
     fun checkConnection() {
-        try {
+        return try {
             println("Attempting to connect to Firestore...")
-            val collectionIds = db.listCollections().forEach { it.id }
-            println("Successfully connected to Firestore. Found collections: $collectionIds.")
+            val collectionIds = db.listCollections().map { it.id }
+            println("Successfully connected to Firestore. Found collections: ${collectionIds}.")
         } catch (e: Exception) {
             println("Error connecting to Firestore: ${e.message}")
             e.printStackTrace()

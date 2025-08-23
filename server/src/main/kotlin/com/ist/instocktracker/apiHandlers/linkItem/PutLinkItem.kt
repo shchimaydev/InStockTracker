@@ -2,9 +2,8 @@ package com.ist.instocktracker.apiHandlers.linkItem
 
 import com.google.cloud.firestore.SetOptions
 import com.ist.instocktracker.data.LinkItem
-import com.ist.instocktracker.data.toLinkItem
-import com.ist.instocktracker.services.db.FirestoreProvider.db
-import com.ist.instocktracker.services.db.FirestoreProvider.linksCollection
+import com.ist.instocktracker.data.mappers.toLinkItem
+import com.ist.instocktracker.services.ServiceProvider
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -18,6 +17,7 @@ import kotlinx.coroutines.withContext
  */
 fun Route.putLinkItem() {
     put("{id}") {
+        val linkItemRepository = ServiceProvider.linkItemRepository
         val id = call.parameters["id"] ?: return@put call.respond(
             HttpStatusCode.BadRequest,
             mapOf("error" to "Missing or invalid ID")
@@ -28,7 +28,7 @@ fun Route.putLinkItem() {
         // Create a map of the LinkItem fields
         val itemData = linkItem.toMap()
 
-        val docRef = db.collection(linksCollection).document(id)
+        val docRef = linkItemRepository.collection.document(id)
 
         // Check if document exists
         val exists = withContext(Dispatchers.IO) {

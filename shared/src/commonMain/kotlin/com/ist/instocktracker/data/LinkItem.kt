@@ -16,7 +16,7 @@ enum class DurationUnit {
 
 
 @Serializable
-data class Interval (
+data class Interval(
     val unit: Int = 1,
     val duration: DurationUnit = DurationUnit.HOURS
 )
@@ -25,6 +25,7 @@ data class Interval (
 data class LinkItem(
     @DocumentId
     val id: String = "",
+    val userId: String? = null,
     val label: String? = null,
     val link: String = "",
     val mode: Mode = Mode.IN_STOCK,
@@ -40,6 +41,7 @@ data class LinkItem(
     fun toMap(): Map<String, Any?> {
         return mapOf(
             "link" to link,
+            "userId" to userId,
             "mode" to mode.name,
             "startAt" to startAt,
             "additionalInstructions" to additionalInstructions,
