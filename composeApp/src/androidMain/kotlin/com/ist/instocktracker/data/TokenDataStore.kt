@@ -1,6 +1,7 @@
 package com.ist.instocktracker.data
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -46,7 +47,6 @@ class TokenDataStore(private val context: Context) : TokenStore {
     override suspend fun saveJwt(token: TokenResponse) {
         context.dataStore.edit { preferences ->
             preferences[JWT_KEY] = token.toJson()
-
         }
     }
 
@@ -57,6 +57,7 @@ class TokenDataStore(private val context: Context) : TokenStore {
     }
 
     override suspend fun clearJwt() {
+        Log.d("TokenDataStore", "clearJwt called")
         context.dataStore.edit { preferences ->
             preferences.remove(JWT_KEY)
         }
@@ -67,9 +68,7 @@ class TokenDataStore(private val context: Context) : TokenStore {
      * @return Flow of boolean indicating if the user is authenticated
      */
     override fun isAuthenticated(): Flow<Boolean> {
-        return getGoogleIdToken().map { token ->
-            !token.isNullOrEmpty()
-        }
+        return getJwt().map { it != null }
     }
 
 }

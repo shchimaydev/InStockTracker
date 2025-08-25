@@ -7,6 +7,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,16 +18,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ist.instocktracker.navigation.AppRoutes
 import com.ist.instocktracker.services.ServiceLocator
 import com.ist.instocktracker.utils.LocalNavController
 import kotlinx.coroutines.launch
 
-/**
- * Auth screen with Google Sign-In button
- * @param onSignInSuccess Callback when sign-in is successful
- * @param tokenDataStore DataStore for storing the Google ID Token
- */
 @Composable
 fun AuthScreen(
 ) {
@@ -34,7 +30,11 @@ fun AuthScreen(
 
     val sessionManager = ServiceLocator.sessionManager
     val coroutineScope = rememberCoroutineScope()
-
+    val isSignedIn by sessionManager.isSignedIn.collectAsState(initial = false)
+//    LaunchedEffect(isSignedIn) {
+//        Log.d("AuthScreen", "isSignedIn: $isSignedIn")
+//        //if (isSignedIn) navController.navigate(AppRoutes.MAIN)
+//    }
 
     Column(
         modifier = Modifier
@@ -58,9 +58,7 @@ fun AuthScreen(
                 coroutineScope.launch {
                     try {
                         sessionManager.signIn()
-                        navController.navigate(AppRoutes.MAIN) {
-                            popUpTo(AppRoutes.AUTH) { inclusive = true }
-                        }
+
                     } catch (e: Exception) {
                         Log.e("AuthScreen", "Error during sign-in: ${e.message}")
                         Toast.makeText(

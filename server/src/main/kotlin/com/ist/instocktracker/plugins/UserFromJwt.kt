@@ -14,22 +14,52 @@ val UserAttributeKey = AttributeKey<User>("user")
 
 // 2. This is our custom plugin. It's a "Route Scoped Plugin"
 val UserFromPrincipal = createRouteScopedPlugin("UserFromPrincipal") {
-    onCall { call ->
+    on(AuthenticationChecked) { call ->
+        val authHeader = call.request.headers["Authorization"]
+        println("Bearer: $authHeader")
+        val pr = call.principal<JWTPrincipal>()
+        println("Principal: $pr")
 
-        val principal = call.principal<JWTPrincipal>() ?: return@onCall call.respond(
-            HttpStatusCode.Unauthorized,
-            mapOf("error" to "Missing authentication principal")
-        )
+//        call.respond(
+//            HttpStatusCode.Unauthorized,
+//            mapOf("error" to "Missing authentication principal")
+//        )
+        call.principal<JWTPrincipal>()?.let {
+            val user = ServiceProvider.userRepository.get(it.payload.subject) ?: return@on call.respond(
+                HttpStatusCode.Forbidden,
+                mapOf("error" to "User not found or inactive")
+            )
 
-        val user = ServiceProvider.userRepository.get(principal.payload.subject) ?: return@onCall call.respond(
-            HttpStatusCode.Forbidden,
-            mapOf("error" to "User not found or inactive")
-        )
+            println("User from JWT: $user")
+            call.attributes.put(UserAttributeKey, user)
+        }
 
-        println("User from JWT: $user")
-        call.attributes.put(UserAttributeKey, user)
     }
+
+//    onCall { call ->
+//        val authHeader = call.request.headers["Authorization"]
+//        println("Bearer: $authHeader")
+//        val pr = call.principal<JWTPrincipal>()
+//        println("Principal: $pr")
+//
+////        call.respond(
+////            HttpStatusCode.Unauthorized,
+////            mapOf("error" to "Missing authentication principal")
+////        )
+//        call.principal<JWTPrincipal>()?.let {
+//            val user = ServiceProvider.userRepository.get(it.payload.subject) ?: return@onCall call.respond(
+//                HttpStatusCode.Forbidden,
+//                mapOf("error" to "User not found or inactive")
+//            )
+//
+//            println("User from JWT: $user")
+//            call.attributes.put(UserAttributeKey, user)
+//        }
+//
+//
+//    }
 }
+
 
 // 3. (Optional but highly recommended) Create a helper extension function for easy access
 // This makes retrieving the user in your route handlers much cleaner.

@@ -2,12 +2,8 @@ package com.ist.instocktracker
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.google.firebase.FirebaseApp
+import com.ist.instocktracker.apiHandlers.linkItem.*
 import com.ist.instocktracker.apiHandlers.linkItem.check.postCheck
-import com.ist.instocktracker.apiHandlers.linkItem.deleteLinkItem
-import com.ist.instocktracker.apiHandlers.linkItem.getLinkItem
-import com.ist.instocktracker.apiHandlers.linkItem.postLinkItem
-import com.ist.instocktracker.apiHandlers.linkItem.putLinkItem
 import com.ist.instocktracker.apiHandlers.postGoogleIdTokenVerification
 import com.ist.instocktracker.config.JwtConfig
 import com.ist.instocktracker.plugins.UserFromPrincipal
@@ -28,7 +24,7 @@ import kotlinx.serialization.json.Json
 
 fun Application.module() {
     val cfg = environment.config
-    FirebaseApp.initializeApp()
+    //FirebaseApp.initializeApp()
 
     install(ContentNegotiation) {
         json(Json {
@@ -84,8 +80,9 @@ fun Application.module() {
                     .build()
             )
             validate { credential ->
+                println("Validating JWT token ${credential.payload}")
                 if (credential.payload
-                        .getClaim("sub")
+                        .getClaim("email")
                         .asString()
                         .isNullOrBlank()
                 ) {
@@ -95,6 +92,8 @@ fun Application.module() {
                 }
             }
             challenge { _, _ ->
+                val failureCause = call.authentication.allFailures.joinToString("\n") { it.toString() }
+                println("Invalid or missing token in authentication header. Cause: $failureCause")
                 call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Invalid or missing token"))
             }
         }
@@ -110,11 +109,12 @@ fun Application.module() {
 
         // API v1 routes
         route("api/v1") {
-            route("link-item") {
+            route("link-items") {
                 authenticate("auth-jwt") {
                     install(UserFromPrincipal)
 
                     getLinkItem()
+                    getLinkItemsForUser()
                     postLinkItem(schedulerService)
                     putLinkItem()
                     deleteLinkItem()

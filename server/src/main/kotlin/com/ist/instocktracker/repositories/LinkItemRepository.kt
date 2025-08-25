@@ -46,6 +46,17 @@ class LinkItemRepository(db: Firestore) {
         return collection.document(id)
     }
 
+    suspend fun getAll(): List<LinkItem> {
+        return try {
+            withContext(Dispatchers.IO) {
+                collection.get().get().documents.mapNotNull { it.toLinkItem() }
+            }
+        } catch (e: Exception) {
+            println("Error getting all link items: ${e.message}")
+            emptyList()
+        }
+    }
+
 
     suspend fun get(id: String): LinkItem? {
         val docRef = collection.document(id) // Get the DocumentReference

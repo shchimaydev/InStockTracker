@@ -1,8 +1,7 @@
 package com.ist.instocktracker
 
+import com.ist.instocktracker.data.LinkItem
 import com.ist.instocktracker.data.PostGoogleIdVerificationBody
-import com.ist.instocktracker.data.auth.RefreshTokenException
-import com.ist.instocktracker.data.auth.RefreshTokenRequest
 import com.ist.instocktracker.data.auth.TokenResponse
 import com.ist.instocktracker.data.interfaces.TokenStore
 import io.ktor.client.*
@@ -16,8 +15,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 
-class Api(private val tokenStore: TokenStore) {
-    private val isDev = true
+class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
     private val prodHost = "https://instocktracker-464721.ey.r.appspot.com"
     private val localHost = "http://10.0.2.2:8080"
     private val host = if (isDev) localHost else prodHost
@@ -37,28 +35,29 @@ class Api(private val tokenStore: TokenStore) {
             bearer {
                 loadTokens {
                     val tokens = tokenStore.getJwt().first()
+                    println("authClient tokens: $tokens")
                     tokens?.let { BearerTokens(it.accessToken, it.refreshToken) }
                 }
-                refreshTokens {
-                    val currentTokens = tokenStore.getJwt().first()
-                    val refreshToken = currentTokens?.refreshToken ?: return@refreshTokens null
-
-                    try {
-                        val tokenResponse: TokenResponse = nonAuthClient.post("$host/api/v1/token-refresh") {
-                            markAsRefreshTokenRequest()
-                            contentType(ContentType.Application.Json)
-                            setBody(RefreshTokenRequest(refreshToken))
-                        }.body()
-
-                        tokenStore.saveJwt(tokenResponse)
-                        BearerTokens(tokenResponse.accessToken, tokenResponse.refreshToken)
-                    } catch (e: Exception) {
-                        tokenStore.clearJwt()
-                        throw RefreshTokenException("Failed to refresh token. Session expired.", e)
-
-                    }
-
-                }
+//                refreshTokens {
+//                    val currentTokens = tokenStore.getJwt().first()
+//                    val refreshToken = currentTokens?.refreshToken ?: return@refreshTokens null
+//
+//                    try {
+//                        val tokenResponse: TokenResponse = nonAuthClient.post("$host/api/v1/token-refresh") {
+//                            markAsRefreshTokenRequest()
+//                            contentType(ContentType.Application.Json)
+//                            setBody(RefreshTokenRequest(refreshToken))
+//                        }.body()
+//
+//                        tokenStore.saveJwt(tokenResponse)
+//                        BearerTokens(tokenResponse.accessToken, tokenResponse.refreshToken)
+//                    } catch (e: Exception) {
+//                        tokenStore.clearJwt()
+//                        throw RefreshTokenException("Failed to refresh token. Session expired.", e)
+//
+//                    }
+//
+//                }
             }
         }
     }
@@ -70,5 +69,15 @@ class Api(private val tokenStore: TokenStore) {
                 contentType(ContentType.Application.Json)
                 setBody(PostGoogleIdVerificationBody(idToken))
             }.body<TokenResponse>()
+    }
+
+    suspend fun getLinkItemsForUser(): List<LinkItem> {
+        return authClient.get("$host/api/v1/link-items") {
+//            val tokens = tokenStore.getJwt().first()
+//            println("Getting link items for user with token: ${tokens?.accessToken}")
+//            headers {
+//                append(HttpHeaders.Authorization, "Bearer ${tokens?.accessToken}")
+//            }
+        }.body<List<LinkItem>>()
     }
 }

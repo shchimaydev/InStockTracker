@@ -1,17 +1,19 @@
 package com.ist.instocktracker.feature.main
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ist.instocktracker.services.ServiceLocator
 
 /**
@@ -21,15 +23,24 @@ import com.ist.instocktracker.services.ServiceLocator
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(paddingValues: PaddingValues) {
+    Log.d("MainScreen", "MainScreen called")
     val scope = rememberCoroutineScope()
 
     val tokenStore = ServiceLocator.tokenStore
     val googleIdToken by tokenStore.getGoogleIdToken().collectAsState(initial = "")
 
     val token by tokenStore.getJwt().collectAsState(initial = null)
+    val mainVm = viewModel<MainVIewModel> { MainVIewModel(ServiceLocator.api) }
 
+    val linkItems by mainVm.linkItems.collectAsState(initial = emptyList())
 
+    LaunchedEffect(linkItems) {
+        Log.d("MainScreen", "linkItems: $linkItems")
+    }
 
+    LaunchedEffect(mainVm) {
+        mainVm.getLinkItems()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -49,35 +60,23 @@ fun MainScreen(paddingValues: PaddingValues) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Display the Google ID Token
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
+        linkItems.forEach { linkItem ->
+            Card(
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+
             ) {
-                Text(
-                    text = "Google ID Token:",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Column(
+                    modifier = Modifier
+                        .padding(10.dp)
+                ) { Text(text = linkItem.label ?: "No label") }
 
-                Text(
-                    text = token?.accessToken ?: "No token found",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                Text(
-                    text = googleIdToken ?: "No token found",
-                    style = MaterialTheme.typography.bodyMedium
-                )
             }
         }
+
     }
 
 

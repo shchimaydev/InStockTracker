@@ -15,8 +15,7 @@ import com.ist.instocktracker.data.auth.RefreshTokenException
 import com.ist.instocktracker.data.auth.SessionManager
 import com.ist.instocktracker.data.interfaces.TokenStore
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 
 class AndroidSessionManager(
     private val context: Context,
@@ -25,8 +24,8 @@ class AndroidSessionManager(
 ) : SessionManager {
     private val WEB_CLIENT_ID = "646354819394-mifsg27c40t85l8gh09su46si6tvcjai.apps.googleusercontent.com"
 
-    private val _isSignedIn = MutableStateFlow(false)
-    val isSignedIn: StateFlow<Boolean> = _isSignedIn.asStateFlow()
+    //private val _isSignedIn = MutableStateFlow(false)
+    override val isSignedIn = MutableStateFlow(false)
 
     private val credentialManager = CredentialManager.create(context)
 
@@ -89,17 +88,12 @@ class AndroidSessionManager(
                 try {
                     val jwt = api.verifyIdToken(token)
                     tokenStore.saveJwt(jwt)
-                    _isSignedIn.value = true
+                    val tokenFromStore = tokenStore.getJwt().first()
+                    isSignedIn.value = tokenFromStore != null
                 } catch (e: Exception) {
                     Log.e("AndroidSessionManager", "Error during sign-in: ${e.message}")
                     throw e
                 }
-
-            }
-
-            else -> {
-                // Handle other credential types if needed
-                _isSignedIn.value = true
             }
         }
     }
@@ -108,7 +102,7 @@ class AndroidSessionManager(
         tokenStore.clearGoogleIdToken()
         tokenStore.clearJwt()
         credentialManager.clearCredentialState(request = ClearCredentialStateRequest())
-        _isSignedIn.value = false
+        isSignedIn.value = false
     }
 
     override suspend fun <T> runWithAuth(block: suspend (api: Api) -> T): T {

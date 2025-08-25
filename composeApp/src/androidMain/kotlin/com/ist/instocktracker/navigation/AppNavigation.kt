@@ -1,9 +1,7 @@
 package com.ist.instocktracker.navigation
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import android.util.Log
+import androidx.compose.runtime.*
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,8 +10,9 @@ import androidx.navigation.navigation
 import com.ist.instocktracker.feature.auth.AuthScreen
 import com.ist.instocktracker.feature.main.MainScaffold
 import com.ist.instocktracker.feature.main.MainScreen
-import com.ist.instocktracker.services.ServiceLocator
+import com.ist.instocktracker.services.ServiceLocator.tokenStore
 import com.ist.instocktracker.utils.LocalNavController
+import kotlinx.coroutines.flow.first
 
 /**
  * Navigation routes for the app
@@ -35,15 +34,22 @@ fun AppNavigation(
     navController: NavHostController = rememberNavController(),
     startDestination: String = AppRoutes.AUTH
 ) {
-    val tokenStore = ServiceLocator.tokenStore
+//    val tokenStore = ServiceLocator.tokenStore
     val isAuthenticated by tokenStore.isAuthenticated().collectAsState(initial = false)
 
-    // If user is authenticated, navigate to main screen
-    if (isAuthenticated && navController.currentDestination?.route == AppRoutes.AUTH) {
-        navController.navigate(AppRoutes.MAIN) {
-            popUpTo(AppRoutes.AUTH) { inclusive = true }
+
+    LaunchedEffect(isAuthenticated) {
+        Log.d("AppNavigation", "isAuthenticated: ${tokenStore.getJwt().first()}")
+        if (isAuthenticated && navController.currentDestination?.route == AppRoutes.AUTH) {
+            navController.navigate(AppRoutes.MAIN) {
+                popUpTo(AppRoutes.AUTH) { inclusive = true }
+            }
+        } else if (!isAuthenticated && navController.currentDestination?.route != AppRoutes.MAIN) {
+            navController.navigate(AppRoutes.AUTH)
         }
     }
+    // If user is authenticated, navigate to main screen
+
 
     CompositionLocalProvider(LocalNavController provides navController) {
         NavHost(
