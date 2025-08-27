@@ -74,7 +74,7 @@ fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierS
                 .withIssuedAt(Date(now))
                 .withExpiresAt(Date(now + accessTtlSec * 1000))
                 .sign(algorithm)
-
+            
             val refreshToken = JWT.create()
                 .withAudience(jwtAudience)
                 .withIssuer(jwtIssuer)

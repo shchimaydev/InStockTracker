@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.ist.instocktracker.apiHandlers.linkItem.*
 import com.ist.instocktracker.apiHandlers.linkItem.check.postCheck
 import com.ist.instocktracker.apiHandlers.postGoogleIdTokenVerification
+import com.ist.instocktracker.apiHandlers.postTokenRefresh
 import com.ist.instocktracker.config.JwtConfig
 import com.ist.instocktracker.plugins.UserFromPrincipal
 import com.ist.instocktracker.services.IdTokenVerifierService
@@ -82,7 +83,7 @@ fun Application.module() {
             validate { credential ->
                 println("Validating JWT token ${credential.payload}")
                 if (credential.payload
-                        .getClaim("email")
+                        .getClaim("sub")
                         .asString()
                         .isNullOrBlank()
                 ) {
@@ -124,6 +125,7 @@ fun Application.module() {
             }
 
             postGoogleIdTokenVerification(idTokenVerifierService)
+            postTokenRefresh(jwtConfig)
         }
     }
 }
