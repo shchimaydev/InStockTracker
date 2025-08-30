@@ -1,6 +1,7 @@
 package com.ist.instocktracker.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.ist.instocktracker.R
 import com.ist.instocktracker.data.LinkItem
 import com.ist.instocktracker.data.getDisplayName
+import com.ist.instocktracker.navigation.AppRoutes
 import com.ist.instocktracker.utils.LocalNavController
 
 @Composable
@@ -42,7 +44,10 @@ fun LinkItemCard(linkItem: LinkItem) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .clickable {
+                nav.navigate("${AppRoutes.ADD_EDIT_LINK_ITEM}?linkItemId=${linkItem.id}")
+            },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(4.dp)

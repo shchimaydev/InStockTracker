@@ -41,6 +41,7 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
                     tokens?.let { BearerTokens(it.accessToken, it.refreshToken) }
                 }
                 refreshTokens {
+                    println("authClient refreshTokens")
                     val currentTokens = tokenStore.getJwt().first()
                     val refreshToken = currentTokens?.refreshToken ?: return@refreshTokens null
 
@@ -57,6 +58,7 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
                         tokenStore.saveJwt(tokenResponse)
                         BearerTokens(tokenResponse.accessToken, tokenResponse.refreshToken)
                     } catch (e: Exception) {
+                        println("About to clearJwt")
                         tokenStore.clearJwt()
                         throw RefreshTokenException("Failed to refresh token. Session expired.", e)
                     }
@@ -77,5 +79,24 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
     suspend fun getLinkItemsForUser(): List<LinkItem> {
         return authClient.get("$host/api/v1/link-items") {
         }.body<List<LinkItem>>()
+    }
+
+    suspend fun getLinkItem(id: String): LinkItem {
+        return authClient.get("$host/api/v1/link-items/$id") {
+        }.body<LinkItem>()
+    }
+
+    suspend fun createLinkItem(linkItem: LinkItem): LinkItem {
+        return authClient.post("$host/api/v1/link-items") {
+            contentType(ContentType.Application.Json)
+            setBody(linkItem)
+        }.body<LinkItem>()
+    }
+
+    suspend fun updateLinkItem(id: String, linkItem: LinkItem): LinkItem {
+        return authClient.put("$host/api/v1/link-items/$id") {
+            contentType(ContentType.Application.Json)
+            setBody(linkItem)
+        }.body<LinkItem>()
     }
 }

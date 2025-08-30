@@ -21,6 +21,7 @@ fun Route.postTokenRefresh(jwtConfig: JwtConfig) {
 
         post("/token-refresh") {
             try {
+                println("Refresh token endpoint called")
                 // Get the refresh token from request body
                 val (refreshToken) = call.receive<RefreshTokenRequest>()
 

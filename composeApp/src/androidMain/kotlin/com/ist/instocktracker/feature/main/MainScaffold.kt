@@ -78,7 +78,12 @@ fun MainScaffold(content: @Composable (paddingValue: PaddingValues) -> Unit) {
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(containerColor = Color.White, onClick = {}) {
+                FloatingActionButton(
+                    containerColor = Color.White, 
+                    onClick = {
+                        navController.navigate(AppRoutes.ADD_EDIT_LINK_ITEM)
+                    }
+                ) {
                     Icon(Icons.Filled.Add, contentDescription = "Add new item")
                 }
             },

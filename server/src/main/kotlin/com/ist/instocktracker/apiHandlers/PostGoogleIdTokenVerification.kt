@@ -58,9 +58,10 @@ fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierS
             val jwtAudience = cfg.propertyOrNull("app.jwt.audience")?.getString() ?: System.getenv("JWT_AUDIENCE")
             ?: "instocktracker-clients"
             val accessTtlSec =
-                cfg.propertyOrNull("app.jwt.accessTokenTtlSec")?.getString()?.toLongOrNull() ?: (60 * 60L)
+                cfg.propertyOrNull("app.jwt.accessTokenTtlSec")?.getString()?.toLongOrNull() ?: (60 * 60L) // 1 hour
             val refreshTtlSec =
-                cfg.propertyOrNull("app.jwt.refreshTokenTtlSec")?.getString()?.toLongOrNull() ?: 30L * 24 * 60 * 60
+                cfg.propertyOrNull("app.jwt.refreshTokenTtlSec")?.getString()?.toLongOrNull()
+                    ?: 30L * 24 * 60 * 60 // 1 day
 
             val algorithm = Algorithm.HMAC256(jwtSecret)
             val now = System.currentTimeMillis()
@@ -81,7 +82,7 @@ fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierS
                 .withSubject(userId)
                 .withClaim("type", "refresh")
                 .withIssuedAt(Date(now))
-                .withExpiresAt(Date(now + refreshTtlSec * 25000))
+                .withExpiresAt(Date(now + refreshTtlSec * 1000))
                 .sign(algorithm)
 
             println("Access token: $accessToken")

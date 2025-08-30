@@ -10,8 +10,8 @@ enum class Mode(val displayName: String) {
 }
 
 @Serializable
-enum class DurationUnit {
-    MINUTES, HOURS, DAYS
+enum class DurationUnit(val displayName: String) {
+    MINUTES("Minutes"), HOURS("Hours"), DAYS("Days")
 }
 
 
