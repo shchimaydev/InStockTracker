@@ -61,7 +61,7 @@ fun MainScaffold(content: @Composable (paddingValue: PaddingValues) -> Unit) {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("InStock Tracker") },
+                    title = {},
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(
@@ -75,7 +75,8 @@ fun MainScaffold(content: @Composable (paddingValue: PaddingValues) -> Unit) {
                         titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 )
-            }
+            },
+            containerColor = Color.White
         ) { paddingValues ->
             content(paddingValues)
         }
