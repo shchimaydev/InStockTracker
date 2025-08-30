@@ -74,14 +74,14 @@ fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierS
                 .withIssuedAt(Date(now))
                 .withExpiresAt(Date(now + accessTtlSec * 1000))
                 .sign(algorithm)
-            
+
             val refreshToken = JWT.create()
                 .withAudience(jwtAudience)
                 .withIssuer(jwtIssuer)
                 .withSubject(userId)
                 .withClaim("type", "refresh")
                 .withIssuedAt(Date(now))
-                .withExpiresAt(Date(now + refreshTtlSec * 1000))
+                .withExpiresAt(Date(now + refreshTtlSec * 25000))
                 .sign(algorithm)
 
             println("Access token: $accessToken")

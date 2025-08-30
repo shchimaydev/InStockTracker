@@ -21,6 +21,7 @@ object AppRoutes {
     const val AUTH = "auth"
     const val MAIN = "main"
     const val MAIN_LIST = "main/list"
+    const val LINK_ITEM = "main/link_item"
 }
 
 /**

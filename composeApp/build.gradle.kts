@@ -9,6 +9,7 @@ plugins {
 }
 
 kotlin {
+    
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -23,6 +24,8 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.navigation.compose)
             implementation(libs.androidx.datastore.preferences)
+            // Expressive Material 3 needs it
+            implementation("org.jetbrains.compose.material3:material3:1.9.0-alpha04")
 //            implementation(libs.androidx.credential.manager)
 //            implementation(libs.androidx.credential.manager.google)
 //            implementation(libs.google.android.libraries.identity.googleid)
@@ -32,6 +35,7 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
+            implementation(compose.materialIconsExtended)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)

@@ -60,7 +60,7 @@ fun Route.postTokenRefresh(jwtConfig: JwtConfig) {
                     .withSubject(user.id)
                     .withClaim("type", "refresh")
                     .withIssuedAt(Date(now))
-                    .withExpiresAt(Date(now + jwtConfig.refreshTokenTtlSec * 1000))
+                    .withExpiresAt(Date(now + jwtConfig.refreshTokenTtlSec * 25000))
                     .sign(algorithm)
 
                 call.respond(

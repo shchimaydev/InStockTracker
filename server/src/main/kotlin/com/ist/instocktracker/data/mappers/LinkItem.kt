@@ -27,6 +27,7 @@ fun DocumentSnapshot.toLinkItem(): LinkItem? {
         } ?: Interval(),
         scheduleJobId = this.getString("scheduleJobId"),
         lastCheckResult = this.getBoolean("lastCheckResult"),
-        lastCheckDate = this.getString("lastCheckDate")
+        lastCheckDate = this.getString("lastCheckDate"),
+        placeholderImage = this.getString("placeholderImage"),
     )
 }
