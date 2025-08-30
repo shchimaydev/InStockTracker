@@ -27,7 +27,6 @@ object AppRoutes {
 /**
  * Main navigation component for the app
  * @param navController The NavHostController to use for navigation
- * @param tokenDataStore The TokenDataStore to use for authentication
  * @param startDestination The starting destination route
  */
 @Composable

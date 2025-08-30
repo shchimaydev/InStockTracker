@@ -2,6 +2,7 @@ package com.ist.instocktracker.feature.main
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -75,6 +76,11 @@ fun MainScaffold(content: @Composable (paddingValue: PaddingValues) -> Unit) {
                         titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 )
+            },
+            floatingActionButton = {
+                FloatingActionButton(containerColor = Color.White, onClick = {}) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add new item")
+                }
             },
             containerColor = Color.White
         ) { paddingValues ->
