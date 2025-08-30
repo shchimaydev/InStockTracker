@@ -46,6 +46,17 @@ class LinkItemRepository(db: Firestore) {
         return collection.document(id)
     }
 
+    suspend fun getAll(userSub: String): List<LinkItem> {
+        return try {
+            withContext(Dispatchers.IO) {
+                collection.whereEqualTo("userId", userSub).get().get().documents.mapNotNull { it.toLinkItem() }
+            }
+        } catch (e: Exception) {
+            println("Error getting all link items: ${e.message}")
+            emptyList()
+        }
+    }
+
     suspend fun getAll(): List<LinkItem> {
         return try {
             withContext(Dispatchers.IO) {

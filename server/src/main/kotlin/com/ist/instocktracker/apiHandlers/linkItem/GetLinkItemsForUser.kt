@@ -10,7 +10,7 @@ fun Route.getLinkItemsForUser() {
         val currentUser = call.getUser()
 
         currentUser.id.let {
-            val linkItems = linkItemRepository.getAll()
+            val linkItems = linkItemRepository.getAll(it)
             println("Link items: $linkItems")
             call.respond(linkItems)
         }
