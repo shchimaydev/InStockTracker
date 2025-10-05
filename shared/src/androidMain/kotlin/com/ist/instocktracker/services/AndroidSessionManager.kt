@@ -15,7 +15,6 @@ import com.ist.instocktracker.data.auth.RefreshTokenException
 import com.ist.instocktracker.data.auth.SessionManager
 import com.ist.instocktracker.data.interfaces.TokenStore
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 
 class AndroidSessionManager(
     private val context: Context,
@@ -88,8 +87,7 @@ class AndroidSessionManager(
                 try {
                     val jwt = api.verifyIdToken(token)
                     tokenStore.saveJwt(jwt)
-                    val tokenFromStore = tokenStore.getJwt().first()
-                    isSignedIn.value = tokenFromStore != null
+                    isSignedIn.value = true
                 } catch (e: Exception) {
                     Log.e("AndroidSessionManager", "Error during sign-in: ${e.message}")
                     throw e

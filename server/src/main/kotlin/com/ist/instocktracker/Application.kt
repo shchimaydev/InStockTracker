@@ -2,7 +2,6 @@ package com.ist.instocktracker
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.google.firebase.FirebaseApp
 import com.ist.instocktracker.apiHandlers.linkItem.*
 import com.ist.instocktracker.apiHandlers.linkItem.check.postCheck
 import com.ist.instocktracker.apiHandlers.postGoogleIdTokenVerification
@@ -26,7 +25,7 @@ import kotlinx.serialization.json.Json
 
 fun Application.module() {
     val cfg = environment.config
-    FirebaseApp.initializeApp()
+    //FirebaseApp.initializeApp()
 
     install(ContentNegotiation) {
         json(Json {
@@ -60,16 +59,6 @@ fun Application.module() {
     )
     val idTokenVerifierService = IdTokenVerifierService()
     val jwtConfig = JwtConfig.fromEnvironment(environment)
-
-//
-//    install(Sessions) {
-//        cookie<User>("user") {
-//            cookie.httpOnly = true
-//            cookie.secure = !(cfg.propertyOrNull("ktor.development")?.getString()?.toBoolean() ?: true)
-//            cookie.maxAgeInSeconds = jwtConfig.refreshTokenTtlSec
-//            cookie.path = "/"
-//        }
-//    }
 
     install(Authentication) {
         jwt("auth-jwt") {

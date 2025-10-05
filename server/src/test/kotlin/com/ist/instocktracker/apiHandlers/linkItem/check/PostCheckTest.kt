@@ -1,12 +1,7 @@
 package com.ist.instocktracker.apiHandlers.linkItem.check
 
 import com.google.api.core.ApiFuture
-import com.google.cloud.firestore.CollectionReference
-import com.google.cloud.firestore.DocumentReference
-import com.google.cloud.firestore.DocumentSnapshot
-import com.google.cloud.firestore.Firestore
-import com.google.cloud.firestore.WriteResult
-import com.ist.instocktracker.apiHandlers.linkItem.check.ScrapePageResponse
+import com.google.cloud.firestore.*
 import com.ist.instocktracker.data.LinkItem
 import com.ist.instocktracker.data.Mode
 import com.ist.instocktracker.module
@@ -15,12 +10,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.mockkStatic
-import io.mockk.unmockkAll
+import io.mockk.*
 import org.junit.After
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,6 +25,17 @@ class PostCheckTest {
 
     @Test
     fun testCheckEndpointSuccess() = testApplication {
+        environment {
+            config = io.ktor.server.config.MapApplicationConfig(
+                "ktor.development" to "false",
+                "app.jwt.secret" to "test-secret-key",
+                "app.jwt.issuer" to "test-issuer",
+                "app.jwt.audience" to "test-audience",
+                "app.jwt.accessTokenTtlSec" to "3600",
+                "app.jwt.refreshTokenTtlSec" to "86400",
+                "app.gemini.apiKey" to "test-api-key"
+            )
+        }
         application { module() }
 
         // --- 1. Define Test Data ---
@@ -51,7 +52,7 @@ class PostCheckTest {
 
         // Mock static functions for scraping and AI.
         mockkStatic("com.ist.instocktracker.apiHandlers.linkItem.check.PostCheckKt")
-        
+
         // Create a mock ScrapePageResponse with the fake HTML content
         val fakeImageBytes = ByteArray(0) // Empty byte array for testing
         val fakeScrapeResponse = ScrapePageResponse(
@@ -59,10 +60,10 @@ class PostCheckTest {
             image = null,
             imageBytes = fakeImageBytes
         )
-        
+
         // Mock the scrapePageWithBrightData function to return the fake response
         coEvery { scrapePageWithBrightData(any(), any()) } returns fakeScrapeResponse
-        
+
         // Mock the evaluateWithAI function to return true
         coEvery { evaluateWithAI(any(), any()) } returns true
 
@@ -106,35 +107,57 @@ class PostCheckTest {
 
     @Test
     fun testCheckEndpointWithInvalidId() = testApplication {
+        environment {
+            config = io.ktor.server.config.MapApplicationConfig(
+                "ktor.development" to "false",
+                "app.jwt.secret" to "test-secret-key",
+                "app.jwt.issuer" to "test-issuer",
+                "app.jwt.audience" to "test-audience",
+                "app.jwt.accessTokenTtlSec" to "3600",
+                "app.jwt.refreshTokenTtlSec" to "86400",
+                "app.gemini.apiKey" to "test-api-key"
+            )
+        }
         // Configure the application
         application {
             module()
         }
-        
+
         // Test with an invalid ID
         val response = client.post("/api/v1/link-item/invalid-id/check")
-        
+
         // Since we can't mock the Firestore database, this will likely return an error
         // The exact status code will depend on how the application handles non-existent documents
         // It could be NotFound (404) or InternalServerError (500)
         // We'll just check that it's not OK (200)
         assert(response.status != HttpStatusCode.OK)
     }
-    
+
     @Test
     fun testCheckEndpointWithMissingId() = testApplication {
+        environment {
+            config = io.ktor.server.config.MapApplicationConfig(
+                "ktor.development" to "false",
+                "app.jwt.secret" to "test-secret-key",
+                "app.jwt.issuer" to "test-issuer",
+                "app.jwt.audience" to "test-audience",
+                "app.jwt.accessTokenTtlSec" to "3600",
+                "app.jwt.refreshTokenTtlSec" to "86400",
+                "app.gemini.apiKey" to "test-api-key"
+            )
+        }
         // Configure the application
         application {
             module()
         }
-        
+
         // Test with a missing ID
         val response = client.post("/api/v1/link-item//check")
-        
+
         // This should return a BadRequest (400) status
         assertEquals(HttpStatusCode.NotFound, response.status)
     }
-    
+
     // Note: We can't effectively test the successful case without mocking
     // the Firestore database, Bright Data scraping, and GenAI client.
     // A more comprehensive test would require setting up proper mocks

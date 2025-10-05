@@ -13,8 +13,8 @@ class MainVIewModel(val api: Api) : ViewModel() {
 
     suspend fun getLinkItems() {
         try {
-            val res = ServiceLocator.sessionManager.runWithAuth { api.getLinkItemsForUser() }
-            linkItems.value = res
+            val list = ServiceLocator.sessionManager.runWithAuth { api.getLinkItemsForUser() }
+            linkItems.value = list
 
 
         } catch (e: Exception) {

@@ -67,34 +67,56 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
 
 
     suspend fun verifyIdToken(idToken: String): TokenResponse {
-        return nonAuthClient
-            .post("$host/api/v1/id-verification") {
-                contentType(ContentType.Application.Json)
-                setBody(PostGoogleIdVerificationBody(idToken))
-            }.body<TokenResponse>()
+        val res = nonAuthClient.post("$host/api/v1/id-verification") {
+            contentType(ContentType.Application.Json)
+            setBody(PostGoogleIdVerificationBody(idToken))
+        }
+        if (res.status.isSuccess()) {
+            return res.body<TokenResponse>()
+        } else {
+            throw Exception("Failed to verify ID token: ${res.status}")
+        }
     }
 
     suspend fun getLinkItemsForUser(): List<LinkItem> {
-        return authClient.get("$host/api/v1/link-items") {
-        }.body<List<LinkItem>>()
+        val res = authClient.get("$host/api/v1/link-items")
+        if (res.status.isSuccess()) {
+            return res.body<List<LinkItem>>()
+        } else {
+            throw Exception("Failed to get link items: ${res.status}")
+        }
     }
 
     suspend fun getLinkItem(id: String): LinkItem {
-        return authClient.get("$host/api/v1/link-items/$id") {
-        }.body<LinkItem>()
+        val res = authClient.get("$host/api/v1/link-items/$id")
+        if (res.status.isSuccess()) {
+            return res.body<LinkItem>()
+        } else {
+            throw Exception("Failed to get link item: ${res.status}")
+        }
     }
 
     suspend fun createLinkItem(linkItem: LinkItem): LinkItem {
-        return authClient.post("$host/api/v1/link-items") {
+        val res = authClient.post("$host/api/v1/link-items") {
             contentType(ContentType.Application.Json)
             setBody(linkItem)
-        }.body<LinkItem>()
+        }
+        if (res.status.isSuccess()) {
+            return res.body<LinkItem>()
+        } else {
+            throw Exception("Failed to create link item: ${res.status}")
+        }
     }
 
     suspend fun updateLinkItem(id: String, linkItem: LinkItem): LinkItem {
-        return authClient.put("$host/api/v1/link-items/$id") {
+        val res = authClient.put("$host/api/v1/link-items/$id") {
             contentType(ContentType.Application.Json)
             setBody(linkItem)
-        }.body<LinkItem>()
+        }
+        if (res.status.isSuccess()) {
+            return res.body<LinkItem>()
+        } else {
+            throw Exception("Failed to update link item: ${res.status}")
+        }
     }
 }
