@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.ist.instocktracker.Api
 import com.ist.instocktracker.data.LinkItem
+import com.ist.instocktracker.services.ServiceLocator
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class MainVIewModel(val api: Api) : ViewModel() {
@@ -12,7 +13,7 @@ class MainVIewModel(val api: Api) : ViewModel() {
 
     suspend fun getLinkItems() {
         try {
-            val res = api.getLinkItemsForUser()
+            val res = ServiceLocator.sessionManager.runWithAuth { api.getLinkItemsForUser() }
             linkItems.value = res
 
 

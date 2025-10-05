@@ -17,6 +17,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 
+
 class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
     private val prodHost = "https://instocktracker-464721.ey.r.appspot.com"
     private val localHost = "http://10.0.2.2:8080"
@@ -47,12 +48,9 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
 
                     try {
                         val tokenResponse: TokenResponse = nonAuthClient.post("$host/api/v1/token-refresh") {
-                            markAsRefreshTokenRequest()
                             contentType(ContentType.Application.Json)
                             setBody(RefreshTokenRequest(refreshToken))
-                            headers {
-                                append(HttpHeaders.Authorization, "Bearer ${currentTokens.accessToken}")
-                            }
+                            markAsRefreshTokenRequest()
                         }.body()
 
                         tokenStore.saveJwt(tokenResponse)
