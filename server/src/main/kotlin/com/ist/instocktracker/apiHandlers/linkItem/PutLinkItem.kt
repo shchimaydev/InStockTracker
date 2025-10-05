@@ -3,6 +3,7 @@ package com.ist.instocktracker.apiHandlers.linkItem
 import com.google.cloud.firestore.SetOptions
 import com.ist.instocktracker.data.LinkItem
 import com.ist.instocktracker.data.mappers.toLinkItem
+import com.ist.instocktracker.plugins.getUser
 import com.ist.instocktracker.services.ServiceProvider
 import io.ktor.http.*
 import io.ktor.server.request.*
@@ -17,6 +18,7 @@ import kotlinx.coroutines.withContext
  */
 fun Route.putLinkItem() {
     put("{id}") {
+        val currentUser = call.getUser()
         val linkItemRepository = ServiceProvider.linkItemRepository
         val id = call.parameters["id"] ?: return@put call.respond(
             HttpStatusCode.BadRequest,
@@ -25,8 +27,6 @@ fun Route.putLinkItem() {
 
         val linkItem = call.receive<LinkItem>()
 
-        // Create a map of the LinkItem fields
-        val itemData = linkItem.toMap()
 
         val docRef = linkItemRepository.collection.document(id)
 
@@ -45,7 +45,8 @@ fun Route.putLinkItem() {
 
         // Update the document
         withContext(Dispatchers.IO) {
-            docRef.set(itemData, SetOptions.merge()).get()
+            val updatedLinkItem = linkItem.copy(userId = currentUser.id)
+            docRef.set(updatedLinkItem.toMap(), SetOptions.merge()).get()
         }
 
         // Get the updated document to return

@@ -59,6 +59,7 @@ data class LinkItem(
     fun toMap(): Map<String, Any?> {
         return mapOf(
             "link" to link,
+            "label" to label,
             "userId" to userId,
             "mode" to mode.name,
             "startAt" to startAt,
