@@ -28,9 +28,9 @@ fun Interval.getDisplayName(): String {
 
 
     when (duration) {
-        DurationUnit.MINUTES -> str.append("${unit} minute")
-        DurationUnit.HOURS -> str.append("${unit} hour")
-        DurationUnit.DAYS -> str.append("${unit} day")
+        DurationUnit.MINUTES -> str.append(" minute")
+        DurationUnit.HOURS -> str.append(" hour")
+        DurationUnit.DAYS -> str.append(" day")
     }
 
     if (unit > 1) str.append("s")

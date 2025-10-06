@@ -35,6 +35,11 @@ fun AddEditLinkItemScreen(
         viewModel.initialize(linkItemId)
     }
 
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = viewModel.selectedDate.time
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -146,7 +151,6 @@ fun AddEditLinkItemScreen(
                     }
                 }
 
-                // Start At date picker
                 Card {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -157,16 +161,10 @@ fun AddEditLinkItemScreen(
                             style = MaterialTheme.typography.labelMedium
                         )
 
-                        // Date picker
-                        var showDatePicker by remember { mutableStateOf(false) }
-                        val datePickerState = rememberDatePickerState(
-                            initialSelectedDateMillis = viewModel.selectedDate.time
-                        )
-
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { showDatePicker = true }
+                            //.clickable { showDatePicker = true }
                         ) {
                             OutlinedTextField(
                                 value = SimpleDateFormat(
@@ -175,23 +173,22 @@ fun AddEditLinkItemScreen(
                                 ).format(viewModel.selectedDate),
                                 onValueChange = { },
                                 label = { Text("Date") },
-                                readOnly = true,
                                 modifier = Modifier.fillMaxWidth(),
-                                enabled = false,
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                                    disabledBorderColor = MaterialTheme.colorScheme.outline,
-                                    disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                ),
-
+                                enabled = true,
+                                readOnly = false, // Set to false to get the standard enabled appearance
                                 trailingIcon = {
-                                    //IconButton(onClick = { showDatePicker = true }) {
                                     Icon(Icons.Default.DateRange, contentDescription = "Select Date")
-                                    //}
                                 }
                             )
+
+
+
+                            Box(
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .clickable { showDatePicker = true }
+                            )
+
                         }
 
                         if (showDatePicker) {

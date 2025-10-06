@@ -1,7 +1,9 @@
 package com.ist.instocktracker.feature.linkitem
 
 import android.net.Uri
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ist.instocktracker.data.DurationUnit
@@ -14,34 +16,36 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class AddEditLinkItemViewModel : ViewModel() {
-
+    private var linkItemFromDB: LinkItem = LinkItem()
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
 
     // Form state
     var link by mutableStateOf("")
     var label by mutableStateOf("")
     var mode by mutableStateOf(Mode.IN_STOCK)
-    
+
     // Date/Time state - separate fields for UI
     var selectedDate by mutableStateOf(Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 1) }.time)
-    var selectedTime by mutableStateOf(Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0) }.time)
+    var selectedTime by mutableStateOf(
+        Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0) }.time
+    )
     var addPreciseTime by mutableStateOf(false)
-    
+
     // Combined startAt for API compatibility
     var startAt by mutableStateOf(Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 1) }.time)
         private set
-    
+
     var intervalUnit by mutableStateOf(1)
     var intervalDuration by mutableStateOf(DurationUnit.HOURS)
     var isActive by mutableStateOf(true)
     var additionalInstructions by mutableStateOf("")
-    
+
     // UI state
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
     var isEditMode by mutableStateOf(false)
     var linkItemId by mutableStateOf<String?>(null)
-    
+
     // Validation
     var linkError by mutableStateOf<String?>(null)
     var intervalError by mutableStateOf<String?>(null)
@@ -49,7 +53,7 @@ class AddEditLinkItemViewModel : ViewModel() {
     fun initialize(linkItemId: String?) {
         this.linkItemId = linkItemId
         isEditMode = linkItemId != null
-        
+
         if (linkItemId != null) {
             fetchLinkItem(linkItemId)
         }
@@ -61,6 +65,7 @@ class AddEditLinkItemViewModel : ViewModel() {
                 isLoading = true
                 errorMessage = null
                 val linkItem = ServiceLocator.api.getLinkItem(id)
+                linkItemFromDB = linkItem
                 populateForm(linkItem)
             } catch (e: Exception) {
                 errorMessage = "Failed to load link item: ${e.message}"
@@ -78,7 +83,7 @@ class AddEditLinkItemViewModel : ViewModel() {
         additionalInstructions = linkItem.additionalInstructions ?: ""
         intervalUnit = linkItem.interval.unit
         intervalDuration = linkItem.interval.duration
-        
+
         // Parse startAt if available and split into date/time components
         linkItem.startAt?.let { startAtStr ->
             try {
@@ -86,14 +91,14 @@ class AddEditLinkItemViewModel : ViewModel() {
                 if (parsedDate != null) {
                     val calendar = Calendar.getInstance()
                     calendar.time = parsedDate
-                    
+
                     // Set selectedDate (date part only)
                     selectedDate = parsedDate
-                    
+
                     // Check if time is not 00:00 to determine if precise time was set
                     val hasTime = calendar.get(Calendar.HOUR_OF_DAY) != 0 || calendar.get(Calendar.MINUTE) != 0
                     addPreciseTime = hasTime
-                    
+
                     if (hasTime) {
                         // Set selectedTime (time part only)
                         val timeCalendar = Calendar.getInstance()
@@ -103,7 +108,7 @@ class AddEditLinkItemViewModel : ViewModel() {
                         timeCalendar.set(Calendar.MILLISECOND, 0)
                         selectedTime = timeCalendar.time
                     }
-                    
+
                     // Update combined startAt field
                     updateStartAt()
                 }
@@ -116,7 +121,7 @@ class AddEditLinkItemViewModel : ViewModel() {
     fun onLinkChanged(newLink: String) {
         link = newLink
         linkError = null
-        
+
         // Auto-populate label if empty and link is valid
         if (label.isEmpty() && newLink.isNotEmpty()) {
             try {
@@ -142,7 +147,7 @@ class AddEditLinkItemViewModel : ViewModel() {
     private fun updateStartAt() {
         val calendar = Calendar.getInstance()
         calendar.time = selectedDate
-        
+
         if (addPreciseTime) {
             val timeCalendar = Calendar.getInstance()
             timeCalendar.time = selectedTime
@@ -155,7 +160,7 @@ class AddEditLinkItemViewModel : ViewModel() {
         }
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
-        
+
         startAt = calendar.time
     }
 
@@ -260,7 +265,8 @@ class AddEditLinkItemViewModel : ViewModel() {
                     startAt = dateFormat.format(startAt),
                     additionalInstructions = additionalInstructions.ifEmpty { null },
                     isActive = isActive,
-                    interval = Interval(intervalUnit, intervalDuration)
+                    interval = Interval(intervalUnit, intervalDuration),
+                    scheduleJobId = linkItemFromDB.scheduleJobId ?: "",
                 )
 
                 if (isEditMode && linkItemId != null) {
