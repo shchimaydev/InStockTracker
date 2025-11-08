@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    AppTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background

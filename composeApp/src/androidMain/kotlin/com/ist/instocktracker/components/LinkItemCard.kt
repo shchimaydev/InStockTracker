@@ -61,9 +61,9 @@ fun LinkItemCard(linkItem: LinkItem) {
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = linkItem.label ?: "No label",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    text = linkItem.label?.replaceFirstChar { it.uppercase() } ?: "No label",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
                     color = Color(0xFF2E2E2E)
                 )
                 LinkItemSubLabelsSection(subLabels = subLabels)
@@ -97,7 +97,7 @@ fun LinkItemCardPreview() {
     val sampleLinkItems = listOf(
         LinkItem(
             id = "1",
-            label = "PlayStation 5",
+            label = "playStation 5",
             link = "https://example.com/ps5",
             mode = Mode.IN_STOCK,
             interval = Interval(unit = 2, duration = DurationUnit.HOURS),
