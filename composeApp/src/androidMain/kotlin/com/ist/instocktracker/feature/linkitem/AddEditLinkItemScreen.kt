@@ -10,9 +10,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.ist.instocktracker.data.Mode
 import com.ist.instocktracker.utils.LocalNavController
 
@@ -29,26 +33,19 @@ fun AddEditLinkItemScreen(
     }
 
     Scaffold(
+        containerColor = Color.White,
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
                 title = {
-                    Text(if (viewModel.isEditMode) "Edit Link Item" else "Add Link Item")
+                    Text(if (viewModel.isEditMode) "Edit" else "Add an item")
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    TextButton(
-                        onClick = {
-                            viewModel.saveItem {
-                                navController.popBackStack()
-                            }
-                        },
-                        enabled = !viewModel.isLoading
-                    ) {
-                        Text("Save")
                     }
                 }
             )
@@ -193,7 +190,37 @@ fun AddEditLinkItemScreen(
                     placeholder = { Text("Enter any additional instructions for checking this link...") },
                     maxLines = 5
                 )
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    onClick = {
+                        viewModel.saveItem {
+                            navController.popBackStack()
+                        }
+                    },
+                    enabled = !viewModel.isLoading
+                ) {
+                    Text(text = "Save", fontWeight = FontWeight.Bold)
+                }
             }
+        }
+    }
+}
+
+
+@Preview(
+    showBackground = true,
+    name = "Add Link Item (Dark)"
+)
+@Composable
+fun AddEditLinkItemScreenPreview() {
+    val mockNavController = rememberNavController()
+    
+    MaterialTheme {
+        CompositionLocalProvider(LocalNavController provides mockNavController) {
+            // Pass `null` for `linkItemId` to simulate adding a new item.
+            AddEditLinkItemScreen(linkItemId = null)
         }
     }
 }
