@@ -16,7 +16,6 @@ import java.util.*
 
 fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierService) {
     post("/id-verification") {
-        println("Are we hitting this ???")
         try {
             val userRepository = ServiceProvider.userRepository
             val (id) = call.receive<PostGoogleIdVerificationBody>()

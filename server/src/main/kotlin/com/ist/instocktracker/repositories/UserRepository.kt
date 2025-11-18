@@ -1,6 +1,7 @@
 package com.ist.instocktracker.repositories
 
 import com.google.cloud.firestore.Firestore
+import com.google.cloud.firestore.SetOptions
 import com.ist.instocktracker.data.User
 import com.ist.instocktracker.data.mappers.toUser
 import kotlinx.coroutines.Dispatchers
@@ -24,9 +25,9 @@ class UserRepository(db: Firestore) {
 
     suspend fun save(user: User): User? {
         return try {
-            val docRef = collection.document()
+            val docRef = collection.document(user.id)
             withContext(Dispatchers.IO) {
-                collection.document(user.id).set(user).get()
+                docRef.set(user, SetOptions.merge()).get()
             }
 
             val snapshot = withContext(Dispatchers.IO) {

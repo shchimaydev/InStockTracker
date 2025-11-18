@@ -21,6 +21,25 @@ class TokenDataStore(private val context: Context) : TokenStore {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_preferences")
         private val GOOGLE_ID_TOKEN_KEY = stringPreferencesKey("google_id_token")
         private val JWT_KEY = stringPreferencesKey("jwt")
+        private val DEVICE_TOKEN_KEY = stringPreferencesKey("device_token")
+    }
+
+    override suspend fun getDeviceToken(): Flow<String?> {
+        return context.dataStore.data.map { preferences ->
+            preferences[DEVICE_TOKEN_KEY]
+        }
+    }
+
+    override suspend fun saveDeviceToken(token: String) {
+        context.dataStore.edit { preferences ->
+            preferences[DEVICE_TOKEN_KEY] = token
+        }
+    }
+
+    override suspend fun clearDeviceToken() {
+        context.dataStore.edit { preferences ->
+            preferences.remove(DEVICE_TOKEN_KEY)
+        }
     }
 
 

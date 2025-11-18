@@ -7,8 +7,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,8 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ist.instocktracker.data.Platform
 import com.ist.instocktracker.services.ServiceLocator
 import com.ist.instocktracker.utils.LocalNavController
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 @Composable
@@ -29,8 +29,11 @@ fun AuthScreen(
     val context = LocalContext.current
 
     val sessionManager = ServiceLocator.sessionManager
+    val api = ServiceLocator.api
+    val deviceTokenManager = ServiceLocator.deviceTokenManager
+    val tokenStore = ServiceLocator.tokenStore
     val coroutineScope = rememberCoroutineScope()
-    val isSignedIn by sessionManager.isSignedIn.collectAsState(initial = false)
+    //val isSignedIn by sessionManager.isSignedIn.collectAsState(initial = false)
 //    LaunchedEffect(isSignedIn) {
 //        Log.d("AuthScreen", "isSignedIn: $isSignedIn")
 //        //if (isSignedIn) navController.navigate(AppRoutes.MAIN)
@@ -58,6 +61,11 @@ fun AuthScreen(
                 coroutineScope.launch {
                     try {
                         sessionManager.signIn()
+
+                        //get and send device token
+                        val storeToken = tokenStore.getDeviceToken().firstOrNull()
+                        val finalToken = storeToken ?: deviceTokenManager.getCurrentToken()
+                        finalToken?.let { api.sendDeviceToken(it, Platform.ANDROID) }
 
                     } catch (e: Exception) {
                         Log.e("AuthScreen", "Error during sign-in: ${e.message}")

@@ -11,9 +11,15 @@ interface TokenStore {
     suspend fun clearJwt()
 
     // GoogleIdToken
+    fun getGoogleIdToken(): Flow<String?>
     suspend fun clearGoogleIdToken()
     suspend fun saveGoogleIdToken(token: String)
-    fun getGoogleIdToken(): Flow<String?>
+
+    // DeviceToken
+    suspend fun getDeviceToken(): Flow<String?>
+    suspend fun clearDeviceToken()
+    suspend fun saveDeviceToken(token: String)
+
     fun isAuthenticated(): Flow<Boolean>
 
 }

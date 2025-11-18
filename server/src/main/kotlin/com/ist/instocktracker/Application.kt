@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.ist.instocktracker.apiHandlers.linkItem.*
 import com.ist.instocktracker.apiHandlers.linkItem.check.postCheck
+import com.ist.instocktracker.apiHandlers.postDeviceToken
 import com.ist.instocktracker.apiHandlers.postGoogleIdTokenVerification
 import com.ist.instocktracker.apiHandlers.postTokenRefresh
 import com.ist.instocktracker.config.JwtConfig
@@ -110,8 +111,14 @@ fun Application.module() {
                     putLinkItem()
                     deleteLinkItem()
                 }
+
                 // Keep check endpoint public
                 postCheck()
+            }
+
+            authenticate("auth-jwt") {
+                install(UserFromPrincipal)
+                postDeviceToken()
             }
 
             postGoogleIdTokenVerification(idTokenVerifierService)

@@ -71,7 +71,7 @@ fun LinkItemCard(linkItem: LinkItem) {
             Spacer(modifier = Modifier.width(16.dp))
             Box(
                 modifier = Modifier
-                    .width(130.dp)
+                    .width(110.dp)
                     .height(80.dp)
                     .clip(RoundedCornerShape(8.dp))
             ) {

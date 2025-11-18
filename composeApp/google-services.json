@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "646354819394",
+    "project_id": "instocktracker-464721",
+    "storage_bucket": "instocktracker-464721.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:646354819394:android:27c13ec07d64c8b2d150db",
+        "android_client_info": {
+          "package_name": "com.ist.instocktracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "646354819394-mifsg27c40t85l8gh09su46si6tvcjai.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRk9-ifpY5JOtkQCOyO464J1JDAE8jtys"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "646354819394-mifsg27c40t85l8gh09su46si6tvcjai.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

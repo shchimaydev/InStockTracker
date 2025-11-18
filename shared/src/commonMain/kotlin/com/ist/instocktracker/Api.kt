@@ -1,6 +1,8 @@
 package com.ist.instocktracker
 
+import com.ist.instocktracker.data.DeviceToken
 import com.ist.instocktracker.data.LinkItem
+import com.ist.instocktracker.data.Platform
 import com.ist.instocktracker.data.PostGoogleIdVerificationBody
 import com.ist.instocktracker.data.auth.RefreshTokenException
 import com.ist.instocktracker.data.auth.RefreshTokenRequest
@@ -16,6 +18,8 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 
 class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
@@ -117,6 +121,18 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
             return res.body<LinkItem>()
         } else {
             throw Exception("Failed to update link item: ${res.status}")
+        }
+    }
+
+    @OptIn(ExperimentalTime::class)
+    suspend fun sendDeviceToken(token: String, platform: Platform) {
+        println("Sending device token: $token")
+        val res = authClient.post("$host/api/v1/device-token") {
+            contentType(ContentType.Application.Json)
+            setBody(DeviceToken(token, platform, createdAt = Clock.System.now().toEpochMilliseconds()))
+        }
+        if (!res.status.isSuccess()) {
+            throw Exception("Failed to send device token: ${res.status}")
         }
     }
 }

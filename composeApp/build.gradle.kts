@@ -6,10 +6,11 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.googleService)
 }
 
 kotlin {
-    
+
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -26,9 +27,8 @@ kotlin {
             implementation(libs.androidx.datastore.preferences)
             // Expressive Material 3 needs it
             implementation("org.jetbrains.compose.material3:material3:1.9.0-alpha04")
-//            implementation(libs.androidx.credential.manager)
-//            implementation(libs.androidx.credential.manager.google)
-//            implementation(libs.google.android.libraries.identity.googleid)
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.messaging)
 
         }
         commonMain.dependencies {
