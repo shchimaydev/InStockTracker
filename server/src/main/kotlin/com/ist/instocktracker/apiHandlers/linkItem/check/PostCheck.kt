@@ -5,6 +5,7 @@ import com.google.genai.types.GenerateContentResponse
 import com.google.genai.types.Part
 import com.ist.instocktracker.data.CheckResponse
 import com.ist.instocktracker.data.LinkItem
+import com.ist.instocktracker.data.PushPayload
 import com.ist.instocktracker.services.ServiceProvider
 import com.ist.instocktracker.services.db.FirestoreProvider.db
 import io.ktor.http.*
@@ -51,6 +52,19 @@ fun Route.postCheck() {
 
             // Evaluate the HTML with GenAI
             val aiResult = evaluateWithAI(imageBytes, linkItem)
+
+            // Send push notification
+            if (aiResult && linkItem.lastCheckResult != null && linkItem.lastCheckResult == false) {
+                val user = ServiceProvider.userRepository.get(linkItem.userId)
+                    ?: return@post call.respond(HttpStatusCode.InternalServerError, "Item does not have user id")
+                val payload = PushPayload(
+                    title = "Availability matched: ${linkItem.mode.name}",
+                    body = (linkItem.label ?: linkItem.link),
+                    linkItemId = id
+                )
+                ServiceProvider.notificationService.sendToUser(user, payload)
+            }
+
 
             // Get current timestamp
             val timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)

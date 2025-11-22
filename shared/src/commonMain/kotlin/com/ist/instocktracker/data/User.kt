@@ -18,7 +18,14 @@ fun User.hasDeviceToken(token: String): Boolean {
 fun User.addTokenIfPresent(deviceToken: DeviceToken): User {
     val (token, platform) = deviceToken
     if (token.isEmpty()) return this
-    val filtered = this.deviceTokens.filterNot { it.token == token }
-    val updated = filtered + DeviceToken(token, platform, deviceToken.createdAt)
+    return copy(deviceTokens = this.deviceTokens + DeviceToken(token, platform, deviceToken.createdAt))
+}
+
+fun User.removeTokens(tokenList: List<String>): User {
+    return copy(deviceTokens = this.deviceTokens.filter { !tokenList.contains(it.token) })
+}
+
+fun User.removeToken(token: String): User {
+    val updated = this.deviceTokens.filter { it.token != token }
     return copy(deviceTokens = updated)
 }

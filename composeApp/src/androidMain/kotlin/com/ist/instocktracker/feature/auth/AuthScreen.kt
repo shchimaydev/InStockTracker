@@ -85,7 +85,7 @@ fun AuthScreen(
             )
         ) {
             Text(
-                text = "Sign in with Google",
+                text = "Continue with Google",
                 color = Color.White,
                 modifier = Modifier.padding(vertical = 8.dp)
             )

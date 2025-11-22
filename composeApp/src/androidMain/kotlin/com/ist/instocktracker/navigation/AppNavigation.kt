@@ -5,7 +5,6 @@ import androidx.compose.runtime.*
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.ist.instocktracker.feature.auth.AuthScreen
 import com.ist.instocktracker.feature.linkitem.AddEditLinkItemScreen
@@ -33,7 +32,7 @@ object AppRoutes {
  */
 @Composable
 fun AppNavigation(
-    navController: NavHostController = rememberNavController(),
+    navController: NavHostController,
     startDestination: String = AppRoutes.AUTH
 ) {
 //    val tokenStore = ServiceLocator.tokenStore
@@ -66,7 +65,7 @@ fun AppNavigation(
                 composable(AppRoutes.MAIN_LIST) {
                     MainScaffold { paddingValue -> MainScreen(paddingValue) }
                 }
-                
+
                 composable("${AppRoutes.ADD_EDIT_LINK_ITEM}?linkItemId={linkItemId}") { backStackEntry ->
                     val linkItemId = backStackEntry.arguments?.getString("linkItemId")
                     AddEditLinkItemScreen(linkItemId = linkItemId)
