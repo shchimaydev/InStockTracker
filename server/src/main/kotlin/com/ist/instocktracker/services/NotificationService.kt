@@ -4,6 +4,7 @@ import com.google.firebase.ErrorCode
 import com.google.firebase.messaging.FirebaseMessagingException
 import com.google.firebase.messaging.Message
 import com.google.firebase.messaging.MessagingErrorCode
+import com.google.firebase.messaging.Notification
 import com.ist.instocktracker.data.PushPayload
 import com.ist.instocktracker.data.User
 import com.ist.instocktracker.data.removeTokens
@@ -21,6 +22,8 @@ class NotificationService(val userRepository: UserRepository = ServiceProvider.u
         val messages = tokens.map { token ->
             Message.builder()
                 .setToken(token)
+                .setNotification(Notification.builder().setBody(payload.body).setTitle(payload.title).build())
+                // fallback title and body
                 .putData("title", payload.title)
                 .putData("body", payload.body)
                 .putData("linkItemId", payload.linkItemId)

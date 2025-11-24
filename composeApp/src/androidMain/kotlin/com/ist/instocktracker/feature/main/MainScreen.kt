@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,12 +25,6 @@ import com.ist.instocktracker.services.ServiceLocator
 @Composable
 fun MainScreen(paddingValues: PaddingValues) {
     Log.d("MainScreen", "MainScreen called")
-    val scope = rememberCoroutineScope()
-
-    val tokenStore = ServiceLocator.tokenStore
-    val googleIdToken by tokenStore.getGoogleIdToken().collectAsState(initial = "")
-
-    val token by tokenStore.getJwt().collectAsState(initial = null)
     val mainVm = viewModel<MainVIewModel> { MainVIewModel(ServiceLocator.api) }
 
     val linkItems by mainVm.linkItems.collectAsState(initial = emptyList())

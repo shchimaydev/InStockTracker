@@ -44,7 +44,10 @@ fun AddEditLinkItemScreen(
                     Text(if (viewModel.isEditMode) "Edit" else "Add an item")
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = {
+//                        navController.previousBackStackEntry
+                        navController.popBackStack()
+                    }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
@@ -216,7 +219,7 @@ fun AddEditLinkItemScreen(
 @Composable
 fun AddEditLinkItemScreenPreview() {
     val mockNavController = rememberNavController()
-    
+
     MaterialTheme {
         CompositionLocalProvider(LocalNavController provides mockNavController) {
             // Pass `null` for `linkItemId` to simulate adding a new item.

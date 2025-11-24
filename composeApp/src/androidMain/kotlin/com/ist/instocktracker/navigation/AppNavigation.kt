@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.ist.instocktracker.feature.auth.AuthScreen
 import com.ist.instocktracker.feature.linkitem.AddEditLinkItemScreen
@@ -12,6 +13,7 @@ import com.ist.instocktracker.feature.main.MainScaffold
 import com.ist.instocktracker.feature.main.MainScreen
 import com.ist.instocktracker.services.ServiceLocator.tokenStore
 import com.ist.instocktracker.utils.LocalNavController
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
 /**
@@ -32,30 +34,46 @@ object AppRoutes {
  */
 @Composable
 fun AppNavigation(
-    navController: NavHostController,
-    startDestination: String = AppRoutes.AUTH
+    navController: NavHostController = rememberNavController(),
+    startDestination: String = AppRoutes.AUTH,
+    deepLink: Flow<String?>
 ) {
 //    val tokenStore = ServiceLocator.tokenStore
-    val isAuthenticated by tokenStore.isAuthenticated().collectAsState(initial = false)
+    val isAuthenticated by tokenStore.isAuthenticated().collectAsState(initial = null)
+    val deepLinkState by deepLink.collectAsState(initial = null)
+    var startDestinationState by remember { mutableStateOf(startDestination) }
 
 
     LaunchedEffect(isAuthenticated) {
         Log.d("AppNavigation", "isAuthenticated: ${tokenStore.getJwt().first()}")
-        if (isAuthenticated && navController.currentDestination?.route == AppRoutes.AUTH) {
-            navController.navigate(AppRoutes.MAIN) {
-                popUpTo(AppRoutes.AUTH) { inclusive = true }
-            }
-        } else if (!isAuthenticated && navController.currentDestination?.route != AppRoutes.MAIN) {
-            navController.navigate(AppRoutes.AUTH)
-        }
-    }
-    // If user is authenticated, navigate to main screen
+        isAuthenticated?.let { finalIsAuthenticated ->
+            if (finalIsAuthenticated) {
+                startDestinationState = AppRoutes.MAIN
 
+                navController.navigate(AppRoutes.MAIN) {
+                    popUpTo(AppRoutes.AUTH) { inclusive = true }
+                }
+
+                // 2. Then, immediately check for Deep Link.
+                // If it exists, navigate to it. This pushes the Item screen ON TOP of Main.
+                Log.d("AppNavigation", "DeepLinkState: $deepLinkState")
+                deepLinkState?.let { linkId ->
+                    navController.navigate("${AppRoutes.ADD_EDIT_LINK_ITEM}?linkItemId=${linkId}")
+                }
+            }
+
+            if (!finalIsAuthenticated) {
+                startDestinationState = AppRoutes.AUTH
+                navController.navigate(AppRoutes.AUTH)
+            }
+        }
+
+    }
 
     CompositionLocalProvider(LocalNavController provides navController) {
         NavHost(
             navController = navController,
-            startDestination = startDestination
+            startDestination = startDestinationState
         ) {
             composable(AppRoutes.AUTH) {
                 AuthScreen()

@@ -7,6 +7,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ist.instocktracker.data.Platform
+import com.ist.instocktracker.navigation.AppRoutes
 import com.ist.instocktracker.services.ServiceLocator
 import com.ist.instocktracker.utils.LocalNavController
 import kotlinx.coroutines.flow.firstOrNull
@@ -38,6 +41,12 @@ fun AuthScreen(
 //        Log.d("AuthScreen", "isSignedIn: $isSignedIn")
 //        //if (isSignedIn) navController.navigate(AppRoutes.MAIN)
 //    }
+
+    val isAuthenticated by ServiceLocator.tokenStore.isAuthenticated().collectAsState(initial = false)
+    if (isAuthenticated) {
+        navController.navigate(AppRoutes.MAIN)
+    }
+
 
     Column(
         modifier = Modifier

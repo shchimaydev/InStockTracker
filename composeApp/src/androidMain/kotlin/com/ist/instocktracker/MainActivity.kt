@@ -1,15 +1,15 @@
 package com.ist.instocktracker
 
+import android.Manifest
 import android.app.ComponentCaller
 import android.content.Intent
-import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -19,13 +19,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
-import androidx.navigation.compose.rememberNavController
 import com.ist.instocktracker.navigation.AppNavigation
 import com.ist.instocktracker.services.ServiceLocator
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class MainActivity : ComponentActivity() {
-    private val deepLinks = MutableStateFlow<String?>(null)
+    private val deepLink = MutableStateFlow<String?>(null)
 
     // Support pre-API 35 onNewIntent to handle notification taps across all devices
     override fun onNewIntent(intent: Intent) {
@@ -50,12 +50,14 @@ class MainActivity : ComponentActivity() {
         ServiceLocator.init(applicationContext)
 
         setContent {
-            val link by deepLinks.collectAsState()
+            val link by deepLink.collectAsState()
             fun handleNewDeepLink(action: (String?) -> Unit) {
+                intent.removeExtra("linkItemId") // remove linkItemId (is don't know if it is needed
                 action(link)
+                deepLink.value = null
             }
 
-            InStockApp(handleNewDeepLink = ::handleNewDeepLink)
+            InStockApp(deepLink)
             RequestPostNotificationsPermission()
         }
     }
@@ -64,19 +66,43 @@ class MainActivity : ComponentActivity() {
         if (intent.hasExtra("linkItemId")) {
             val linkId = intent.getStringExtra("linkItemId")
             linkId?.let {
-                deepLinks.value = it
+                deepLink.value = it
             }
         }
     }
 }
 
 @Composable
-fun InStockApp(handleNewDeepLink: (action: (String?) -> Unit) -> Unit) {
-    val navController = rememberNavController()
+fun InStockApp(deepLink: Flow<String?>) {
+    //val navController = rememberNavController()
 
-    handleNewDeepLink { link ->
-        link?.let { navController.navigate("linkItem/$link") }
-    }
+    //val isAuthenticated by tokenStore.isAuthenticated().collectAsState(initial = null)
+
+//    if (isAuthenticated == null) {
+//        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+//            CircularProgressIndicator()
+//        }
+//    }
+//
+//    LaunchedEffect(isAuthenticated) {
+//        Log.d("AppNavigation", "isAuthenticated: ${tokenStore.getJwt().first()}")
+//        isAuthenticated?.let { finalIsAuthenticated ->
+//            if (finalIsAuthenticated && navController.currentDestination?.route == AppRoutes.AUTH) {
+//                navController.navigate(AppRoutes.MAIN) {
+//                    popUpTo(AppRoutes.AUTH) { inclusive = true }
+//                }
+//            } else if (!finalIsAuthenticated && navController.currentDestination?.route != AppRoutes.MAIN) {
+//                navController.navigate(AppRoutes.AUTH)
+//            }
+//        }
+//
+//    }
+
+//    LaunchedEffect(Unit) {
+//        handleNewDeepLink { linkId ->
+//            linkId?.let { navController.navigate("${AppRoutes.ADD_EDIT_LINK_ITEM}?linkItemId=${linkId}") }
+//        }
+//    }
 
 
     AppTheme {
@@ -84,7 +110,7 @@ fun InStockApp(handleNewDeepLink: (action: (String?) -> Unit) -> Unit) {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            AppNavigation(navController)
+            AppNavigation(deepLink = deepLink)
         }
     }
 }
