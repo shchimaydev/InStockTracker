@@ -4,12 +4,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.ist.instocktracker.MainActivity
+import com.ist.instocktracker.R
 
 class IstFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -36,9 +38,11 @@ class IstFirebaseMessagingService : FirebaseMessagingService() {
 
         val pendingIntentFlags = PendingIntent.FLAG_IMMUTABLE
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, pendingIntentFlags)
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.img_notification_large)
         val channelId = "link_item_updates_channel"
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Replace with your app's notification icon
+            .setSmallIcon(R.drawable.ic_notification_small)
+            .setLargeIcon(bitmap)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)
