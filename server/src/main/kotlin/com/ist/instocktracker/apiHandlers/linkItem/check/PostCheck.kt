@@ -20,8 +20,7 @@ import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.time.Instant
 import java.util.*
 
 /**
@@ -67,7 +66,7 @@ fun Route.postCheck() {
 
 
             // Get current timestamp
-            val timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
+            val timestamp = Instant.now().toString()
 
             // 1. Get a new batch instance
             val batch = db.batch()

@@ -9,6 +9,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.ist.instocktracker.feature.auth.AuthScreen
 import com.ist.instocktracker.feature.linkitem.AddEditLinkItemScreen
+import com.ist.instocktracker.feature.linkitem.LinkItemDetailsScreen
+import androidx.compose.material3.Text
 import com.ist.instocktracker.feature.main.MainScaffold
 import com.ist.instocktracker.feature.main.MainScreen
 import com.ist.instocktracker.services.ServiceLocator.tokenStore
@@ -25,6 +27,18 @@ object AppRoutes {
     const val MAIN_LIST = "main/list"
     const val LINK_ITEM = "main/link_item"
     const val ADD_EDIT_LINK_ITEM = "main/add_edit_link_item"
+    const val DETAILS_LINK_ITEM = "main/link_item_details"
+
+    // Editor routes
+    const val EDIT_LABEL = "main/edit_label"
+    const val EDIT_LINK = "main/edit_link"
+    const val EDIT_MODE = "main/edit_mode"
+    const val EDIT_START_AT = "main/edit_start_at"
+    const val EDIT_INTERVAL = "main/edit_interval"
+    const val EDIT_STATUS = "main/edit_status"
+    const val EDIT_IMAGE = "main/edit_image"
+    const val EDIT_INSTRUCTIONS = "main/edit_instructions"
+    const val VIEW_LAST_CHECK = "main/view_last_check"
 }
 
 /**
@@ -88,6 +102,22 @@ fun AppNavigation(
                     val linkItemId = backStackEntry.arguments?.getString("linkItemId")
                     AddEditLinkItemScreen(linkItemId = linkItemId)
                 }
+
+                composable("${AppRoutes.DETAILS_LINK_ITEM}?linkItemId={linkItemId}") { backStackEntry ->
+                    val linkItemId = backStackEntry.arguments?.getString("linkItemId")
+                    LinkItemDetailsScreen(linkItemId = linkItemId)
+                }
+
+                // Placeholders for editors
+                composable("${AppRoutes.EDIT_LABEL}?linkItemId={linkItemId}") { Text("Edit Label") }
+                composable("${AppRoutes.EDIT_LINK}?linkItemId={linkItemId}") { Text("Edit Link") }
+                composable("${AppRoutes.EDIT_MODE}?linkItemId={linkItemId}") { Text("Edit Mode") }
+                composable("${AppRoutes.EDIT_START_AT}?linkItemId={linkItemId}") { Text("Edit Start At") }
+                composable("${AppRoutes.EDIT_INTERVAL}?linkItemId={linkItemId}") { Text("Edit Interval") }
+                composable("${AppRoutes.EDIT_STATUS}?linkItemId={linkItemId}") { Text("Edit Status") }
+                composable("${AppRoutes.EDIT_IMAGE}?linkItemId={linkItemId}") { Text("Edit Image") }
+                composable("${AppRoutes.EDIT_INSTRUCTIONS}?linkItemId={linkItemId}") { Text("Edit Instructions") }
+                composable("${AppRoutes.VIEW_LAST_CHECK}?linkItemId={linkItemId}") { Text("View Last Check") }
 
             }
 

@@ -35,6 +35,7 @@ kotlin {
             // put your Multiplatform dependencies here
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.datetime)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.core)
             implementation(libs.kotlinx.serialization.json)

@@ -1,6 +1,9 @@
 package com.ist.instocktracker.data
 
 import com.ist.instocktracker.DocumentId
+import kotlinx.datetime.*
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.serialization.Serializable
 
 
@@ -56,6 +59,26 @@ data class LinkItem(
     val placeholderImage: String? = null
 
 ) {
+    @OptIn(FormatStringsInDatetimeFormats::class)
+    fun lastCheckedDateFormatted(): String {
+        if (lastCheckDate == null) return "-"
+
+        return try {
+            val instant = Instant.parse(lastCheckDate)
+            val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+
+            val formatter = LocalDateTime.Format {
+                // "EEE" = Mon, "MMM" = Jan, "d" = 25, "h:mm" = 2:05, "a" = AM/PM
+                byUnicodePattern("EEE, MMM d 'at' h:mm a")
+            }
+
+            localDateTime.format(formatter)
+        } catch (e: Exception) {
+            println("Error formatting last check date: ${e.message}")
+            lastCheckDate
+        }
+    }
+
     fun toMap(): Map<String, Any?> {
         return mapOf(
             "link" to link,

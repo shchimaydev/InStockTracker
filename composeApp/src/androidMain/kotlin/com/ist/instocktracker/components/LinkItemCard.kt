@@ -24,6 +24,7 @@ import com.ist.instocktracker.R
 import com.ist.instocktracker.data.*
 import com.ist.instocktracker.navigation.AppRoutes
 import com.ist.instocktracker.utils.LocalNavController
+import com.ist.instocktracker.utils.capitalizeWords
 
 @Composable
 fun LinkItemCard(linkItem: LinkItem) {
@@ -46,7 +47,7 @@ fun LinkItemCard(linkItem: LinkItem) {
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable {
-                nav.navigate("${AppRoutes.ADD_EDIT_LINK_ITEM}?linkItemId=${linkItem.id}")
+                nav.navigate("${AppRoutes.DETAILS_LINK_ITEM}?linkItemId=${linkItem.id}")
             },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -61,7 +62,7 @@ fun LinkItemCard(linkItem: LinkItem) {
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = linkItem.label?.replaceFirstChar { it.uppercase() } ?: "No label",
+                    text = linkItem.label?.capitalizeWords() ?: "No label",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2E2E2E)
