@@ -47,7 +47,7 @@ fun LinkItemCard(linkItem: LinkItem) {
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable {
-                nav.navigate("${AppRoutes.DETAILS_LINK_ITEM}?linkItemId=${linkItem.id}")
+                nav.navigate(AppRoutes.linkItemDetails(linkItem.id))
             },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),

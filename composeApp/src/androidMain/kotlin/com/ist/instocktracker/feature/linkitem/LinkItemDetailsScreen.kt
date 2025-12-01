@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,12 +25,12 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.ist.instocktracker.R
 import com.ist.instocktracker.components.InfoCard
 import com.ist.instocktracker.data.LinkItem
+import com.ist.instocktracker.data.Mode
 import com.ist.instocktracker.data.getDisplayName
 import com.ist.instocktracker.navigation.AppRoutes
 import com.ist.instocktracker.utils.LocalNavController
@@ -43,24 +42,11 @@ fun LinkItemDetailsScreen(
     linkItemId: String?
 ) {
     val navController = LocalNavController.current
+    val viewModel = viewModel { LinkItemDetailsViewModel(linkItemId ?: "") }
 
-//    val viewModel: LinkItemDetailsViewModel = viewModel(
-//        factory = object : androidx.lifecycle.ViewModelProvider.Factory {
-//            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-//                return LinkItemDetailsViewModel(linkItemId ?: "") as T
-//            }
-//        }
-//    )
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val viewModel: LinkItemDetailsViewModel = viewModel(
-        factory = viewModelFactory {
-            initializer {
-                LinkItemDetailsViewModel(linkItemId ?: "")
-            }
-        }
-    )
-
-    val uiState by viewModel.uiState.collectAsState()
+//    println("LinkItemDetailsScreen linkItemState: ${linkItemState?.mode}")
 
     Scaffold(
         topBar = {
@@ -81,21 +67,23 @@ fun LinkItemDetailsScreen(
         ) {
             when (val state = uiState) {
                 is LinkItemDetailsUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(androidx.compose.ui.Alignment.Center))
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
 
                 is LinkItemDetailsUiState.Error -> {
                     Text(
                         text = state.message,
                         color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(androidx.compose.ui.Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
 
                 is LinkItemDetailsUiState.Success -> {
                     LinkItemDetailsContent(
                         linkItem = state.linkItem,
-                        onNavigate = { route -> navController.navigate(route) }
+                        onNavigate = { route -> navController.navigate(route) },
+                        onUpdateLink = { newLink -> viewModel.updateLink(newLink) },
+                        onUpdateMode = { newMode -> viewModel.updateMode(newMode) }
                     )
                 }
             }
@@ -106,10 +94,14 @@ fun LinkItemDetailsScreen(
 @Composable
 fun LinkItemDetailsContent(
     linkItem: LinkItem,
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
+    onUpdateLink: (String) -> Unit,
+    onUpdateMode: (Mode) -> Unit
 ) {
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
+
+    println("LinkItemDetailsContent renders")
 
     Column(
         modifier = Modifier
@@ -170,7 +162,7 @@ fun LinkItemDetailsContent(
             },
             trailingIcon = {
                 Row {
-                    IconButton(onClick = { onNavigate("${AppRoutes.EDIT_LINK}?linkItemId=${linkItem.id}") }) {
+                    IconButton(onClick = { onNavigate(AppRoutes.editLink(linkItem.id)) }) {
                         Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.Gray)
                     }
                     IconButton(onClick = { clipboardManager.setText(AnnotatedString(linkItem.link)) }) {
@@ -188,13 +180,13 @@ fun LinkItemDetailsContent(
                 title = "Mode",
                 value = { Text(linkItem.mode.displayName) },
                 modifier = Modifier.weight(1f),
-                onClick = { onNavigate("${AppRoutes.EDIT_MODE}?linkItemId=${linkItem.id}") }
+                onClick = { onNavigate(AppRoutes.editMode(linkItem.id)) }
             )
             InfoCard(
                 title = "Start At",
                 value = { Text(linkItem.startAt ?: "Now") },
                 modifier = Modifier.weight(1f),
-                onClick = { onNavigate("${AppRoutes.EDIT_START_AT}?linkItemId=${linkItem.id}") }
+                onClick = { onNavigate(AppRoutes.editStartAt(linkItem.id)) }
             )
         }
 
@@ -203,14 +195,14 @@ fun LinkItemDetailsContent(
                 title = "Check Interval",
                 value = { Text(linkItem.interval.getDisplayName()) },
                 modifier = Modifier.weight(1f),
-                onClick = { onNavigate("${AppRoutes.EDIT_INTERVAL}?linkItemId=${linkItem.id}") }
+                onClick = { onNavigate(AppRoutes.editInterval(linkItem.id)) }
             )
             InfoCard(
                 title = "Status",
                 value = { Text(text = if (linkItem.isActive) "Active" else "Inactive") },
                 statusColor = if (linkItem.isActive) Color.Green else Color.Gray,
                 modifier = Modifier.weight(1f),
-                onClick = { onNavigate("${AppRoutes.EDIT_STATUS}?linkItemId=${linkItem.id}") }
+                onClick = { onNavigate(AppRoutes.editStatus(linkItem.id)) }
             )
         }
 
@@ -218,13 +210,14 @@ fun LinkItemDetailsContent(
             title = "Last Check",
             subtitle = linkItem.lastCheckedDateFormatted(),
             value = { Text(if (linkItem.lastCheckResult == true) "Success" else "Failed") },
-            onClick = { onNavigate("${AppRoutes.VIEW_LAST_CHECK}?linkItemId=${linkItem.id}") }
+            onClick = { onNavigate(AppRoutes.viewLastCheck(linkItem.id)) }
         )
 
         InfoCard(
             title = "Additional Instructions",
             value = { Text(linkItem.additionalInstructions ?: "None") },
-            onClick = { onNavigate("${AppRoutes.EDIT_INSTRUCTIONS}?linkItemId=${linkItem.id}") }
+            onClick = { onNavigate(AppRoutes.editInstructions(linkItem.id)) }
         )
     }
 }
+

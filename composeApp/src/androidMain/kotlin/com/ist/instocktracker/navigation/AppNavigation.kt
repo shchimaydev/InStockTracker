@@ -1,6 +1,7 @@
 package com.ist.instocktracker.navigation
 
 import android.util.Log
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -10,7 +11,8 @@ import androidx.navigation.navigation
 import com.ist.instocktracker.feature.auth.AuthScreen
 import com.ist.instocktracker.feature.linkitem.AddEditLinkItemScreen
 import com.ist.instocktracker.feature.linkitem.LinkItemDetailsScreen
-import androidx.compose.material3.Text
+import com.ist.instocktracker.feature.linkitem.editScreens.EditLinkScreen
+import com.ist.instocktracker.feature.linkitem.editScreens.EditModeScreen
 import com.ist.instocktracker.feature.main.MainScaffold
 import com.ist.instocktracker.feature.main.MainScreen
 import com.ist.instocktracker.services.ServiceLocator.tokenStore
@@ -24,21 +26,24 @@ import kotlinx.coroutines.flow.first
 object AppRoutes {
     const val AUTH = "auth"
     const val MAIN = "main"
-    const val MAIN_LIST = "main/list"
-    const val LINK_ITEM = "main/link_item"
+    const val MAIN_LIST = "main/link_item"
+
+    //    const val LINK_ITEM = "main/link_item"
     const val ADD_EDIT_LINK_ITEM = "main/add_edit_link_item"
     const val DETAILS_LINK_ITEM = "main/link_item_details"
 
-    // Editor routes
-    const val EDIT_LABEL = "main/edit_label"
-    const val EDIT_LINK = "main/edit_link"
-    const val EDIT_MODE = "main/edit_mode"
-    const val EDIT_START_AT = "main/edit_start_at"
-    const val EDIT_INTERVAL = "main/edit_interval"
-    const val EDIT_STATUS = "main/edit_status"
-    const val EDIT_IMAGE = "main/edit_image"
-    const val EDIT_INSTRUCTIONS = "main/edit_instructions"
-    const val VIEW_LAST_CHECK = "main/view_last_check"
+    fun linkItemDetails(linkItemId: String = "{linkItemId}") = "main/link_item/$linkItemId"
+
+    // Editor routes - functions for type-safe navigation
+    fun editLabel(linkItemId: String = "{linkItemId}") = "main/link_item/$linkItemId/edit_label"
+    fun editLink(linkItemId: String = "{linkItemId}") = "main/link_item/$linkItemId/edit_link"
+    fun editMode(linkItemId: String = "{linkItemId}") = "main/link_item/$linkItemId/edit_mode"
+    fun editStartAt(linkItemId: String = "{linkItemId}") = "main/link_item/$linkItemId/edit_start_at"
+    fun editInterval(linkItemId: String = "{linkItemId}") = "main/link_item/$linkItemId/edit_interval"
+    fun editStatus(linkItemId: String = "{linkItemId}") = "main/link_item/$linkItemId/edit_status"
+    fun editImage(linkItemId: String = "{linkItemId}") = "main/link_item/$linkItemId/edit_image"
+    fun editInstructions(linkItemId: String = "{linkItemId}") = "main/link_item/$linkItemId/edit_instructions"
+    fun viewLastCheck(linkItemId: String = "{linkItemId}") = "main/link_item/$linkItemId/view_last_check"
 }
 
 /**
@@ -103,21 +108,48 @@ fun AppNavigation(
                     AddEditLinkItemScreen(linkItemId = linkItemId)
                 }
 
-                composable("${AppRoutes.DETAILS_LINK_ITEM}?linkItemId={linkItemId}") { backStackEntry ->
+                composable(AppRoutes.linkItemDetails()) { backStackEntry ->
                     val linkItemId = backStackEntry.arguments?.getString("linkItemId")
                     LinkItemDetailsScreen(linkItemId = linkItemId)
                 }
 
-                // Placeholders for editors
-                composable("${AppRoutes.EDIT_LABEL}?linkItemId={linkItemId}") { Text("Edit Label") }
-                composable("${AppRoutes.EDIT_LINK}?linkItemId={linkItemId}") { Text("Edit Link") }
-                composable("${AppRoutes.EDIT_MODE}?linkItemId={linkItemId}") { Text("Edit Mode") }
-                composable("${AppRoutes.EDIT_START_AT}?linkItemId={linkItemId}") { Text("Edit Start At") }
-                composable("${AppRoutes.EDIT_INTERVAL}?linkItemId={linkItemId}") { Text("Edit Interval") }
-                composable("${AppRoutes.EDIT_STATUS}?linkItemId={linkItemId}") { Text("Edit Status") }
-                composable("${AppRoutes.EDIT_IMAGE}?linkItemId={linkItemId}") { Text("Edit Image") }
-                composable("${AppRoutes.EDIT_INSTRUCTIONS}?linkItemId={linkItemId}") { Text("Edit Instructions") }
-                composable("${AppRoutes.VIEW_LAST_CHECK}?linkItemId={linkItemId}") { Text("View Last Check") }
+                // Editor routes - using functions with default path params
+                composable(AppRoutes.editLabel()) { backStackEntry ->
+                    val linkItemId = backStackEntry.arguments?.getString("linkItemId")
+                    Text("Edit Label")
+                }
+                composable(AppRoutes.editLink()) { backStackEntry ->
+                    val linkItemId = backStackEntry.arguments?.getString("linkItemId")
+                    EditLinkScreen(linkItemId = linkItemId)
+                }
+                composable(AppRoutes.editMode()) { backStackEntry ->
+                    val linkItemId = backStackEntry.arguments?.getString("linkItemId")
+                    EditModeScreen(linkItemId = linkItemId)
+                }
+                composable(AppRoutes.editStartAt()) { backStackEntry ->
+                    val linkItemId = backStackEntry.arguments?.getString("linkItemId")
+                    Text("Edit Start At")
+                }
+                composable(AppRoutes.editInterval()) { backStackEntry ->
+                    val linkItemId = backStackEntry.arguments?.getString("linkItemId")
+                    Text("Edit Interval")
+                }
+                composable(AppRoutes.editStatus()) { backStackEntry ->
+                    val linkItemId = backStackEntry.arguments?.getString("linkItemId")
+                    Text("Edit Status")
+                }
+                composable(AppRoutes.editImage()) { backStackEntry ->
+                    val linkItemId = backStackEntry.arguments?.getString("linkItemId")
+                    Text("Edit Image")
+                }
+                composable(AppRoutes.editInstructions()) { backStackEntry ->
+                    val linkItemId = backStackEntry.arguments?.getString("linkItemId")
+                    Text("Edit Instructions")
+                }
+                composable(AppRoutes.viewLastCheck()) { backStackEntry ->
+                    val linkItemId = backStackEntry.arguments?.getString("linkItemId")
+                    Text("View Last Check")
+                }
 
             }
 
