@@ -35,6 +35,7 @@ import com.ist.instocktracker.data.getDisplayName
 import com.ist.instocktracker.navigation.AppRoutes
 import com.ist.instocktracker.utils.LocalNavController
 import com.ist.instocktracker.utils.capitalizeWords
+import kotlinx.datetime.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -184,7 +185,7 @@ fun LinkItemDetailsContent(
             )
             InfoCard(
                 title = "Start At",
-                value = { Text(linkItem.startAt ?: "Now") },
+                value = { Text(linkItem.startAtFormatted(TimeZone.currentSystemDefault())) },
                 modifier = Modifier.weight(1f),
                 onClick = { onNavigate(AppRoutes.editStartAt(linkItem.id)) }
             )
@@ -208,7 +209,7 @@ fun LinkItemDetailsContent(
 
         InfoCard(
             title = "Last Check",
-            subtitle = linkItem.lastCheckedDateFormatted(),
+            subtitle = linkItem.lastCheckedDateFormatted(TimeZone.currentSystemDefault()),
             value = { Text(if (linkItem.lastCheckResult == true) "Success" else "Failed") },
             onClick = { onNavigate(AppRoutes.viewLastCheck(linkItem.id)) }
         )

@@ -76,4 +76,21 @@ class LinkItemDetailsViewModel(
             }
         }
     }
+
+    fun updateStartAt(newStartAt: String?, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                val currentState = _uiState.value
+                if (currentState is LinkItemDetailsUiState.Success) {
+                    val updatedItem = currentState.linkItem.copy(startAt = newStartAt)
+                    ServiceLocator.api.updateLinkItem(linkItemId, updatedItem)
+                    _uiState.value = LinkItemDetailsUiState.Success(updatedItem)
+                    onSuccess()
+                }
+            } catch (e: Exception) {
+                _uiState.value = LinkItemDetailsUiState.Error(e.message ?: "Failed to update start at")
+                onError(e.message ?: "Failed to update start at")
+            }
+        }
+    }
 }

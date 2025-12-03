@@ -13,6 +13,7 @@ import com.ist.instocktracker.feature.linkitem.AddEditLinkItemScreen
 import com.ist.instocktracker.feature.linkitem.LinkItemDetailsScreen
 import com.ist.instocktracker.feature.linkitem.editScreens.EditLinkScreen
 import com.ist.instocktracker.feature.linkitem.editScreens.EditModeScreen
+import com.ist.instocktracker.feature.linkitem.editScreens.EditStartAtScreen
 import com.ist.instocktracker.feature.main.MainScaffold
 import com.ist.instocktracker.feature.main.MainScreen
 import com.ist.instocktracker.services.ServiceLocator.tokenStore
@@ -128,7 +129,7 @@ fun AppNavigation(
                 }
                 composable(AppRoutes.editStartAt()) { backStackEntry ->
                     val linkItemId = backStackEntry.arguments?.getString("linkItemId")
-                    Text("Edit Start At")
+                    EditStartAtScreen(linkItemId = linkItemId)
                 }
                 composable(AppRoutes.editInterval()) { backStackEntry ->
                     val linkItemId = backStackEntry.arguments?.getString("linkItemId")

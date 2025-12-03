@@ -59,17 +59,46 @@ data class LinkItem(
     val placeholderImage: String? = null
 
 ) {
+
     @OptIn(FormatStringsInDatetimeFormats::class)
-    fun lastCheckedDateFormatted(): String {
+    fun startAtFormatted(timeZone: TimeZone? = null): String {
+        if (startAt == null) return "-"
+
+        return try {
+//            val localDateTime = LocalDateTime.parse(startAt)
+            val instant = Instant.parse(startAt + "Z")
+            val localDateTime = instant.toLocalDateTime(timeZone ?: TimeZone.currentSystemDefault())
+
+            val formatter = LocalDateTime.Format {
+                if ((localDateTime.hour != 0 && localDateTime.minute != 0)) {
+                    byUnicodePattern("MM/dd/yyyy 'at' HH:mm")
+                } else {
+                    byUnicodePattern("MM/dd/yyyy")
+                }
+
+            }
+
+            localDateTime.format(formatter)
+        } catch (e: Exception) {
+            println("Error formatting startAt date: ${e.message}")
+            startAt
+        }
+    }
+
+    @OptIn(FormatStringsInDatetimeFormats::class)
+    fun lastCheckedDateFormatted(timeZone: TimeZone? = null): String {
         if (lastCheckDate == null) return "-"
 
         return try {
-            val instant = Instant.parse(lastCheckDate)
-            val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+            val instant = Instant.parse(lastCheckDate + "Z")
+            val localDateTime = instant.toLocalDateTime(timeZone ?: TimeZone.currentSystemDefault())
 
             val formatter = LocalDateTime.Format {
-                // "EEE" = Mon, "MMM" = Jan, "d" = 25, "h:mm" = 2:05, "a" = AM/PM
-                byUnicodePattern("EEE, MMM d 'at' h:mm a")
+                if ((localDateTime.hour != 0 && localDateTime.minute != 0)) {
+                    byUnicodePattern("MM/dd/yyyy 'at' HH:mm")
+                } else {
+                    byUnicodePattern("MM/dd/yyyy")
+                }
             }
 
             localDateTime.format(formatter)

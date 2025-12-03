@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ist.instocktracker.data.Mode
 import com.ist.instocktracker.feature.linkitem.LinkItemDetailsUiState
 import com.ist.instocktracker.feature.linkitem.LinkItemDetailsViewModel
@@ -24,7 +25,8 @@ fun EditModeScreen(
     linkItemId: String?
 ) {
     val navController = LocalNavController.current
-    val parentEntry = remember {
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val parentEntry = remember(currentBackStackEntry) {
         navController.getBackStackEntry(AppRoutes.linkItemDetails(linkItemId ?: ""))
     }
     val viewModel: LinkItemDetailsViewModel = viewModel(viewModelStoreOwner = parentEntry)

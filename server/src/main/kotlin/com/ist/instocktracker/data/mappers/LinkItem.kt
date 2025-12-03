@@ -16,6 +16,7 @@ fun DocumentSnapshot.toLinkItem(): LinkItem? {
         userId = this.getString("userId") ?: "",
         label = this.getString("label"),
         link = this.getString("link") ?: "",
+        startAt = this.getString("startAt"),
         mode = this.getString("mode")?.let { Mode.valueOf(it) } ?: Mode.OUT_OF_STOCK,
         additionalInstructions = this.getString("additionalInstructions"),
         isActive = this.getBoolean("isActive") ?: false,

@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.ist.instocktracker.data.Mode
+import com.ist.instocktracker.feature.linkitem.components.CheckIntervalCard
+import com.ist.instocktracker.feature.linkitem.components.StartAtCard
 import com.ist.instocktracker.utils.LocalNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
