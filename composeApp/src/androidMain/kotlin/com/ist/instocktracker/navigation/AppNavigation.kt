@@ -11,6 +11,7 @@ import androidx.navigation.navigation
 import com.ist.instocktracker.feature.auth.AuthScreen
 import com.ist.instocktracker.feature.linkitem.AddEditLinkItemScreen
 import com.ist.instocktracker.feature.linkitem.LinkItemDetailsScreen
+import com.ist.instocktracker.feature.linkitem.editScreens.EditIntervalScreen
 import com.ist.instocktracker.feature.linkitem.editScreens.EditLinkScreen
 import com.ist.instocktracker.feature.linkitem.editScreens.EditModeScreen
 import com.ist.instocktracker.feature.linkitem.editScreens.EditStartAtScreen
@@ -133,7 +134,7 @@ fun AppNavigation(
                 }
                 composable(AppRoutes.editInterval()) { backStackEntry ->
                     val linkItemId = backStackEntry.arguments?.getString("linkItemId")
-                    Text("Edit Interval")
+                    EditIntervalScreen(linkItemId = linkItemId)
                 }
                 composable(AppRoutes.editStatus()) { backStackEntry ->
                     val linkItemId = backStackEntry.arguments?.getString("linkItemId")

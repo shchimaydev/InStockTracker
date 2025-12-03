@@ -2,6 +2,7 @@ package com.ist.instocktracker.feature.linkitem
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ist.instocktracker.data.Interval
 import com.ist.instocktracker.data.LinkItem
 import com.ist.instocktracker.data.Mode
 import com.ist.instocktracker.services.ServiceLocator
@@ -90,6 +91,38 @@ class LinkItemDetailsViewModel(
             } catch (e: Exception) {
                 _uiState.value = LinkItemDetailsUiState.Error(e.message ?: "Failed to update start at")
                 onError(e.message ?: "Failed to update start at")
+            }
+        }
+    }
+
+    fun updateInterval(newInterval: Interval, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                val currentState = _uiState.value
+                if (currentState is LinkItemDetailsUiState.Success) {
+                    val updatedItem = currentState.linkItem.copy(interval = newInterval)
+                    ServiceLocator.api.updateLinkItem(linkItemId, updatedItem)
+                    _uiState.value = LinkItemDetailsUiState.Success(updatedItem)
+                    onSuccess()
+                }
+            } catch (e: Exception) {
+                _uiState.value = LinkItemDetailsUiState.Error(e.message ?: "Failed to update interval")
+                onError(e.message ?: "Failed to update interval")
+            }
+        }
+    }
+
+    fun toggleStatus() {
+        viewModelScope.launch {
+            try {
+                val currentState = _uiState.value
+                if (currentState is LinkItemDetailsUiState.Success) {
+                    val updatedItem = currentState.linkItem.copy(isActive = !currentState.linkItem.isActive)
+                    ServiceLocator.api.updateLinkItem(linkItemId, updatedItem)
+                    _uiState.value = LinkItemDetailsUiState.Success(updatedItem)
+                }
+            } catch (e: Exception) {
+                _uiState.value = LinkItemDetailsUiState.Error(e.message ?: "Failed to toggle status")
             }
         }
     }

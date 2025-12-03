@@ -84,7 +84,8 @@ fun LinkItemDetailsScreen(
                         linkItem = state.linkItem,
                         onNavigate = { route -> navController.navigate(route) },
                         onUpdateLink = { newLink -> viewModel.updateLink(newLink) },
-                        onUpdateMode = { newMode -> viewModel.updateMode(newMode) }
+                        onUpdateMode = { newMode -> viewModel.updateMode(newMode) },
+                        onToggleStatus = { viewModel.toggleStatus() }
                     )
                 }
             }
@@ -97,7 +98,8 @@ fun LinkItemDetailsContent(
     linkItem: LinkItem,
     onNavigate: (String) -> Unit,
     onUpdateLink: (String) -> Unit,
-    onUpdateMode: (Mode) -> Unit
+    onUpdateMode: (Mode) -> Unit,
+    onToggleStatus: () -> Unit
 ) {
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
@@ -201,9 +203,9 @@ fun LinkItemDetailsContent(
             InfoCard(
                 title = "Status",
                 value = { Text(text = if (linkItem.isActive) "Active" else "Inactive") },
-                statusColor = if (linkItem.isActive) Color.Green else Color.Gray,
+                statusColor = if (linkItem.isActive) Color.Green else Color.Red,
                 modifier = Modifier.weight(1f),
-                onClick = { onNavigate(AppRoutes.editStatus(linkItem.id)) }
+                onClick = { onToggleStatus() }
             )
         }
 
@@ -211,14 +213,14 @@ fun LinkItemDetailsContent(
             title = "Last Check",
             subtitle = linkItem.lastCheckedDateFormatted(TimeZone.currentSystemDefault()),
             value = { Text(if (linkItem.lastCheckResult == true) "Success" else "Failed") },
-            onClick = { onNavigate(AppRoutes.viewLastCheck(linkItem.id)) }
+            onClick = { }
         )
 
-        InfoCard(
-            title = "Additional Instructions",
-            value = { Text(linkItem.additionalInstructions ?: "None") },
-            onClick = { onNavigate(AppRoutes.editInstructions(linkItem.id)) }
-        )
+//        InfoCard(
+//            title = "Additional Instructions",
+//            value = { Text(linkItem.additionalInstructions ?: "None") },
+//            onClick = { onNavigate(AppRoutes.editInstructions(linkItem.id)) }
+//        )
     }
 }
 
