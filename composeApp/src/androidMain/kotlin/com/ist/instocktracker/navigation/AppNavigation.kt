@@ -9,7 +9,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.ist.instocktracker.feature.auth.AuthScreen
-import com.ist.instocktracker.feature.linkitem.AddEditLinkItemScreen
 import com.ist.instocktracker.feature.linkitem.LinkItemDetailsScreen
 import com.ist.instocktracker.feature.linkitem.editScreens.EditIntervalScreen
 import com.ist.instocktracker.feature.linkitem.editScreens.EditLinkScreen
@@ -31,7 +30,6 @@ object AppRoutes {
     const val MAIN_LIST = "main/link_item"
 
     //    const val LINK_ITEM = "main/link_item"
-    const val ADD_EDIT_LINK_ITEM = "main/add_edit_link_item"
     const val DETAILS_LINK_ITEM = "main/link_item_details"
 
     fun linkItemDetails(linkItemId: String = "{linkItemId}") = "main/link_item/$linkItemId"
@@ -79,7 +77,7 @@ fun AppNavigation(
                 // If it exists, navigate to it. This pushes the Item screen ON TOP of Main.
                 Log.d("AppNavigation", "DeepLinkState: $deepLinkState")
                 deepLinkState?.let { linkId ->
-                    navController.navigate("${AppRoutes.ADD_EDIT_LINK_ITEM}?linkItemId=${linkId}")
+                    navController.navigate(AppRoutes.linkItemDetails(linkId))
                 }
             }
 
@@ -103,11 +101,6 @@ fun AppNavigation(
             navigation(startDestination = AppRoutes.MAIN_LIST, route = AppRoutes.MAIN) {
                 composable(AppRoutes.MAIN_LIST) {
                     MainScaffold { paddingValue -> MainScreen(paddingValue) }
-                }
-
-                composable("${AppRoutes.ADD_EDIT_LINK_ITEM}?linkItemId={linkItemId}") { backStackEntry ->
-                    val linkItemId = backStackEntry.arguments?.getString("linkItemId")
-                    AddEditLinkItemScreen(linkItemId = linkItemId)
                 }
 
                 composable(AppRoutes.linkItemDetails()) { backStackEntry ->
