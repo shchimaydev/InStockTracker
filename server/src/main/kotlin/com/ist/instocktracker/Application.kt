@@ -10,7 +10,6 @@ import com.ist.instocktracker.apiHandlers.postTokenRefresh
 import com.ist.instocktracker.config.JwtConfig
 import com.ist.instocktracker.plugins.UserFromPrincipal
 import com.ist.instocktracker.services.IdTokenVerifierService
-import com.ist.instocktracker.services.SchedulerService
 import com.ist.instocktracker.services.ServiceProvider
 import com.ist.instocktracker.services.db.FirestoreProvider
 import io.ktor.http.*
@@ -50,14 +49,15 @@ fun Application.module() {
 
     ServiceProvider.init(application = this)
 
-    println("Project ID from environment: ${System.getenv("GAE_APPLICATION")}")
-    val projectId = System.getenv("GAE_APPLICATION")?.split("~")?.getOrNull(1) ?: "instocktracker-464721"
-    val location = "europe-west3"
-    val serverUrl = "https://$projectId.ey.r.appspot.com"
-    val schedulerService = SchedulerService(
-        location = location,
-        serverBaseUrl = serverUrl
-    )
+//    println("Project ID from environment: ${System.getenv("GAE_APPLICATION")}")
+//    val projectId = System.getenv("GAE_APPLICATION")?.split("~")?.getOrNull(1) ?: "instocktracker-464721"
+//    val location = "europe-west3"
+//    val serverUrl = "https://$projectId.ey.r.appspot.com"
+//    val schedulerService = SchedulerService(
+//        location = location,
+//        serverBaseUrl = serverUrl
+//    )
+    //ServiceProvider.initSchedulerService(schedulerService)
     val idTokenVerifierService = IdTokenVerifierService()
     val jwtConfig = JwtConfig.fromEnvironment(environment)
 
@@ -107,7 +107,7 @@ fun Application.module() {
 
                     getLinkItem()
                     getLinkItemsForUser()
-                    postLinkItem(schedulerService)
+                    postLinkItem()
                     putLinkItem()
                     deleteLinkItem()
                 }

@@ -31,12 +31,13 @@ tasks.register<Exec>("gcloudDeploy") {
     // The command to execute.
     // Make sure 'gcloud' is available in your system's PATH.
     commandLine(
-        "gcloud",
+        "/Users/illya/y/google-cloud-sdk/bin/gcloud",
         "app",
         "deploy",
         "build/libs/server-all.jar", // Path to the JAR within the server module
         "--project",
-        "instocktracker-464721"
+        "instocktracker-464721",
+        "--quiet"
     )
 }
 
@@ -56,6 +57,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.jdk)
+    implementation(libs.kotlinx.datetime)
 
     implementation(platform(libs.google.cloud.bom))
     implementation(libs.google.cloud.firestore)

@@ -27,21 +27,22 @@ fun Route.putLinkItem() {
 
         val linkItem = call.receive<LinkItem>()
 
-
         val docRef = linkItemRepository.collection.document(id)
 
-        // Check if document exists
-        val exists = withContext(Dispatchers.IO) {
-            docRef.get().get().exists()
+        // Get the existing document to compare changes
+        val existingSnapshot = withContext(Dispatchers.IO) {
+            docRef.get().get()
         }
 
-        if (!exists) {
+        if (!existingSnapshot.exists()) {
             call.respond(
                 HttpStatusCode.NotFound,
                 mapOf("error" to "Link item not found")
             )
             return@put
         }
+
+        val existingItem = existingSnapshot.toLinkItem()
 
         // Update the document
         withContext(Dispatchers.IO) {
@@ -56,6 +57,10 @@ fun Route.putLinkItem() {
 
         val updatedItem = updatedSnapshot.toLinkItem()
         if (updatedItem != null) {
+            // Handle changes to schedule-related properties
+            if (existingItem != null) {
+                handleLinkItemChanges(existingItem, updatedItem)
+            }
             call.respond(updatedItem)
         } else {
             call.respond(
@@ -63,5 +68,56 @@ fun Route.putLinkItem() {
                 mapOf("error" to "Failed to update link item")
             )
         }
+    }
+}
+
+/**
+ * Handles changes to LinkItem properties that affect the scheduled job.
+ * Called after the LinkItem is successfully updated.
+ *
+ * @param oldItem The original LinkItem before the update
+ * @param newItem The updated LinkItem after the update
+ */
+private fun handleLinkItemChanges(oldItem: LinkItem, newItem: LinkItem) {
+    when {
+        oldItem.isActive != newItem.isActive -> {
+            handleIsActiveChange(newItem)
+        }
+        oldItem.startAt != newItem.startAt -> {
+            handleStartAtChange(newItem)
+        }
+        oldItem.interval != newItem.interval -> {
+            // TODO: Handle interval changes
+        }
+    }
+}
+
+/**
+ * Handles changes to the startAt property by updating the scheduled job's next run time.
+ *
+ * @param linkItem The updated LinkItem with the new startAt value
+ */
+private fun handleStartAtChange(linkItem: LinkItem) {
+    val scheduleJobId = linkItem.scheduleJobId ?: return
+    val startAt = linkItem.startAt ?: return
+
+    val schedulerService = ServiceProvider.schedulerService
+    schedulerService.setScheduleTime(scheduleJobId, startAt)
+}
+
+/**
+ * Handles changes to the isActive property by pausing or resuming the scheduled job.
+ *
+ * @param linkItem The updated LinkItem with the new isActive value
+ */
+private fun handleIsActiveChange(linkItem: LinkItem) {
+    val scheduleJobId = linkItem.scheduleJobId ?: return
+
+    val schedulerService = ServiceProvider.schedulerService
+
+    if (linkItem.isActive) {
+        schedulerService.resumeJob(scheduleJobId)
+    } else {
+        schedulerService.pauseJob(scheduleJobId)
     }
 }

@@ -2,7 +2,6 @@ package com.ist.instocktracker.apiHandlers.linkItem
 
 import com.ist.instocktracker.data.LinkItem
 import com.ist.instocktracker.plugins.getUser
-import com.ist.instocktracker.services.SchedulerService
 import com.ist.instocktracker.services.ServiceProvider
 import io.ktor.http.*
 import io.ktor.server.request.*
@@ -13,11 +12,10 @@ import io.ktor.server.routing.*
  * Handler for POST /api/v1/link-item endpoint
  * Adds a new link item and creates a schedule for it
  */
-fun Route.postLinkItem(
-    schedulerService: SchedulerService
-) {
+fun Route.postLinkItem() {
     post {
         val linkItemRepository = ServiceProvider.linkItemRepository
+        val schedulerService = ServiceProvider.schedulerService
         val linkItem = call.receive<LinkItem>()
         val currentUser = call.getUser()
 

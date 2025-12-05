@@ -118,8 +118,10 @@ class LinkItemDetailsViewModel(
                 val currentState = _uiState.value
                 if (currentState is LinkItemDetailsUiState.Success) {
                     val updatedItem = currentState.linkItem.copy(isActive = !currentState.linkItem.isActive)
+                    _uiState.value =
+                        LinkItemDetailsUiState.Success(updatedItem) // optimistic update to reflect in the ui
                     ServiceLocator.api.updateLinkItem(linkItemId, updatedItem)
-                    _uiState.value = LinkItemDetailsUiState.Success(updatedItem)
+
                 }
             } catch (e: Exception) {
                 _uiState.value = LinkItemDetailsUiState.Error(e.message ?: "Failed to toggle status")

@@ -13,6 +13,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import org.openqa.selenium.OutputType
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.remote.RemoteWebDriver
@@ -20,7 +21,6 @@ import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
-import java.time.Instant
 import java.util.*
 
 /**
@@ -66,7 +66,7 @@ fun Route.postCheck() {
 
 
             // Get current timestamp
-            val timestamp = Instant.now().toString()
+            val timestamp = Clock.System.now().toString()
 
             // 1. Get a new batch instance
             val batch = db.batch()

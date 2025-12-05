@@ -19,7 +19,8 @@ import com.ist.instocktracker.feature.linkitem.components.TimePickerDialog
 import com.ist.instocktracker.navigation.AppRoutes
 import com.ist.instocktracker.utils.LocalNavController
 import kotlinx.datetime.*
-import kotlinx.datetime.format.*
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.char
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,9 +59,9 @@ fun EditStartAtScreen(
                     LocalDateTime.parse(startAtStr)
                 } catch (e: Exception) {
                     try {
-                         Instant.parse(startAtStr).toLocalDateTime(TimeZone.UTC)
+                        Instant.parse(startAtStr).toLocalDateTime(TimeZone.UTC)
                     } catch (e2: Exception) {
-                         Clock.System.now().toLocalDateTime(TimeZone.UTC)
+                        Clock.System.now().toLocalDateTime(TimeZone.UTC)
                     }
                 }
             } else {
@@ -270,9 +271,9 @@ fun EditStartAtScreen(
                                 errorMessage = null
 
                                 val finalDateTime = if (addPreciseTime) {
-                                    LocalDateTime(selectedDate, selectedTime)
+                                    LocalDateTime(selectedDate, selectedTime).toInstant(TimeZone.UTC)
                                 } else {
-                                    LocalDateTime(selectedDate, LocalTime(0, 0))
+                                    LocalDateTime(selectedDate, LocalTime(0, 0)).toInstant(TimeZone.UTC)
                                 }
 
                                 viewModel.updateStartAt(

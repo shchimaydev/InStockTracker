@@ -53,6 +53,6 @@ OR
 from `./server` module
 
 run
-`./gradlew buildFatJar`
+`./gradlew :server:buildFatJar `
 
 `gcloud app deploy build/libs/server-all.jar --project instocktracker-464721`

@@ -1,9 +1,8 @@
 package com.ist.instocktracker.data
 
 import com.ist.instocktracker.DocumentId
-import kotlinx.datetime.*
-import kotlinx.datetime.format.FormatStringsInDatetimeFormats
-import kotlinx.datetime.format.byUnicodePattern
+import com.ist.instocktracker.utils.formatIsoDateString
+import kotlinx.datetime.TimeZone
 import kotlinx.serialization.Serializable
 
 
@@ -60,51 +59,27 @@ data class LinkItem(
 
 ) {
 
-    @OptIn(FormatStringsInDatetimeFormats::class)
     fun startAtFormatted(timeZone: TimeZone? = null): String {
         if (startAt == null) return "-"
 
         return try {
-//            val localDateTime = LocalDateTime.parse(startAt)
-            val instant = Instant.parse(startAt + "Z")
-            val localDateTime = instant.toLocalDateTime(timeZone ?: TimeZone.currentSystemDefault())
-
-            val formatter = LocalDateTime.Format {
-                if ((localDateTime.hour != 0 && localDateTime.minute != 0)) {
-                    byUnicodePattern("MM/dd/yyyy 'at' HH:mm")
-                } else {
-                    byUnicodePattern("MM/dd/yyyy")
-                }
-
-            }
-
-            localDateTime.format(formatter)
+            return formatIsoDateString(startAt, timeZone)
         } catch (e: Exception) {
             println("Error formatting startAt date: ${e.message}")
             startAt
+
         }
     }
 
-    @OptIn(FormatStringsInDatetimeFormats::class)
     fun lastCheckedDateFormatted(timeZone: TimeZone? = null): String {
         if (lastCheckDate == null) return "-"
 
         return try {
-            val instant = Instant.parse(lastCheckDate + "Z")
-            val localDateTime = instant.toLocalDateTime(timeZone ?: TimeZone.currentSystemDefault())
-
-            val formatter = LocalDateTime.Format {
-                if ((localDateTime.hour != 0 && localDateTime.minute != 0)) {
-                    byUnicodePattern("MM/dd/yyyy 'at' HH:mm")
-                } else {
-                    byUnicodePattern("MM/dd/yyyy")
-                }
-            }
-
-            localDateTime.format(formatter)
+            return formatIsoDateString(lastCheckDate, timeZone)
         } catch (e: Exception) {
-            println("Error formatting last check date: ${e.message}")
+            println("Error formatting lastCheckDate date: ${e.message}")
             lastCheckDate
+
         }
     }
 
