@@ -1,43 +1,37 @@
 package com.ist.instocktracker
 
 import android.Manifest
-import android.app.ComponentCaller
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import com.ist.instocktracker.navigation.AppNavigation
 import com.ist.instocktracker.services.ServiceLocator
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.ist.instocktracker.utils.extractUrlFromText
 
 class MainActivity : ComponentActivity() {
-    private val deepLink = MutableStateFlow<String?>(null)
+    val viewModel: MainActivityViewModel by viewModels()
 
     // Support pre-API 35 onNewIntent to handle notification taps across all devices
     override fun onNewIntent(intent: Intent) {
+        Log.d("MainActivity", "onNewIntent: $intent")
         super.onNewIntent(intent)
         setIntent(intent)
-        checkIntent(intent)
-    }
-
-    override fun onNewIntent(intent: Intent, caller: ComponentCaller) {
-        super.onNewIntent(intent, caller)
-        setIntent(intent)
-        checkIntent(intent)
+        checkPushNotificationIntent(intent) { url -> viewModel.setDeepLink(url) }
+        checkSharedUrlIntent(intent) { url -> viewModel.setSharedUrl(url) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,72 +39,47 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // for cold start
-        checkIntent(intent)
+        checkPushNotificationIntent(intent) { url -> viewModel.setDeepLink(url) }
+        checkSharedUrlIntent(intent) { url -> viewModel.setSharedUrl(url) }
 
         ServiceLocator.init(applicationContext)
 
         setContent {
-            val link by deepLink.collectAsState()
-            fun handleNewDeepLink(action: (String?) -> Unit) {
-                intent.removeExtra("linkItemId") // remove linkItemId (is don't know if it is needed
-                action(link)
-                deepLink.value = null
-            }
-
-            InStockApp(deepLink)
+            InStockApp()
             RequestPostNotificationsPermission()
         }
     }
 
-    private fun checkIntent(intent: Intent) {
+    private fun checkSharedUrlIntent(intent: Intent, callback: (url: String) -> Unit) {
+        if (intent.action == Intent.ACTION_SEND && intent.type == "text/plain") {
+            intent.getStringExtra(Intent.EXTRA_TEXT)?.let { sharedText ->
+                Log.d("MainActivity", "Share Intent. sharedText: $sharedText")
+                val url = extractUrlFromText(sharedText)
+                if (url != null) {
+                    callback(url)
+                }
+            }
+        }
+    }
+
+    private fun checkPushNotificationIntent(intent: Intent, callback: (url: String) -> Unit) {
         if (intent.hasExtra("linkItemId")) {
             val linkId = intent.getStringExtra("linkItemId")
             linkId?.let {
-                deepLink.value = it
+                callback(it)
             }
         }
     }
 }
 
 @Composable
-fun InStockApp(deepLink: Flow<String?>) {
-    //val navController = rememberNavController()
-
-    //val isAuthenticated by tokenStore.isAuthenticated().collectAsState(initial = null)
-
-//    if (isAuthenticated == null) {
-//        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//            CircularProgressIndicator()
-//        }
-//    }
-//
-//    LaunchedEffect(isAuthenticated) {
-//        Log.d("AppNavigation", "isAuthenticated: ${tokenStore.getJwt().first()}")
-//        isAuthenticated?.let { finalIsAuthenticated ->
-//            if (finalIsAuthenticated && navController.currentDestination?.route == AppRoutes.AUTH) {
-//                navController.navigate(AppRoutes.MAIN) {
-//                    popUpTo(AppRoutes.AUTH) { inclusive = true }
-//                }
-//            } else if (!finalIsAuthenticated && navController.currentDestination?.route != AppRoutes.MAIN) {
-//                navController.navigate(AppRoutes.AUTH)
-//            }
-//        }
-//
-//    }
-
-//    LaunchedEffect(Unit) {
-//        handleNewDeepLink { linkId ->
-//            linkId?.let { navController.navigate("${AppRoutes.ADD_EDIT_LINK_ITEM}?linkItemId=${linkId}") }
-//        }
-//    }
-
-
+fun InStockApp() {
     AppTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            AppNavigation(deepLink = deepLink)
+            AppNavigation()
         }
     }
 }

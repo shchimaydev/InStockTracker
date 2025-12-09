@@ -19,23 +19,26 @@ fun Route.postLinkItem() {
         val linkItem = call.receive<LinkItem>()
         val currentUser = call.getUser()
 
-        // Create a schedule for the LinkItem
-        val scheduleJobId = schedulerService.createSchedule(linkItem)
-        val updatedLinkItem = linkItem.copy(scheduleJobId = scheduleJobId, userId = currentUser.id)
-        val linkItemFromDb = linkItemRepository.save(updatedLinkItem)
 
-        if (linkItemFromDb == null) call.respond(
-            HttpStatusCode.InternalServerError,
-            mapOf("error" to "Failed to create link item")
-        )
+        try {
+            val updatedLinkItem = linkItem.copy(userId = currentUser.id)
+            val linkItemFromDb = linkItemRepository.save(updatedLinkItem)
 
-        if (linkItemFromDb == null) {
+
+            linkItemFromDb
+                ?.let {
+                    // Create a schedule for the LinkItem
+                    val scheduleJobId = schedulerService.createSchedule(it)
+                    linkItemRepository.save(it.copy(scheduleJobId = scheduleJobId))
+                }
+                ?: throw IllegalStateException("Failed to create link item")
+
+            return@post call.respond(status = HttpStatusCode.Created, message = linkItemFromDb)
+        } catch (e: Exception) {
             return@post call.respond(
                 HttpStatusCode.InternalServerError,
-                mapOf("error" to "Failed to create link item")
+                mapOf("error" to "Failed to create link item. Reason: ${e.message}")
             )
         }
-
-        return@post call.respond(status = HttpStatusCode.Created, message = linkItemFromDb)
     }
 }

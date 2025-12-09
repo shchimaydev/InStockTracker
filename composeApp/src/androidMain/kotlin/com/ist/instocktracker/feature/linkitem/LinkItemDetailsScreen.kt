@@ -212,7 +212,11 @@ fun LinkItemDetailsContent(
         InfoCard(
             title = "Last Check",
             subtitle = linkItem.lastCheckedDateFormatted(TimeZone.currentSystemDefault()),
-            value = { Text(if (linkItem.lastCheckResult == true) "Success" else "Failed") },
+            value = {
+                val lastCheckResultString =
+                    linkItem.lastCheckResult?.let { if (it) "Success" else "Failed" } ?: "Hasn't been checked yet"
+                Text(lastCheckResultString)
+            },
             onClick = { }
         )
 

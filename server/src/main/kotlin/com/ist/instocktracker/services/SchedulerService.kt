@@ -20,13 +20,19 @@ class SchedulerService(
     private val location: String,
     private val serverBaseUrl: String
 ) {
+    companion object {
+        private val schedulerClient: CloudSchedulerClient by lazy {
+            CloudSchedulerClient.create()
+        }
+    }
+
     /**
      * Creates a new schedule job for a LinkItem
      * @param linkItem The LinkItem to create a schedule for
      * @return The ID of the created schedule job
      */
     fun createSchedule(linkItem: LinkItem): String {
-        CloudSchedulerClient.create().use { client ->
+        schedulerClient.use { client ->
             val parent = LocationName.of(projectId, location)
 
             // Generate a unique job ID
@@ -70,7 +76,7 @@ class SchedulerService(
      * @return The Job object if found, null otherwise
      */
     fun getSchedule(jobId: String): Job? {
-        CloudSchedulerClient.create().use { client ->
+        schedulerClient.use { client ->
             val jobName = JobName.of(projectId, location, jobId)
 
             val request = GetJobRequest.newBuilder()
@@ -91,7 +97,7 @@ class SchedulerService(
      * @return true if successful, false otherwise
      */
     fun pauseJob(jobId: String): Boolean {
-        CloudSchedulerClient.create().use { client ->
+        schedulerClient.use { client ->
             val jobName = JobName.of(projectId, location, jobId)
             return try {
                 client.pauseJob(jobName)
@@ -104,12 +110,26 @@ class SchedulerService(
     }
 
     /**
+     * Deletes a schedule job
+     */
+    fun deleteSchedule(jobId: String): Boolean {
+        schedulerClient.use { client ->
+            val jobName = JobName.of(projectId, location, jobId)
+            return try {
+                client.deleteJob(jobName)
+                true
+            } catch (e: Exception) {
+                println("Error deleting job $jobId: ${e.message}")
+                false
+            }
+        }
+    }
+
+    /**
      * Resumes a paused schedule job
-     * @param jobId The ID of the schedule job to resume
-     * @return true if successful, false otherwise
      */
     fun resumeJob(jobId: String): Boolean {
-        CloudSchedulerClient.create().use { client ->
+        schedulerClient.use { client ->
             val jobName = JobName.of(projectId, location, jobId)
             return try {
                 client.resumeJob(jobName)
@@ -131,7 +151,7 @@ class SchedulerService(
      * @return true if successful, false otherwise
      */
     fun setScheduleTime(jobId: String, startAt: String): Boolean {
-        CloudSchedulerClient.create().use { client ->
+        schedulerClient.use { client ->
             val jobName = JobName.of(projectId, location, jobId)
 
             return try {

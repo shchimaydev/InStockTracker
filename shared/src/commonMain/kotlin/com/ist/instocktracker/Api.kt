@@ -14,6 +14,7 @@ import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.flow.first
@@ -78,7 +79,7 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
         if (res.status.isSuccess()) {
             return res.body<TokenResponse>()
         } else {
-            throw Exception("Failed to verify ID token: ${res.status}")
+            throw Exception("Failed to verify ID token: ${res.status}, error: ${res.bodyAsText()}")
         }
     }
 
@@ -87,7 +88,7 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
         if (res.status.isSuccess()) {
             return res.body<List<LinkItem>>()
         } else {
-            throw Exception("Failed to get link items: ${res.status}")
+            throw Exception("Failed to get link items: ${res.status}, error: ${res.bodyAsText()}")
         }
     }
 
@@ -96,7 +97,7 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
         if (res.status.isSuccess()) {
             return res.body<LinkItem>()
         } else {
-            throw Exception("Failed to get link item: ${res.status}")
+            throw Exception("Failed to get link item: ${res.status}, error: ${res.bodyAsText()}")
         }
     }
 
@@ -108,7 +109,7 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
         if (res.status.isSuccess()) {
             return res.body<LinkItem>()
         } else {
-            throw Exception("Failed to create link item: ${res.status}")
+            throw Exception("Failed to create link item: ${res.status}, error: ${res.bodyAsText()}")
         }
     }
 
@@ -120,7 +121,7 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
         if (res.status.isSuccess()) {
             return res.body<LinkItem>()
         } else {
-            throw Exception("Failed to update link item: ${res.status}")
+            throw Exception("Failed to update link item: ${res.status}, error: ${res.bodyAsText()}")
         }
     }
 

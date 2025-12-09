@@ -13,27 +13,36 @@ import kotlinx.coroutines.withContext
  */
 fun Route.deleteLinkItem() {
     delete("{id}") {
-        val linkItemRepository = ServiceProvider.linkItemRepository
-        val id = call.parameters["id"] ?: return@delete call.respond(
-            HttpStatusCode.BadRequest,
-            mapOf("error" to "Missing or invalid ID")
-        )
-
-        // Check if document exists
-        val (exists, reference) = linkItemRepository.exists(id)
-
-        if (!exists && reference == null) {
-            return@delete call.respond(
-                HttpStatusCode.NotFound,
-                mapOf("error" to "Link item not found")
+        try {
+            val linkItemRepository = ServiceProvider.linkItemRepository
+            val id = call.parameters["id"] ?: return@delete call.respond(
+                HttpStatusCode.BadRequest,
+                mapOf("error" to "Missing or invalid ID")
             )
+
+            // Check if document exists
+            val (exists, reference) = linkItemRepository.exists(id)
+
+            if (!exists && reference == null) {
+                return@delete call.respond(
+                    HttpStatusCode.NotFound,
+                    mapOf("error" to "Link item not found")
+                )
+            }
+
+            // Delete scheduler job
+            val linkItem = linkItemRepository.get(reference!!)
+            linkItem!!.scheduleJobId?.let { ServiceProvider.schedulerService.deleteSchedule(it) }
+
+            // Delete the document
+            withContext(Dispatchers.IO) {
+                reference?.delete()?.get()
+            }
+
+            return@delete call.respond(HttpStatusCode.NoContent)
+        } catch (e: Exception) {
+            return@delete call.respond(HttpStatusCode.InternalServerError, "Error deleting: ${e.message}")
         }
 
-        // Delete the document
-        withContext(Dispatchers.IO) {
-            reference?.delete()?.get()
-        }
-
-        return@delete call.respond(HttpStatusCode.NoContent)
     }
 }

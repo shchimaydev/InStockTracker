@@ -1,14 +1,18 @@
 package com.ist.instocktracker.navigation
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
+import com.ist.instocktracker.MainActivityViewModel
 import com.ist.instocktracker.feature.auth.AuthScreen
+import com.ist.instocktracker.feature.linkitem.AddFromShareScreen
 import com.ist.instocktracker.feature.linkitem.LinkItemDetailsScreen
 import com.ist.instocktracker.feature.linkitem.editScreens.EditIntervalScreen
 import com.ist.instocktracker.feature.linkitem.editScreens.EditLinkScreen
@@ -18,8 +22,6 @@ import com.ist.instocktracker.feature.main.MainScaffold
 import com.ist.instocktracker.feature.main.MainScreen
 import com.ist.instocktracker.services.ServiceLocator.tokenStore
 import com.ist.instocktracker.utils.LocalNavController
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 
 /**
  * Navigation routes for the app
@@ -31,6 +33,7 @@ object AppRoutes {
 
     //    const val LINK_ITEM = "main/link_item"
     const val DETAILS_LINK_ITEM = "main/link_item_details"
+    const val ADD_FROM_SHARE = "main/add_from_share?url={url}"
 
     fun linkItemDetails(linkItemId: String = "{linkItemId}") = "main/link_item/$linkItemId"
 
@@ -55,38 +58,53 @@ object AppRoutes {
 fun AppNavigation(
     navController: NavHostController = rememberNavController(),
     startDestination: String = AppRoutes.AUTH,
-    deepLink: Flow<String?>
+    viewModel: MainActivityViewModel = viewModel()
 ) {
 //    val tokenStore = ServiceLocator.tokenStore
     val isAuthenticated by tokenStore.isAuthenticated().collectAsState(initial = null)
-    val deepLinkState by deepLink.collectAsState(initial = null)
+    val deepLinkState by viewModel.deepLink.collectAsState()
+    val sharedUrlValue by viewModel.sharedUrl.collectAsState()
     var startDestinationState by remember { mutableStateOf(startDestination) }
 
 
-    LaunchedEffect(isAuthenticated) {
-        Log.d("AppNavigation", "isAuthenticated: ${tokenStore.getJwt().first()}")
-        isAuthenticated?.let { finalIsAuthenticated ->
-            if (finalIsAuthenticated) {
-                startDestinationState = AppRoutes.MAIN
+    LaunchedEffect(isAuthenticated, sharedUrlValue, deepLinkState) {
+        val auth = isAuthenticated ?: return@LaunchedEffect
 
-                navController.navigate(AppRoutes.MAIN) {
-                    popUpTo(AppRoutes.AUTH) { inclusive = true }
+        if (auth) {
+            startDestinationState = AppRoutes.MAIN
+
+            Log.d("AppNavigation", "AppNavigation sharedUrlValue: $sharedUrlValue")
+            when {
+                sharedUrlValue != null -> {
+                    // Navigate to MAIN first (in back stack), then to share screen
+                    navController.navigate(AppRoutes.MAIN) {
+                        popUpTo(AppRoutes.AUTH) { inclusive = true }
+                    }
+                    Log.d("AppNavigation", "Navigate to ${AppRoutes.ADD_FROM_SHARE}")
+                    navController.navigate("${AppRoutes.ADD_FROM_SHARE}?url=${Uri.encode(sharedUrlValue)}")
+                    viewModel.consumeSharedUrl()
                 }
 
-                // 2. Then, immediately check for Deep Link.
-                // If it exists, navigate to it. This pushes the Item screen ON TOP of Main.
-                Log.d("AppNavigation", "DeepLinkState: $deepLinkState")
-                deepLinkState?.let { linkId ->
-                    navController.navigate(AppRoutes.linkItemDetails(linkId))
+                deepLinkState != null -> {
+                    navController.navigate(AppRoutes.MAIN) {
+                        popUpTo(AppRoutes.AUTH) { inclusive = true }
+                    }
+                    navController.navigate(AppRoutes.linkItemDetails(deepLinkState!!))
+                    viewModel.consumedDeepLink()
+                }
+
+                else -> {
+                    navController.navigate(AppRoutes.MAIN) {
+                        popUpTo(AppRoutes.AUTH) { inclusive = true }
+                    }
                 }
             }
-
-            if (!finalIsAuthenticated) {
-                startDestinationState = AppRoutes.AUTH
-                navController.navigate(AppRoutes.AUTH)
+        } else {
+            startDestinationState = AppRoutes.AUTH
+            navController.navigate(AppRoutes.AUTH) {
+                popUpTo(0) { inclusive = true }
             }
         }
-
     }
 
     CompositionLocalProvider(LocalNavController provides navController) {
@@ -99,6 +117,12 @@ fun AppNavigation(
             }
 
             navigation(startDestination = AppRoutes.MAIN_LIST, route = AppRoutes.MAIN) {
+                composable(AppRoutes.ADD_FROM_SHARE) { backStackEntry ->
+                    val url = backStackEntry.arguments?.getString("url")?.let { Uri.decode(it) }
+                    Log.d("AppNavigation", "ADD_FROM_SHARE composable navigation with url: $url ")
+                    AddFromShareScreen(shareUrl = url)
+
+                }
                 composable(AppRoutes.MAIN_LIST) {
                     MainScaffold { paddingValue -> MainScreen(paddingValue) }
                 }
