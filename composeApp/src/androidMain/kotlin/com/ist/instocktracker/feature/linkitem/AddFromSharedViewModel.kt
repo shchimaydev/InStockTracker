@@ -1,5 +1,6 @@
 package com.ist.instocktracker.feature.linkitem
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ist.instocktracker.services.ServiceLocator
@@ -18,12 +19,11 @@ class AddFromSharedViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-
-
             try {
                 val newLinkItem = LinkItemFactory.createLinkItemFromSharedUrl(url)
                 val createdLinkItem = ServiceLocator.api.createLinkItem(newLinkItem)
 
+                Log.d("AddFromShareViewModel", "New LinkItem: $newLinkItem")
                 delay(5000)
 
                 onSuccess(createdLinkItem.id)

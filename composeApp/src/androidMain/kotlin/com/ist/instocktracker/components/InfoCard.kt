@@ -31,7 +31,8 @@ fun InfoCard(
     Card(
         modifier = modifier
             .padding(4.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .fillMaxHeight(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(2.dp)
@@ -98,48 +99,63 @@ fun InfoCard(
 @Preview
 @Composable
 fun InfoCardPreview() {
-    InfoCard(
-        title = "Status",
-        value = { Text("In Stock") },
-        subtitle = "Last checked: 2 hours ago",
-        statusColor = Color.Green,
-        onClick = {}
-    )
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .height(IntrinsicSize.Min)) {
+        InfoCard(
+            modifier = Modifier.weight(1f),
+            title = "Mode",
+            value = { Text("In Stock") },
+            onClick = {}
+        )
+        InfoCard(
+            modifier = Modifier.weight(1f),
+            title = "Start At",
+            value = { Text("and there tiwll 12/16/2025 at 10:31") },
+            onClick = {}
+        )
+    }
+
 }
 
 @Preview
 @Composable
 fun InfoCardLinkPreview() {
-    InfoCard(
-        title = "Link",
-        value = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    modifier = Modifier.padding(end = 6.dp),
-                    text = "Product Link",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF2196F3)
-                )
-                Icon(
-                    Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    tint = Color(0xFF4CAF50),
-                    modifier = Modifier.size(16.dp)
-                )
-            }
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .height(IntrinsicSize.Min)) {
+        InfoCard(
+            title = "Link",
+            value = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        modifier = Modifier.padding(end = 6.dp),
+                        text = "Link",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFF2196F3)
+                    )
+                    Icon(
+                        Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = Color(0xFF4CAF50),
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
 
-        },
-        trailingIcon = {
-            Row {
-                IconButton(onClick = {}) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.Gray)
+            },
+            trailingIcon = {
+                Row {
+                    IconButton(onClick = {}) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.Gray)
+                    }
+                    IconButton(onClick = { }) {
+                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy", tint = Color.Gray)
+                    }
                 }
-                IconButton(onClick = { }) {
-                    Icon(Icons.Default.ContentCopy, contentDescription = "Copy", tint = Color.Gray)
-                }
-            }
-        },
-        onClick = {}
-    )
+            },
+            onClick = {}
+        )
+    }
+
 }

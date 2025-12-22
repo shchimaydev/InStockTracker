@@ -26,10 +26,11 @@ fun AddFromShareScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(shareUrl) {
+        Log.d("AddFromShareScreen", "How many times this is called? sharing url: $shareUrl")
         shareUrl?.let {
             viewModel.createLinkItemFromShape(it) { linkItemId ->
                 navController.navigate(AppRoutes.linkItemDetails(linkItemId)) {
-                    popUpTo(AppRoutes.ADD_FROM_SHARE) { inclusive = true }
+                    popUpTo(AppRoutes.addFromShare(shareUrl)) { inclusive = true }
                 }
             }
         }

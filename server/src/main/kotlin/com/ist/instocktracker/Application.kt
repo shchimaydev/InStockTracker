@@ -8,6 +8,7 @@ import com.ist.instocktracker.apiHandlers.postDeviceToken
 import com.ist.instocktracker.apiHandlers.postGoogleIdTokenVerification
 import com.ist.instocktracker.apiHandlers.postTokenRefresh
 import com.ist.instocktracker.config.JwtConfig
+import com.ist.instocktracker.data.ApiError
 import com.ist.instocktracker.plugins.UserFromPrincipal
 import com.ist.instocktracker.services.IdTokenVerifierService
 import com.ist.instocktracker.services.ServiceProvider
@@ -39,7 +40,7 @@ fun Application.module() {
         exception<Throwable> { call, cause ->
             call.respond(
                 HttpStatusCode.InternalServerError,
-                mapOf("error" to (cause.message ?: "Unknown error"))
+                ApiError(error = cause.message ?: "Unknown error")
             )
         }
     }
@@ -48,16 +49,7 @@ fun Application.module() {
 
 
     ServiceProvider.init(application = this)
-
-//    println("Project ID from environment: ${System.getenv("GAE_APPLICATION")}")
-//    val projectId = System.getenv("GAE_APPLICATION")?.split("~")?.getOrNull(1) ?: "instocktracker-464721"
-//    val location = "europe-west3"
-//    val serverUrl = "https://$projectId.ey.r.appspot.com"
-//    val schedulerService = SchedulerService(
-//        location = location,
-//        serverBaseUrl = serverUrl
-//    )
-    //ServiceProvider.initSchedulerService(schedulerService)
+    
     val idTokenVerifierService = IdTokenVerifierService()
     val jwtConfig = JwtConfig.fromEnvironment(environment)
 
@@ -86,7 +78,10 @@ fun Application.module() {
             challenge { _, _ ->
                 val failureCause = call.authentication.allFailures.joinToString("\n") { it.toString() }
                 println("Invalid or missing token in authentication header. Cause: $failureCause")
-                call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Invalid or missing token"))
+                call.respond(
+                    HttpStatusCode.Unauthorized,
+                    ApiError(error = "Invalid or missing token")
+                )
             }
         }
     }

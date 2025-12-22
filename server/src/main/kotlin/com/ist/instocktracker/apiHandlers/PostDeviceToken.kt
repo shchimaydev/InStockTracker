@@ -1,5 +1,6 @@
 package com.ist.instocktracker.apiHandlers
 
+import com.ist.instocktracker.data.ApiError
 import com.ist.instocktracker.data.DeviceToken
 import com.ist.instocktracker.data.addTokenIfPresent
 import com.ist.instocktracker.data.hasDeviceToken
@@ -29,7 +30,10 @@ fun Route.postDeviceToken() {
             call.respond(HttpStatusCode.NoContent, "Device token added successfully")
         } catch (e: Exception) {
             e.printStackTrace()
-            call.respond(HttpStatusCode.InternalServerError, "Could not set device token for a user")
+            call.respond(
+                HttpStatusCode.InternalServerError,
+                ApiError(error = "Could not set device token for a user")
+            )
         }
 
     }

@@ -1,6 +1,7 @@
 package com.ist.instocktracker.apiHandlers.linkItem
 
 import com.google.cloud.firestore.SetOptions
+import com.ist.instocktracker.data.ApiError
 import com.ist.instocktracker.data.LinkItem
 import com.ist.instocktracker.data.mappers.toLinkItem
 import com.ist.instocktracker.plugins.getUser
@@ -22,7 +23,7 @@ fun Route.putLinkItem() {
         val linkItemRepository = ServiceProvider.linkItemRepository
         val id = call.parameters["id"] ?: return@put call.respond(
             HttpStatusCode.BadRequest,
-            mapOf("error" to "Missing or invalid ID")
+            ApiError(error = "Missing or invalid ID")
         )
 
         val linkItem = call.receive<LinkItem>()
@@ -37,7 +38,7 @@ fun Route.putLinkItem() {
         if (!existingSnapshot.exists()) {
             call.respond(
                 HttpStatusCode.NotFound,
-                mapOf("error" to "Link item not found")
+                ApiError(error = "Link item not found")
             )
             return@put
         }
@@ -65,7 +66,7 @@ fun Route.putLinkItem() {
         } else {
             call.respond(
                 HttpStatusCode.InternalServerError,
-                mapOf("error" to "Failed to update link item")
+                ApiError(error = "Failed to update link item")
             )
         }
     }

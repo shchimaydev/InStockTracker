@@ -23,7 +23,7 @@ import com.ist.instocktracker.services.ServiceLocator
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(paddingValues: PaddingValues) {
+fun MainListScreen(paddingValues: PaddingValues) {
     Log.d("MainScreen", "MainScreen called")
     val mainVm = viewModel<MainVIewModel> { MainVIewModel(ServiceLocator.api) }
 

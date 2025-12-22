@@ -1,5 +1,6 @@
 package com.ist.instocktracker.apiHandlers.linkItem
 
+import com.ist.instocktracker.data.ApiError
 import com.ist.instocktracker.data.LinkItem
 import com.ist.instocktracker.plugins.getUser
 import com.ist.instocktracker.services.ServiceProvider
@@ -37,7 +38,7 @@ fun Route.postLinkItem() {
         } catch (e: Exception) {
             return@post call.respond(
                 HttpStatusCode.InternalServerError,
-                mapOf("error" to "Failed to create link item. Reason: ${e.message}")
+                ApiError(error = "Failed to create link item. Reason: ${e.message}")
             )
         }
     }

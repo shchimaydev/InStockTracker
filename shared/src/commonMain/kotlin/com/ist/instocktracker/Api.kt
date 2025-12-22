@@ -125,6 +125,13 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
         }
     }
 
+    suspend fun deleteLinkItem(id: String) {
+        val res = authClient.delete("$host/api/v1/link-items/$id")
+        if (!res.status.isSuccess()) {
+            throw Exception("Failed to delete link item: ${res.status}, error: ${res.bodyAsText()}")
+        }
+    }
+
     @OptIn(ExperimentalTime::class)
     suspend fun sendDeviceToken(token: String, platform: Platform) {
         println("Sending device token: $token")

@@ -13,6 +13,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,7 +32,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ist.instocktracker.R
 import com.ist.instocktracker.components.InfoCard
 import com.ist.instocktracker.data.LinkItem
-import com.ist.instocktracker.data.Mode
 import com.ist.instocktracker.data.getDisplayName
 import com.ist.instocktracker.navigation.AppRoutes
 import com.ist.instocktracker.utils.LocalNavController
@@ -47,7 +48,6 @@ fun LinkItemDetailsScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-//    println("LinkItemDetailsScreen linkItemState: ${linkItemState?.mode}")
 
     Scaffold(
         topBar = {
@@ -83,9 +83,7 @@ fun LinkItemDetailsScreen(
                     LinkItemDetailsContent(
                         linkItem = state.linkItem,
                         onNavigate = { route -> navController.navigate(route) },
-                        onUpdateLink = { newLink -> viewModel.updateLink(newLink) },
-                        onUpdateMode = { newMode -> viewModel.updateMode(newMode) },
-                        onToggleStatus = { viewModel.toggleStatus() }
+                        viewModel = viewModel
                     )
                 }
             }
@@ -97,12 +95,13 @@ fun LinkItemDetailsScreen(
 fun LinkItemDetailsContent(
     linkItem: LinkItem,
     onNavigate: (String) -> Unit,
-    onUpdateLink: (String) -> Unit,
-    onUpdateMode: (Mode) -> Unit,
-    onToggleStatus: () -> Unit
+    viewModel: LinkItemDetailsViewModel = viewModel()
 ) {
     val clipboardManager = LocalClipboardManager.current
+    val navController = LocalNavController.current
     val context = LocalContext.current
+
+    val showDeleteConfirmation = remember { mutableStateOf(false) }
 
     println("LinkItemDetailsContent renders")
 
@@ -113,10 +112,9 @@ fun LinkItemDetailsContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Header (Label)
         InfoCard(
             value = { Text(linkItem.label?.capitalizeWords() ?: "No Label") },
-            subtitle = "Nintendo Switch", // TODO: Get actual product/category
+            //subtitle = "Nintendo Switch", // TODO: Get actual product/category
             leadingIcon = {
                 Box(
                     modifier = Modifier
@@ -178,7 +176,11 @@ fun LinkItemDetailsContent(
             }
         )
 
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+        ) {
             InfoCard(
                 title = "Mode",
                 value = { Text(linkItem.mode.displayName) },
@@ -193,7 +195,11 @@ fun LinkItemDetailsContent(
             )
         }
 
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+        ) {
             InfoCard(
                 title = "Check Interval",
                 value = { Text(linkItem.interval.getDisplayName()) },
@@ -205,7 +211,7 @@ fun LinkItemDetailsContent(
                 value = { Text(text = if (linkItem.isActive) "Active" else "Inactive") },
                 statusColor = if (linkItem.isActive) Color.Green else Color.Red,
                 modifier = Modifier.weight(1f),
-                onClick = { onToggleStatus() }
+                onClick = { viewModel.toggleStatus() }
             )
         }
 
@@ -220,11 +226,57 @@ fun LinkItemDetailsContent(
             onClick = { }
         )
 
-//        InfoCard(
-//            title = "Additional Instructions",
-//            value = { Text(linkItem.additionalInstructions ?: "None") },
-//            onClick = { onNavigate(AppRoutes.editInstructions(linkItem.id)) }
-//        )
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = { showDeleteConfirmation.value = true },
+            modifier = Modifier
+                .fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error
+            )
+        ) {
+            Text(
+                text = "Delete",
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+        }
+
+        if (showDeleteConfirmation.value) {
+            AlertDialog(
+                onDismissRequest = { showDeleteConfirmation.value = false },
+                title = { Text(text = "Delete item") },
+                text = { Text(text = "Are you sure you want to delete this item?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showDeleteConfirmation.value = false
+                            viewModel.deleteLinkItem({
+                                navController.navigate(AppRoutes.MAIN) {
+                                    popUpTo(
+                                        AppRoutes.linkItemDetails(
+                                            linkItem.id
+                                        )
+                                    ) { inclusive = true }
+                                }
+                            })
+                        }
+                    ) {
+                        Text(
+                            text = "Delete",
+                            color = MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteConfirmation.value = false }) {
+                        Text(text = "Cancel")
+                    }
+                }
+            )
+        }
     }
 }
 

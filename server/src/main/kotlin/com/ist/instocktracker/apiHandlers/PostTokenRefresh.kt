@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
 import com.ist.instocktracker.config.JwtConfig
+import com.ist.instocktracker.data.ApiError
 import com.ist.instocktracker.data.auth.RefreshTokenRequest
 import com.ist.instocktracker.data.auth.TokenResponse
 import com.ist.instocktracker.services.ServiceProvider
@@ -37,7 +38,7 @@ fun Route.postTokenRefresh(jwtConfig: JwtConfig) {
                 println("Refresh token verification failed: ${e.message}")
                 return@post call.respond(
                     HttpStatusCode.Unauthorized,
-                    mapOf("error" to "Invalid or expired refresh token")
+                    ApiError(error = "Invalid or expired refresh token")
                 )
             }
 
@@ -47,7 +48,7 @@ fun Route.postTokenRefresh(jwtConfig: JwtConfig) {
                 if (it == null) {
                     return@post call.respond(
                         HttpStatusCode.Unauthorized,
-                        mapOf("error" to "Refresh token does not contain user information")
+                        ApiError(error = "Refresh token does not contain user information")
                     )
                 }
                 // Verify user still exists in database
@@ -56,7 +57,7 @@ fun Route.postTokenRefresh(jwtConfig: JwtConfig) {
                 if (user === null) {
                     return@post call.respond(
                         HttpStatusCode.Forbidden,
-                        mapOf("error" to "User not found")
+                        ApiError(error = "User not found")
                     )
                 }
 
@@ -102,7 +103,7 @@ fun Route.postTokenRefresh(jwtConfig: JwtConfig) {
             e.printStackTrace()
             call.respond(
                 HttpStatusCode.InternalServerError,
-                mapOf("error" to "Could not refresh token")
+                ApiError(error = "Could not refresh token")
             )
         }
     }

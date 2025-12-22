@@ -36,15 +36,11 @@ fun AuthScreen(
     val deviceTokenManager = ServiceLocator.deviceTokenManager
     val tokenStore = ServiceLocator.tokenStore
     val coroutineScope = rememberCoroutineScope()
-    //val isSignedIn by sessionManager.isSignedIn.collectAsState(initial = false)
-//    LaunchedEffect(isSignedIn) {
-//        Log.d("AuthScreen", "isSignedIn: $isSignedIn")
-//        //if (isSignedIn) navController.navigate(AppRoutes.MAIN)
-//    }
 
     val isAuthenticated by ServiceLocator.tokenStore.isAuthenticated().collectAsState(initial = false)
     if (isAuthenticated) {
         navController.navigate(AppRoutes.MAIN)
+        return
     }
 
 

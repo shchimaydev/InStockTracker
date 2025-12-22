@@ -1,5 +1,6 @@
 package com.ist.instocktracker.apiHandlers.linkItem
 
+import com.ist.instocktracker.data.ApiError
 import com.ist.instocktracker.services.ServiceProvider
 import io.ktor.http.*
 import io.ktor.server.response.*
@@ -17,7 +18,7 @@ fun Route.deleteLinkItem() {
             val linkItemRepository = ServiceProvider.linkItemRepository
             val id = call.parameters["id"] ?: return@delete call.respond(
                 HttpStatusCode.BadRequest,
-                mapOf("error" to "Missing or invalid ID")
+                ApiError(error = "Missing or invalid ID")
             )
 
             // Check if document exists
@@ -26,7 +27,7 @@ fun Route.deleteLinkItem() {
             if (!exists && reference == null) {
                 return@delete call.respond(
                     HttpStatusCode.NotFound,
-                    mapOf("error" to "Link item not found")
+                    ApiError(error = "Link item not found")
                 )
             }
 
@@ -41,7 +42,10 @@ fun Route.deleteLinkItem() {
 
             return@delete call.respond(HttpStatusCode.NoContent)
         } catch (e: Exception) {
-            return@delete call.respond(HttpStatusCode.InternalServerError, "Error deleting: ${e.message}")
+            return@delete call.respond(
+                HttpStatusCode.InternalServerError,
+                ApiError(error = "Error deleting: ${e.message}")
+            )
         }
 
     }

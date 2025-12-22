@@ -3,6 +3,7 @@ package com.ist.instocktracker.apiHandlers.linkItem.check
 import com.google.genai.types.Content
 import com.google.genai.types.GenerateContentResponse
 import com.google.genai.types.Part
+import com.ist.instocktracker.data.ApiError
 import com.ist.instocktracker.data.CheckResponse
 import com.ist.instocktracker.data.LinkItem
 import com.ist.instocktracker.data.PushPayload
@@ -34,13 +35,13 @@ fun Route.postCheck() {
             // Get the link item ID from the path parameters
             val id = call.parameters["id"] ?: return@post call.respond(
                 HttpStatusCode.BadRequest,
-                mapOf("error" to "Missing or invalid ID")
+                ApiError(error = "Missing or invalid ID")
             )
 
             val docRef = linkItemRepository.getReference(id)
             val linkItem = linkItemRepository.get(id) ?: return@post call.respond(
                 HttpStatusCode.NotFound,
-                "Link item was not found"
+                ApiError(error = "Link item was not found")
             )
 
 
@@ -55,7 +56,10 @@ fun Route.postCheck() {
             // Send push notification
             if (aiResult && linkItem.lastCheckResult != null && linkItem.lastCheckResult == false) {
                 val user = ServiceProvider.userRepository.get(linkItem.userId)
-                    ?: return@post call.respond(HttpStatusCode.InternalServerError, "Item does not have user id")
+                    ?: return@post call.respond(
+                        HttpStatusCode.InternalServerError,
+                        ApiError(error = "Item does not have user id")
+                    )
                 val payload = PushPayload(
                     title = "Availability matched: ${linkItem.mode.name}",
                     body = (linkItem.label ?: linkItem.link),
@@ -106,7 +110,7 @@ fun Route.postCheck() {
         } catch (e: Exception) {
             call.respond(
                 HttpStatusCode.InternalServerError,
-                mapOf("error" to "Failed to check link item: ${e.message}")
+                ApiError(error = "Failed to check link item: ${e.message}")
             )
         }
     }

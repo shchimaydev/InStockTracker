@@ -2,6 +2,7 @@ package com.ist.instocktracker.apiHandlers
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.ist.instocktracker.data.ApiError
 import com.ist.instocktracker.data.PostGoogleIdVerificationBody
 import com.ist.instocktracker.data.User
 import com.ist.instocktracker.data.auth.TokenResponse
@@ -21,8 +22,8 @@ fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierS
             val (id) = call.receive<PostGoogleIdVerificationBody>()
 
             val payload = idTokenVerifierService.verify(id) ?: return@post call.respond(
-                message = "Could not get payload from Google Id Token",
-                status = HttpStatusCode.Unauthorized
+                status = HttpStatusCode.Unauthorized,
+                message = ApiError(error = "Could not get payload from Google Id Token")
             )
 
             println("Payload: $payload")
@@ -30,7 +31,7 @@ fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierS
             val userId =
                 payload.subject ?: return@post call.respond(
                     HttpStatusCode.Unauthorized,
-                    "Missing subject in Google token"
+                    ApiError(error = "Missing subject in Google token")
                 )
             val email = payload.email
             val name = payload["name"] as? String
@@ -94,7 +95,10 @@ fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierS
             )
         } catch (e: Exception) {
             e.printStackTrace()
-            call.respond(HttpStatusCode.InternalServerError, "Could not verify Google ID token")
+            call.respond(
+                HttpStatusCode.InternalServerError,
+                ApiError(error = "Could not verify Google ID token")
+            )
         }
     }
 }

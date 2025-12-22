@@ -69,6 +69,7 @@ fun EditStartAtScreen(
             }
             selectedDate = dateTime.date
             selectedTime = dateTime.time
+            addPreciseTime = dateTime.hour != 0
         }
     }
 

@@ -1,5 +1,6 @@
 package com.ist.instocktracker.apiHandlers.linkItem
 
+import com.ist.instocktracker.data.ApiError
 import com.ist.instocktracker.services.ServiceProvider
 import io.ktor.http.*
 import io.ktor.server.response.*
@@ -14,14 +15,14 @@ fun Route.getLinkItem() {
         val linkItemRepository = ServiceProvider.linkItemRepository
         val id = call.parameters["id"] ?: return@get call.respond(
             HttpStatusCode.BadRequest,
-            mapOf("error" to "Missing or invalid ID")
+            ApiError(error = "Missing or invalid ID")
         )
 
         val linkItem = linkItemRepository.get(id)
         if (linkItem == null) {
             return@get call.respond(
                 HttpStatusCode.NotFound,
-                mapOf("error" to "Link item not found")
+                ApiError(error = "Link item not found")
             )
         }
 

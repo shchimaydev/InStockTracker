@@ -1,5 +1,6 @@
 package com.ist.instocktracker.plugins
 
+import com.ist.instocktracker.data.ApiError
 import com.ist.instocktracker.data.User
 import com.ist.instocktracker.services.ServiceProvider
 import io.ktor.http.*
@@ -20,7 +21,7 @@ val UserFromPrincipal = createRouteScopedPlugin("UserFromPrincipal") {
         principal?.let {
             val user = ServiceProvider.userRepository.get(it.payload.subject) ?: return@on call.respond(
                 HttpStatusCode.Forbidden,
-                mapOf("error" to "User not found or inactive")
+                ApiError(error = "User not found or inactive")
             )
 
             println("User from JWT: $user")

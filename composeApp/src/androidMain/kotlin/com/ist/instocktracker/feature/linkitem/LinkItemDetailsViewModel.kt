@@ -128,4 +128,17 @@ class LinkItemDetailsViewModel(
             }
         }
     }
+
+    fun deleteLinkItem(onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                ServiceLocator.api.deleteLinkItem(linkItemId)
+                onSuccess()
+            } catch (e: Exception) {
+                val message = e.message ?: "Failed to delete link item"
+                _uiState.value = LinkItemDetailsUiState.Error(message)
+                onError(message)
+            }
+        }
+    }
 }
