@@ -11,6 +11,7 @@ import com.ist.instocktracker.config.JwtConfig
 import com.ist.instocktracker.data.ApiError
 import com.ist.instocktracker.plugins.UserFromPrincipal
 import com.ist.instocktracker.services.IdTokenVerifierService
+import com.ist.instocktracker.services.SchedulerService
 import com.ist.instocktracker.services.ServiceProvider
 import com.ist.instocktracker.services.db.FirestoreProvider
 import io.ktor.http.*
@@ -49,7 +50,7 @@ fun Application.module() {
 
 
     ServiceProvider.init(application = this)
-    
+
     val idTokenVerifierService = IdTokenVerifierService()
     val jwtConfig = JwtConfig.fromEnvironment(environment)
 
@@ -119,5 +120,10 @@ fun Application.module() {
             postGoogleIdTokenVerification(idTokenVerifierService)
             postTokenRefresh(jwtConfig)
         }
+    }
+
+    monitor.subscribe(ApplicationStopped) {
+        log.info("Application stopped")
+        SchedulerService.close()
     }
 }

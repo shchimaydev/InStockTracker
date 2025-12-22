@@ -24,6 +24,10 @@ class SchedulerService(
         private val schedulerClient: CloudSchedulerClient by lazy {
             CloudSchedulerClient.create()
         }
+
+        fun close() {
+            schedulerClient.close()
+        }
     }
 
     /**
@@ -32,42 +36,40 @@ class SchedulerService(
      * @return The ID of the created schedule job
      */
     fun createSchedule(linkItem: LinkItem): String {
-        schedulerClient.use { client ->
-            val parent = LocationName.of(projectId, location)
+        val parent = LocationName.of(projectId, location)
 
-            // Generate a unique job ID
-            val jobId = "link-item-check-${UUID.randomUUID()}"
-            val jobName = JobName.of(projectId, location, jobId).toString()
+        // Generate a unique job ID
+        val jobId = "link-item-check-${UUID.randomUUID()}"
+        val jobName = JobName.of(projectId, location, jobId).toString()
 
-            // Create HTTP target for the job
-            val httpTarget = HttpTarget.newBuilder()
-                .setUri("$serverBaseUrl/api/v1/link-items/${linkItem.id}/check")
-                .setHttpMethod(HttpMethod.POST)
-                .setBody(ByteString.copyFromUtf8("{}"))
-                .putHeaders("Content-Type", "application/json")
-                .build()
+        // Create HTTP target for the job
+        val httpTarget = HttpTarget.newBuilder()
+            .setUri("$serverBaseUrl/api/v1/link-items/${linkItem.id}/check")
+            .setHttpMethod(HttpMethod.POST)
+            .setBody(ByteString.copyFromUtf8("{}"))
+            .putHeaders("Content-Type", "application/json")
+            .build()
 
-            // Set schedule based on LinkItem interval
-            val schedule = buildScheduleExpression(linkItem.interval)
+        // Set schedule based on LinkItem interval
+        val schedule = buildScheduleExpression(linkItem.interval)
 
-            // Build the job
-            val job = Job.newBuilder()
-                .setName(jobName)
-                .setHttpTarget(httpTarget)
-                .setSchedule(schedule)
-                .build()
+        // Build the job
+        val job = Job.newBuilder()
+            .setName(jobName)
+            .setHttpTarget(httpTarget)
+            .setSchedule(schedule)
+            .build()
 
-            // Create the job request
-            val request = CreateJobRequest.newBuilder()
-                .setParent(parent.toString())
-                .setJob(job)
-                .build()
+        // Create the job request
+        val request = CreateJobRequest.newBuilder()
+            .setParent(parent.toString())
+            .setJob(job)
+            .build()
 
-            // Create the job
-            client.createJob(request)
+        // Create the job
+        schedulerClient.createJob(request)
 
-            return jobId
-        }
+        return jobId
     }
 
     /**
@@ -76,18 +78,16 @@ class SchedulerService(
      * @return The Job object if found, null otherwise
      */
     fun getSchedule(jobId: String): Job? {
-        schedulerClient.use { client ->
-            val jobName = JobName.of(projectId, location, jobId)
+        val jobName = JobName.of(projectId, location, jobId)
 
-            val request = GetJobRequest.newBuilder()
-                .setName(jobName.toString())
-                .build()
+        val request = GetJobRequest.newBuilder()
+            .setName(jobName.toString())
+            .build()
 
-            return try {
-                client.getJob(request)
-            } catch (e: Exception) {
-                null
-            }
+        return try {
+            schedulerClient.getJob(request)
+        } catch (e: Exception) {
+            null
         }
     }
 
@@ -97,15 +97,13 @@ class SchedulerService(
      * @return true if successful, false otherwise
      */
     fun pauseJob(jobId: String): Boolean {
-        schedulerClient.use { client ->
-            val jobName = JobName.of(projectId, location, jobId)
-            return try {
-                client.pauseJob(jobName)
-                true
-            } catch (e: Exception) {
-                println("Error pausing job $jobId: ${e.message}")
-                false
-            }
+        val jobName = JobName.of(projectId, location, jobId)
+        return try {
+            schedulerClient.pauseJob(jobName)
+            true
+        } catch (e: Exception) {
+            println("Error pausing job $jobId: ${e.message}")
+            false
         }
     }
 
@@ -113,15 +111,13 @@ class SchedulerService(
      * Deletes a schedule job
      */
     fun deleteSchedule(jobId: String): Boolean {
-        schedulerClient.use { client ->
-            val jobName = JobName.of(projectId, location, jobId)
-            return try {
-                client.deleteJob(jobName)
-                true
-            } catch (e: Exception) {
-                println("Error deleting job $jobId: ${e.message}")
-                false
-            }
+        val jobName = JobName.of(projectId, location, jobId)
+        return try {
+            schedulerClient.deleteJob(jobName)
+            true
+        } catch (e: Exception) {
+            println("Error deleting job $jobId: ${e.message}")
+            false
         }
     }
 
@@ -129,15 +125,13 @@ class SchedulerService(
      * Resumes a paused schedule job
      */
     fun resumeJob(jobId: String): Boolean {
-        schedulerClient.use { client ->
-            val jobName = JobName.of(projectId, location, jobId)
-            return try {
-                client.resumeJob(jobName)
-                true
-            } catch (e: Exception) {
-                println("Error resuming job $jobId: ${e.message}")
-                false
-            }
+        val jobName = JobName.of(projectId, location, jobId)
+        return try {
+            schedulerClient.resumeJob(jobName)
+            true
+        } catch (e: Exception) {
+            println("Error resuming job $jobId: ${e.message}")
+            false
         }
     }
 
@@ -151,39 +145,37 @@ class SchedulerService(
      * @return true if successful, false otherwise
      */
     fun setScheduleTime(jobId: String, startAt: String): Boolean {
-        schedulerClient.use { client ->
-            val jobName = JobName.of(projectId, location, jobId)
+        val jobName = JobName.of(projectId, location, jobId)
 
-            return try {
-                // Parse the startAt date string
-                val dateTime = parseStartAt(startAt)
+        return try {
+            // Parse the startAt date string
+            val dateTime = parseStartAt(startAt)
 
-                // Convert to epoch seconds for the Timestamp
-                val epochSeconds = dateTime.toInstant(TimeZone.UTC).epochSeconds
+            // Convert to epoch seconds for the Timestamp
+            val epochSeconds = dateTime.toInstant(TimeZone.UTC).epochSeconds
 
-                // Create a protobuf Timestamp for the schedule time
-                val scheduleTime = Timestamp.newBuilder()
-                    .setSeconds(epochSeconds)
-                    .build()
+            // Create a protobuf Timestamp for the schedule time
+            val scheduleTime = Timestamp.newBuilder()
+                .setSeconds(epochSeconds)
+                .build()
 
-                // Get the existing job to preserve its configuration
-                val existingJob = client.getJob(jobName)
+            // Get the existing job to preserve its configuration
+            val existingJob = schedulerClient.getJob(jobName)
 
-                // Update the job with the new schedule time
-                val updatedJob = existingJob.toBuilder()
-                    .setScheduleTime(scheduleTime)
-                    .build()
+            // Update the job with the new schedule time
+            val updatedJob = existingJob.toBuilder()
+                .setScheduleTime(scheduleTime)
+                .build()
 
-                val updateRequest = UpdateJobRequest.newBuilder()
-                    .setJob(updatedJob)
-                    .build()
+            val updateRequest = UpdateJobRequest.newBuilder()
+                .setJob(updatedJob)
+                .build()
 
-                client.updateJob(updateRequest)
-                true
-            } catch (e: Exception) {
-                println("Error setting schedule time for job $jobId: ${e.message}")
-                false
-            }
+            schedulerClient.updateJob(updateRequest)
+            true
+        } catch (e: Exception) {
+            println("Error setting schedule time for job $jobId: ${e.message}")
+            false
         }
     }
 
