@@ -1,5 +1,6 @@
 package com.ist.instocktracker.feature.linkitem
 
+import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.*
@@ -11,19 +12,16 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,6 +34,7 @@ import com.ist.instocktracker.data.getDisplayName
 import com.ist.instocktracker.navigation.AppRoutes
 import com.ist.instocktracker.utils.LocalNavController
 import com.ist.instocktracker.utils.capitalizeWords
+import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -97,9 +96,10 @@ fun LinkItemDetailsContent(
     onNavigate: (String) -> Unit,
     viewModel: LinkItemDetailsViewModel = viewModel()
 ) {
-    val clipboardManager = LocalClipboardManager.current
+    val clipboardManager = LocalClipboard.current
     val navController = LocalNavController.current
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val showDeleteConfirmation = remember { mutableStateOf(false) }
 
@@ -166,7 +166,11 @@ fun LinkItemDetailsContent(
                     IconButton(onClick = { onNavigate(AppRoutes.editLink(linkItem.id)) }) {
                         Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.Gray)
                     }
-                    IconButton(onClick = { clipboardManager.setText(AnnotatedString(linkItem.link)) }) {
+                    IconButton(onClick = {
+                        scope.launch {
+                            clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("link", linkItem.link)))
+                        }
+                    }) {
                         Icon(Icons.Default.ContentCopy, contentDescription = "Copy", tint = Color.Gray)
                     }
                 }
