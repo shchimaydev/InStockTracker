@@ -59,7 +59,7 @@ fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierS
                 cfg.propertyOrNull("app.jwt.accessTokenTtlSec")?.getString()?.toLongOrNull() ?: (60 * 60L) // 1 hour
             val refreshTtlSec =
                 cfg.propertyOrNull("app.jwt.refreshTokenTtlSec")?.getString()?.toLongOrNull()
-                    ?: 30L * 24 * 60 * 60 // 1 day
+                    ?: (30L * 24 * 60 * 60) // 1 day
 
             val algorithm = Algorithm.HMAC256(jwtSecret)
             val now = System.currentTimeMillis()

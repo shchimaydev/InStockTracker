@@ -2,7 +2,6 @@ package com.ist.instocktracker.feature.linkitem
 
 import android.content.ClipData
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ist.instocktracker.R
@@ -144,7 +144,7 @@ fun LinkItemDetailsContent(
                         modifier = Modifier
                             .padding(end = 6.dp)
                             .clickable {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(linkItem.link))
+                                val intent = Intent(Intent.ACTION_VIEW, linkItem.link.toUri())
                                 context.startActivity(intent)
                             },
                         text = "Product Link",
