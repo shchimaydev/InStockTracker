@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.ist.instocktracker.navigation.AppRoutes
+import com.ist.instocktracker.navigation.Route
 import com.ist.instocktracker.services.ServiceLocator
 import com.ist.instocktracker.utils.LocalNavController
 import kotlinx.coroutines.launch
@@ -44,8 +44,8 @@ fun MainScaffold(content: @Composable (paddingValue: PaddingValues) -> Unit) {
                     onClick = {
                         scope.launch {
                             sessionManager.signOut()
-                            navController.navigate(AppRoutes.AUTH) {
-                                popUpTo(AppRoutes.MAIN) { inclusive = true }
+                            navController.navigate(Route.Auth) {
+                                popUpTo(Route.MainList) { inclusive = true }
                             }
                         }
                     },

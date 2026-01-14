@@ -12,7 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ist.instocktracker.feature.linkitem.LinkItemDetailsUiState
 import com.ist.instocktracker.feature.linkitem.LinkItemDetailsViewModel
-import com.ist.instocktracker.navigation.AppRoutes
+import com.ist.instocktracker.navigation.Route
 import com.ist.instocktracker.utils.LocalNavController
 
 
@@ -24,7 +24,7 @@ fun EditLinkScreen(
     val navController = LocalNavController.current
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val parentEntry = remember(currentBackStackEntry) {
-        navController.getBackStackEntry(AppRoutes.linkItemDetails(linkItemId ?: ""))
+        navController.getBackStackEntry(Route.LinkItemDetails(linkItemId ?: ""))
     }
     val viewModel: LinkItemDetailsViewModel = viewModel(viewModelStoreOwner = parentEntry)
 

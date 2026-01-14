@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.ist.instocktracker.R
 import com.ist.instocktracker.data.*
-import com.ist.instocktracker.navigation.AppRoutes
+import com.ist.instocktracker.navigation.Route
 import com.ist.instocktracker.utils.LocalNavController
 import com.ist.instocktracker.utils.capitalizeWords
 
@@ -47,7 +47,7 @@ fun LinkItemCard(linkItem: LinkItem) {
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable {
-                nav.navigate(AppRoutes.linkItemDetails(linkItem.id))
+                nav.navigate(Route.LinkItemDetails(linkItem.id))
             },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),

@@ -31,7 +31,7 @@ import com.ist.instocktracker.R
 import com.ist.instocktracker.components.InfoCard
 import com.ist.instocktracker.data.LinkItem
 import com.ist.instocktracker.data.getDisplayName
-import com.ist.instocktracker.navigation.AppRoutes
+import com.ist.instocktracker.navigation.Route
 import com.ist.instocktracker.utils.LocalNavController
 import com.ist.instocktracker.utils.capitalizeWords
 import kotlinx.coroutines.launch
@@ -93,7 +93,7 @@ fun LinkItemDetailsScreen(
 @Composable
 fun LinkItemDetailsContent(
     linkItem: LinkItem,
-    onNavigate: (String) -> Unit,
+    onNavigate: (route: Route) -> Unit,
     viewModel: LinkItemDetailsViewModel = viewModel()
 ) {
     val clipboardManager = LocalClipboard.current
@@ -163,7 +163,7 @@ fun LinkItemDetailsContent(
             },
             trailingIcon = {
                 Row {
-                    IconButton(onClick = { onNavigate(AppRoutes.editLink(linkItem.id)) }) {
+                    IconButton(onClick = { onNavigate(Route.EditLink(linkItem.id)) }) {
                         Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.Gray)
                     }
                     IconButton(onClick = {
@@ -189,13 +189,13 @@ fun LinkItemDetailsContent(
                 title = "Mode",
                 value = { Text(linkItem.mode.displayName) },
                 modifier = Modifier.weight(1f),
-                onClick = { onNavigate(AppRoutes.editMode(linkItem.id)) }
+                onClick = { onNavigate(Route.EditMode(linkItem.id)) }
             )
             InfoCard(
                 title = "Start At",
                 value = { Text(linkItem.startAtFormatted(TimeZone.currentSystemDefault())) },
                 modifier = Modifier.weight(1f),
-                onClick = { onNavigate(AppRoutes.editStartAt(linkItem.id)) }
+                onClick = { onNavigate(Route.EditStartAt(linkItem.id)) }
             )
         }
 
@@ -208,7 +208,7 @@ fun LinkItemDetailsContent(
                 title = "Check Interval",
                 value = { Text(linkItem.interval.getDisplayName()) },
                 modifier = Modifier.weight(1f),
-                onClick = { onNavigate(AppRoutes.editInterval(linkItem.id)) }
+                onClick = { onNavigate(Route.EditInterval(linkItem.id)) }
             )
             InfoCard(
                 title = "Status",
@@ -257,13 +257,7 @@ fun LinkItemDetailsContent(
                         onClick = {
                             showDeleteConfirmation.value = false
                             viewModel.deleteLinkItem({
-                                navController.navigate(AppRoutes.MAIN) {
-                                    popUpTo(
-                                        AppRoutes.linkItemDetails(
-                                            linkItem.id
-                                        )
-                                    ) { inclusive = true }
-                                }
+                                onNavigate(Route.MainList)
                             })
                         }
                     ) {

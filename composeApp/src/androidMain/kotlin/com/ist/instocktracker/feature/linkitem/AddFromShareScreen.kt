@@ -13,7 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ist.instocktracker.navigation.AppRoutes
+import com.ist.instocktracker.navigation.Route
 import com.ist.instocktracker.utils.LocalNavController
 
 @Composable
@@ -29,8 +29,8 @@ fun AddFromShareScreen(
         Log.d("AddFromShareScreen", "How many times this is called? sharing url: $shareUrl")
         shareUrl?.let {
             viewModel.createLinkItemFromShape(it) { linkItemId ->
-                navController.navigate(AppRoutes.linkItemDetails(linkItemId)) {
-                    popUpTo(AppRoutes.addFromShare(shareUrl)) { inclusive = true }
+                navController.navigate(Route.LinkItemDetails(linkItemId)) {
+                    popUpTo(Route.LinkItemDetails(shareUrl)) { inclusive = true }
                 }
             }
         }

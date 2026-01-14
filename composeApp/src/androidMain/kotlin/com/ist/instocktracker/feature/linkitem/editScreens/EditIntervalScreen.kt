@@ -16,7 +16,7 @@ import com.ist.instocktracker.data.DurationUnit
 import com.ist.instocktracker.data.Interval
 import com.ist.instocktracker.feature.linkitem.LinkItemDetailsUiState
 import com.ist.instocktracker.feature.linkitem.LinkItemDetailsViewModel
-import com.ist.instocktracker.navigation.AppRoutes
+import com.ist.instocktracker.navigation.Route
 import com.ist.instocktracker.utils.LocalNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,7 +27,7 @@ fun EditIntervalScreen(
     val navController = LocalNavController.current
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val parentEntry = remember(currentBackStackEntry) {
-        navController.getBackStackEntry(AppRoutes.linkItemDetails(linkItemId ?: ""))
+        navController.getBackStackEntry(Route.LinkItemDetails(linkItemId ?: ""))
     }
     val viewModel: LinkItemDetailsViewModel = viewModel(viewModelStoreOwner = parentEntry)
 

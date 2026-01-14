@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ist.instocktracker.data.Platform
-import com.ist.instocktracker.navigation.AppRoutes
+import com.ist.instocktracker.navigation.Route
 import com.ist.instocktracker.services.ServiceLocator
 import com.ist.instocktracker.utils.LocalNavController
 import kotlinx.coroutines.flow.firstOrNull
@@ -39,7 +39,7 @@ fun AuthScreen(
 
     val isAuthenticated by ServiceLocator.tokenStore.isAuthenticated().collectAsState(initial = false)
     if (isAuthenticated) {
-        navController.navigate(AppRoutes.MAIN)
+        navController.navigate(Route.MainList)
         return
     }
 
