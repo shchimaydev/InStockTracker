@@ -3,29 +3,26 @@ package com.ist.instocktracker.apiHandlers.linkItem.check
 import com.google.genai.types.Content
 import com.google.genai.types.GenerateContentResponse
 import com.google.genai.types.Part
-import com.ist.instocktracker.data.ApiError
-import com.ist.instocktracker.data.CheckResponse
-import com.ist.instocktracker.data.LinkItem
-import com.ist.instocktracker.data.PushPayload
+import com.ist.instocktracker.data.*
 import com.ist.instocktracker.services.ServiceProvider
+import com.ist.instocktracker.services.ServiceProvider.httpClient
 import com.ist.instocktracker.services.db.FirestoreProvider.db
+import io.ktor.client.call.*
+import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
-import org.openqa.selenium.OutputType
-import org.openqa.selenium.chrome.ChromeOptions
-import org.openqa.selenium.remote.RemoteWebDriver
-import java.net.URI
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 import java.util.*
 
 /**
- * Handler for POST /api/v1/link-item/{id}/check endpoint
+ * Handler for POST /api/v1/link-items/{id}/check endpoint
  * Checks the status of a link item by scraping the page and evaluating with AI
  */
 fun Route.postCheck() {
@@ -47,11 +44,22 @@ fun Route.postCheck() {
 
             println("Checking link item: $linkItem")
 
+            // Random delay between 1 and 60 seconds to spread the load
+            val randomDelayMillis = (1000..60000).random().toLong()
+            println("Delaying for $randomDelayMillis ms...")
+            val delayStart = System.currentTimeMillis()
+            delay(randomDelayMillis)
+            println("Delay took ${System.currentTimeMillis() - delayStart} ms")
+
             // Get the HTML content of the page using Bright Data Browser API
-            val (html, image, imageBytes) = scrapePageWithBrightData(linkItem.link)
+            val scrapeStart = System.currentTimeMillis()
+            val (mage, imageBytes) = scrapePage(linkItem.link)
+            println("scrapePage took ${System.currentTimeMillis() - scrapeStart} ms")
 
             // Evaluate the HTML with GenAI
+            val aiStart = System.currentTimeMillis()
             val aiResult = evaluateWithAI(imageBytes, linkItem)
+            println("evaluateWithAI took ${System.currentTimeMillis() - aiStart} ms")
 
             // Send push notification
             if (aiResult && linkItem.lastCheckResult != null && linkItem.lastCheckResult == false) {
@@ -93,9 +101,11 @@ fun Route.postCheck() {
             batch.set(logDocRef, logEntry)
 
             // 4. Commit the batch to execute all writes at once
+            val dbStart = System.currentTimeMillis()
             withContext(Dispatchers.IO) {
                 batch.commit().get()
             }
+            println("Firestore batch commit took ${System.currentTimeMillis() - dbStart} ms")
 
             // Respond with success
             call.respond(
@@ -119,58 +129,51 @@ fun Route.postCheck() {
 /**
  * Scrapes a web page using Bright Data Browser API
  */
-data class ScrapePageResponse(val html: String?, val image: String?, val imageBytes: ByteArray)
+data class ScrapePageResponse(val imagePath: String?, val imageBytes: ByteArray)
 
-suspend fun scrapePageWithBrightData(url: String, saveScreenshot: Boolean = false): ScrapePageResponse {
-    return withContext(Dispatchers.IO) {
-        try {
-            // Configure Chrome options for Bright Data
-            val options = ChromeOptions()
+suspend fun scrapePage(url: String, saveScreenshot: Boolean = false): ScrapePageResponse {
 
-            // Connect to Bright Data Browser API
-            val webDriverUrl =
-                URI.create("https://brd-customer-hl_b2c0135c-zone-scraping_browser1:tn4mq8z2kbxz@brd.superproxy.io:9515")
-                    .toURL()
-            val driver = RemoteWebDriver(webDriverUrl, options)
+    try {
 
-            try {
-                // Navigate to the URL
-                driver.get(url)
-
-                // Wait for the page to load (you might need to adjust this)
-                Thread.sleep(500)
-
-                var screenshotBytes: ByteArray
-                var imagePath: String? = null
-
-                if (saveScreenshot) {
-                    //do a screenshot
-                    val screenshotFile = driver.getScreenshotAs(OutputType.FILE)
-                    val destinationPath =
-                        Paths.get("./server/resources/screenshots/screenshot-${System.currentTimeMillis()}.png")
-                    // Create parent directories if they don't exist
-                    Files.createDirectories(destinationPath.parent)
-                    // Move file into /resources/screenshots
-                    Files.move(screenshotFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING)
-                    println("Original path of a screenshot: ${screenshotFile.toPath()}")
-                    println("Screenshot saved to: $destinationPath")
-
-                    imagePath = destinationPath.toString()
-                    screenshotBytes = screenshotFile.readBytes()
-                } else {
-                    screenshotBytes = driver.getScreenshotAs(OutputType.BYTES)
-                }
-
-
-                ScrapePageResponse(html = null, image = imagePath, imageBytes = screenshotBytes)
-            } finally {
-                // Make sure to close the driver
-                driver.quit()
-            }
-        } catch (e: Exception) {
-            throw RuntimeException("Failed to scrape page: ${e.message}", e)
+        println("Doing a request to browserless: $url")
+        val networkStart = System.currentTimeMillis()
+        val response = httpClient.post("https://production-sfo.browserless.io/screenshot") {
+            parameter("token", ServiceProvider.config.browserlessToken)
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Image.PNG)
+            setBody<BrowserlessScreenshotBody>(
+                BrowserlessScreenshotBody(
+                    url = url, options = BrowserlessScreenshotOptions(
+                        fullPage = true,
+                        type = "png"
+                    )
+                )
+            )
         }
+
+        val ct = response.headers[HttpHeaders.ContentType] ?: "<missing>"
+        println("Browserless network request took ${System.currentTimeMillis() - networkStart} ms")
+        require(ct.startsWith("image/png")) { "Expected image/png but got $ct" }
+
+        val bytes = response.body<ByteArray>()
+        println("waiting for response with bytes ${bytes}")
+
+
+        var imagePath: Path? = null
+        if (saveScreenshot) {
+            // Create parent directories if they don't exist
+            imagePath =
+                Paths.get("./server/src/main/resources/screenshots/screenshot-${System.currentTimeMillis()}.png")
+            Files.createDirectories(imagePath.parent)
+            Files.write(imagePath, bytes)
+        }
+
+        return ScrapePageResponse(imagePath?.toString(), bytes)
+
+    } catch (e: Exception) {
+        throw RuntimeException("Failed to scrape page: ${e.message}", e)
     }
+//    }
 }
 
 /**
@@ -195,10 +198,13 @@ suspend fun evaluateWithAI(imageBytes: ByteArray, linkItem: LinkItem): Boolean {
             //val imageBytes = Files.readAllBytes(Paths.get(imagePath))
             val contents =
                 Content.builder().parts(Part.fromBytes(imageBytes, "image/png"), Part.fromText(prompt)).build()
+
+            val geminiStart = System.currentTimeMillis()
             val response: GenerateContentResponse = ServiceProvider.genAi.geminiClient.models.generateContent(
                 "gemini-2.5-flash",
                 contents, null
             )
+            println("Gemini API call took ${System.currentTimeMillis() - geminiStart} ms")
             val responseText = response.text()
 
             println("GenAI response: $responseText")

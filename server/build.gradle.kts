@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.shadow)
+    alias(libs.plugins.kotlinSerialization)
     application
 }
 
@@ -53,11 +54,15 @@ dependencies {
     implementation(libs.ktor.sessions)
     implementation(libs.ktor.auth)
     implementation(libs.ktor.auth.jwt)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.content.negotiation)
+
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.jdk)
     implementation(libs.kotlinx.datetime)
+
 
     implementation(platform(libs.google.cloud.bom))
     implementation(libs.google.cloud.firestore)
@@ -68,6 +73,7 @@ dependencies {
 
     implementation(libs.selenium)
     implementation(libs.logback)
+    implementation("io.ktor:ktor-client-logging:3.2.3")
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.testJunit)
     testImplementation(libs.mockk)

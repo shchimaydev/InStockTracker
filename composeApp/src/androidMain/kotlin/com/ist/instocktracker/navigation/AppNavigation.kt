@@ -48,17 +48,26 @@ fun AppNavigation(
         isAuthenticated?.let { authed ->
             println("AppNavigation: AppNavigation isAuthenticated: $authed")
 
-            if (authed && currentSharedUrl != null) {
-                println("AppNavigation: Navigate to ${Route.AddFromShare(currentSharedUrl)}")
-                navController.navigate(Route.AddFromShare(currentSharedUrl)) {
-                    popUpTo(Route.Auth) { inclusive = true }  // Clear everything
-                }
-                viewModel.consumeSharedUrl()
-                viewModel.consumedDeepLink() // in case both exist, consume all but process only shared url intent
-                return@LaunchedEffect
-            }
+//            if (authed && currentSharedUrl != null) {
+//                println("AppNavigation: Navigate to ${Route.AddFromShare(currentSharedUrl)}")
+//                navController.navigate(Route.AddFromShare(currentSharedUrl)) {
+//                    popUpTo(Route.Auth) { inclusive = true }  // Clear everything
+//                }
+//                viewModel.consumeSharedUrl()
+//                viewModel.consumedDeepLink() // in case both exist, consume all but process only shared url intent
+//                return@LaunchedEffect
+//            }
 
             if (authed) {
+                if (currentSharedUrl != null) {
+                    println("AppNavigation: Navigate to ${Route.AddFromShare(currentSharedUrl)}")
+                    navController.navigate(Route.AddFromShare(currentSharedUrl)) {
+                        popUpTo(Route.Auth) { inclusive = true }  // Clear everything
+                    }
+                    viewModel.consumeSharedUrl()
+                    viewModel.consumedDeepLink() // in case both exist, consume all but process only shared url intent
+                    return@LaunchedEffect
+                }
                 if (currentDeepLink != null) {
                     navController.navigate(Route.LinkItemDetails(currentDeepLink))
                     viewModel.consumedDeepLink()

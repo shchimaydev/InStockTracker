@@ -4,6 +4,7 @@ import com.google.cloud.ServiceOptions
 import com.google.cloud.scheduler.v1.*
 import com.google.protobuf.ByteString
 import com.google.protobuf.Timestamp
+import com.ist.instocktracker.config.AppConfig
 import com.ist.instocktracker.data.DurationUnit
 import com.ist.instocktracker.data.Interval
 import com.ist.instocktracker.data.LinkItem
@@ -17,9 +18,16 @@ import java.util.*
  */
 class SchedulerService(
     private val projectId: String = ServiceOptions.getDefaultProjectId(),
-    private val location: String,
-    private val serverBaseUrl: String
+    private val appConfig: AppConfig,
+//    private val location: String,
+//    private val serverBaseUrl: String,
+//    private val schedulerCallerSa: String
 ) {
+
+    private val location: String = appConfig.location
+    private val serverBaseUrl: String = appConfig.serverUrl
+    private val schedulerCallerSa: String = appConfig.schedulerCallerSa
+
     companion object {
         private val schedulerClient: CloudSchedulerClient by lazy {
             CloudSchedulerClient.create()
@@ -42,12 +50,18 @@ class SchedulerService(
         val jobId = "link-item-check-${UUID.randomUUID()}"
         val jobName = JobName.of(projectId, location, jobId).toString()
 
+        val oidcToken = OidcToken.newBuilder()
+            .setServiceAccountEmail(schedulerCallerSa)
+            .setAudience(serverBaseUrl)
+            .build()
+
         // Create HTTP target for the job
         val httpTarget = HttpTarget.newBuilder()
             .setUri("$serverBaseUrl/api/v1/link-items/${linkItem.id}/check")
             .setHttpMethod(HttpMethod.POST)
             .setBody(ByteString.copyFromUtf8("{}"))
             .putHeaders("Content-Type", "application/json")
+            .setOidcToken(oidcToken)
             .build()
 
         // Set schedule based on LinkItem interval
