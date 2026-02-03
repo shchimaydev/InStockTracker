@@ -56,13 +56,12 @@ class PostCheckTest {
         // Create a mock ScrapePageResponse with the fake HTML content
         val fakeImageBytes = ByteArray(0) // Empty byte array for testing
         val fakeScrapeResponse = ScrapePageResponse(
-            html = fakeHtmlContent,
-            image = null,
+            imagePath = null,
             imageBytes = fakeImageBytes
         )
 
-        // Mock the scrapePageWithBrightData function to return the fake response
-        coEvery { scrapePageWithBrightData(any(), any()) } returns fakeScrapeResponse
+        // Mock the scrapePage function to return the fake response
+        coEvery { scrapePage(any(), any()) } returns fakeScrapeResponse
 
         // Mock the evaluateWithAI function to return true
         coEvery { evaluateWithAI(any(), any()) } returns true

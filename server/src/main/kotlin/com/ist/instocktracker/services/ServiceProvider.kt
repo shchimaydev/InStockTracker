@@ -1,9 +1,10 @@
 package com.ist.instocktracker.services
 
 import com.google.cloud.firestore.Firestore
-import com.ist.instocktracker.config.AppConfig
 import com.ist.instocktracker.repositories.LinkItemRepository
 import com.ist.instocktracker.repositories.UserRepository
+import com.ist.instocktracker.services.config.AppConfig
+import com.ist.instocktracker.services.config.JwtConfig
 import com.ist.instocktracker.services.db.FirestoreProvider
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -15,6 +16,8 @@ import kotlinx.serialization.json.Json
 object ServiceProvider {
     val idTokenVerifierService: IdTokenVerifierService by lazy { IdTokenVerifierService() }
     lateinit var config: AppConfig
+
+    lateinit var jwtConfig: JwtConfig
     lateinit var db: Firestore
     lateinit var genAi: GenAI
     lateinit var userRepository: UserRepository
@@ -26,6 +29,7 @@ object ServiceProvider {
 
     fun init(application: Application) {
         config = AppConfig(application)
+        jwtConfig = JwtConfig.fromEnvironment(application.environment)
         db = FirestoreProvider.db
         genAi = GenAI(config.genAIToken)
         userRepository = UserRepository(db)
@@ -34,21 +38,21 @@ object ServiceProvider {
         notificationService = NotificationService(userRepository)
 
         // Init scheduler service
-        this.schedulerService = SchedulerService(
-            location = config.location,
-            serverBaseUrl = config.serverUrl,
-            schedulerCallerSa = config.schedulerCallerSa
+        schedulerService = SchedulerService(
+            appConfig = config
         )
-        this.httpClient = HttpClient(CIO) {
-//            install(Logging) {
-//                logger = Logger.DEFAULT
-//                level = LogLevel.HEADERS
-//            }
+        httpClient = HttpClient(CIO) {
             install(ContentNegotiation) {
                 json(
                     Json { ignoreUnknownKeys = true; isLenient = true }
                 )
             }
         }
+    }
+
+    fun stop() {
+        schedulerService.close()
+        httpClient.close()
+        db.close()
     }
 }

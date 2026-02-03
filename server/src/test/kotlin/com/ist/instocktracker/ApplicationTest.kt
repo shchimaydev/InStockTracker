@@ -1,16 +1,16 @@
 package com.ist.instocktracker
 
+import com.ist.instocktracker.services.db.FirestoreProvider
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import kotlin.test.*
-import com.ist.instocktracker.module
-import com.ist.instocktracker.services.db.FirestoreProvider
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import org.junit.After
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ApplicationTest {
 
@@ -27,6 +27,9 @@ class ApplicationTest {
         environment {
             config = io.ktor.server.config.MapApplicationConfig(
                 "ktor.development" to "false",
+                "storage.location" to "europe-west3",
+                "app.schedulerCallerSa" to "test-sa",
+                "app.browserlessioToken" to "test-token",
                 "app.jwt.secret" to "test-secret-key",
                 "app.jwt.issuer" to "test-issuer",
                 "app.jwt.audience" to "test-audience",

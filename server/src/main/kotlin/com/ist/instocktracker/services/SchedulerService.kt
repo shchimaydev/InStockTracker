@@ -4,10 +4,10 @@ import com.google.cloud.ServiceOptions
 import com.google.cloud.scheduler.v1.*
 import com.google.protobuf.ByteString
 import com.google.protobuf.Timestamp
-import com.ist.instocktracker.config.AppConfig
 import com.ist.instocktracker.data.DurationUnit
 import com.ist.instocktracker.data.Interval
 import com.ist.instocktracker.data.LinkItem
+import com.ist.instocktracker.services.config.AppConfig
 import com.ist.instocktracker.utils.parseStartAt
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -19,9 +19,6 @@ import java.util.*
 class SchedulerService(
     private val projectId: String = ServiceOptions.getDefaultProjectId(),
     private val appConfig: AppConfig,
-//    private val location: String,
-//    private val serverBaseUrl: String,
-//    private val schedulerCallerSa: String
 ) {
 
     private val location: String = appConfig.location
@@ -32,10 +29,10 @@ class SchedulerService(
         private val schedulerClient: CloudSchedulerClient by lazy {
             CloudSchedulerClient.create()
         }
+    }
 
-        fun close() {
-            schedulerClient.close()
-        }
+    fun close() {
+        schedulerClient.close()
     }
 
     /**

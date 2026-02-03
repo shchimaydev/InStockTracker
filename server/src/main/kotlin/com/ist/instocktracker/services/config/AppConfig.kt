@@ -1,4 +1,4 @@
-package com.ist.instocktracker.config
+package com.ist.instocktracker.services.config
 
 import io.ktor.server.application.*
 

@@ -3,7 +3,6 @@ package com.ist.instocktracker.apiHandlers
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
-import com.ist.instocktracker.config.JwtConfig
 import com.ist.instocktracker.data.ApiError
 import com.ist.instocktracker.data.auth.RefreshTokenRequest
 import com.ist.instocktracker.data.auth.TokenResponse
@@ -14,9 +13,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.util.*
 
-fun Route.postTokenRefresh(jwtConfig: JwtConfig) {
-    //authenticate("auth-jwt") {
-    //install(UserFromPrincipal)
+fun Route.postTokenRefresh() {
+    val jwtConfig = ServiceProvider.jwtConfig
 
     post("/token-refresh") {
         try {

@@ -1,24 +1,21 @@
 package com.ist.instocktracker
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
 import com.ist.instocktracker.apiHandlers.linkItem.*
 import com.ist.instocktracker.apiHandlers.linkItem.check.postCheck
 import com.ist.instocktracker.apiHandlers.postDeviceToken
 import com.ist.instocktracker.apiHandlers.postGoogleIdTokenVerification
 import com.ist.instocktracker.apiHandlers.postTokenRefresh
-import com.ist.instocktracker.config.JwtConfig
+import com.ist.instocktracker.authentication.AuthNames
+import com.ist.instocktracker.authentication.jwtGoogleOidc
+import com.ist.instocktracker.authentication.jwtMainAuth
 import com.ist.instocktracker.data.ApiError
 import com.ist.instocktracker.plugins.UserFromPrincipal
-import com.ist.instocktracker.services.IdTokenVerifierService
-import com.ist.instocktracker.services.SchedulerService
 import com.ist.instocktracker.services.ServiceProvider
 import com.ist.instocktracker.services.db.FirestoreProvider
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
@@ -51,40 +48,11 @@ fun Application.module() {
 
     ServiceProvider.init(application = this)
 
-    val idTokenVerifierService = IdTokenVerifierService()
-    val jwtConfig = JwtConfig.fromEnvironment(environment)
+    val idTokenVerifierService = ServiceProvider.idTokenVerifierService
 
     install(Authentication) {
-        jwt("auth-jwt") {
-            realm = jwtConfig.realm
-            verifier(
-                JWT
-                    .require(Algorithm.HMAC256(jwtConfig.secret))
-                    .withAudience(jwtConfig.audience)
-                    .withIssuer(jwtConfig.issuer)
-                    .build()
-            )
-            validate { credential ->
-                println("Validating JWT token ${credential.payload}")
-                if (credential.payload
-                        .getClaim("sub")
-                        .asString()
-                        .isNullOrBlank()
-                ) {
-                    null
-                } else {
-                    JWTPrincipal(credential.payload)
-                }
-            }
-            challenge { _, _ ->
-                val failureCause = call.authentication.allFailures.joinToString("\n") { it.toString() }
-                println("Invalid or missing token in authentication header. Cause: $failureCause")
-                call.respond(
-                    HttpStatusCode.Unauthorized,
-                    ApiError(error = "Invalid or missing token")
-                )
-            }
-        }
+        jwtMainAuth(AuthNames.JWT_MAIN)
+        jwtGoogleOidc(AuthNames.JWT_GOOGLE_OIDC)
     }
 
 
@@ -108,8 +76,10 @@ fun Application.module() {
                     deleteLinkItem()
                 }
 
-                // Keep check endpoint public
-                postCheck()
+                // Secured with Google OIDC
+                authenticate("google-oidc") {
+                    postCheck()
+                }
             }
 
             authenticate("auth-jwt") {
@@ -118,12 +88,12 @@ fun Application.module() {
             }
 
             postGoogleIdTokenVerification(idTokenVerifierService)
-            postTokenRefresh(jwtConfig)
+            postTokenRefresh()
         }
     }
 
     monitor.subscribe(ApplicationStopped) {
         log.info("Application stopped")
-        SchedulerService.close()
+        ServiceProvider.stop()
     }
 }
