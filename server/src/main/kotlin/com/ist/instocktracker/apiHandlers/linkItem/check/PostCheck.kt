@@ -45,7 +45,7 @@ fun Route.postCheck() {
             println("Checking link item: $linkItem")
 
             // Random delay between 1 and 60 seconds to spread the load
-            val randomDelayMillis = (1000..60000).random().toLong()
+            val randomDelayMillis = (1000..5000).random().toLong()
             println("Delaying for $randomDelayMillis ms...")
             val delayStart = System.currentTimeMillis()
             delay(randomDelayMillis)
@@ -53,7 +53,7 @@ fun Route.postCheck() {
 
             // Get the HTML content of the page using Bright Data Browser API
             val scrapeStart = System.currentTimeMillis()
-            val (mage, imageBytes) = scrapePage(linkItem.link)
+            val (mage, imageBytes) = scrapePage(linkItem.link, true)
             println("scrapePage took ${System.currentTimeMillis() - scrapeStart} ms")
 
             // Evaluate the HTML with GenAI
@@ -143,7 +143,9 @@ suspend fun scrapePage(url: String, saveScreenshot: Boolean = false): ScrapePage
             accept(ContentType.Image.PNG)
             setBody<BrowserlessScreenshotBody>(
                 BrowserlessScreenshotBody(
-                    url = url, options = BrowserlessScreenshotOptions(
+                    url = url,
+                    viewport = BrowserlessViewport(width = 1920, height = 1080),
+                    options = BrowserlessScreenshotOptions(
                         fullPage = true,
                         type = "png"
                     )
@@ -185,14 +187,14 @@ suspend fun evaluateWithAI(imageBytes: ByteArray, linkItem: LinkItem): Boolean {
             // Create a prompt for the AI
             val prompt = """
                 You are an expert at analyzing e-commerce product pages. 
-                I'll provide you with the HTML of a product page, and I need you to determine if the product is in the following state: ${linkItem.mode.name}.
+                I'll provide you with the screenshot of a product page, and I need you to determine if the product is in the following state: ${linkItem.mode.name}.
                 
                 Here are the possible states:
                 - IN_STOCK: The product is available for immediate purchase
                 - PRE_ORDER: The product is available for pre-order but not yet released
                 - OUT_OF_STOCK: The product is currently unavailable for purchase
                 
-                Please analyze the following attached image and identify if an item that is being sold in this page is in the state ${linkItem.mode.name}. Respond with ONLY "true" if the product availability match ${linkItem.mode.name}  or "false" if it doesn't match.
+                Please analyze the attached image and identify if an item that is being sold in this page is in the state ${linkItem.mode.name}. Respond with ONLY "true" if the product availability match ${linkItem.mode.name}  or "false" if it doesn't match.
             """.trimIndent()
 
             //val imageBytes = Files.readAllBytes(Paths.get(imagePath))
@@ -201,7 +203,7 @@ suspend fun evaluateWithAI(imageBytes: ByteArray, linkItem: LinkItem): Boolean {
 
             val geminiStart = System.currentTimeMillis()
             val response: GenerateContentResponse = ServiceProvider.genAi.geminiClient.models.generateContent(
-                "gemini-2.5-flash",
+                "gemini-2.5-flash-lite",
                 contents, null
             )
             println("Gemini API call took ${System.currentTimeMillis() - geminiStart} ms")

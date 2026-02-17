@@ -44,6 +44,9 @@ sealed interface Route {
     @Serializable
     data class EditInstructions(val linkItemId: String) : Route
 
+    @Serializable
+    data object Paywall : Route
+
 }
 
 

@@ -31,6 +31,20 @@ kotlin {
     jvm()
 
     sourceSets {
+        applyDefaultHierarchyTemplate {
+            common {
+                group("revenueCat") {
+                    withAndroidTarget()
+                    withIos()
+                }
+            }
+        }
+
+        val revenueCatMain = sourceSets.getByName("revenueCatMain")
+        revenueCatMain.dependencies {
+            implementation(libs.revenuecat.purchases.kmp)
+        }
+
         commonMain.dependencies {
             // put your Multiplatform dependencies here
             implementation(libs.kotlinx.serialization.json)
@@ -48,7 +62,6 @@ kotlin {
             implementation(libs.androidx.credential.manager)
             implementation(libs.androidx.credential.manager.google)
             implementation(libs.google.android.libraries.identity.googleid)
-
         }
 
         iosMain.dependencies {
@@ -67,6 +80,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    buildFeatures {
+        buildConfig = true
     }
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()

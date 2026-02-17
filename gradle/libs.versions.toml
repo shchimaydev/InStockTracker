@@ -29,6 +29,8 @@ google-api-client = "2.8.0"
 datastoreCoreAndroid = "1.1.7"
 firebase-admin = "9.5.0"
 firebase-bom = "34.5.0"
+revenuecat-purchases = "8.14.1"
+revenuecat-purchases-kmp = "2.5.0+17.32.0"
 
 
 [libraries]
@@ -84,6 +86,11 @@ google-android-libraries-identity-googleid = { module = "com.google.android.libr
 google-firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-admin" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
+
+# RevenueCat
+revenuecat-purchases = { module = "com.revenuecat.purchases:purchases", version.ref = "revenuecat-purchases" }
+revenuecat-purchases-kmp = { module = "com.revenuecat.purchases:purchases-kmp-core", version.ref = "revenuecat-purchases-kmp" }
+revenuecat-purchases-ui = { module = "com.revenuecat.purchases:purchases-ui", version.ref = "revenuecat-purchases" }
 
 # general
 junit = { module = "junit:junit", version.ref = "junit" }

@@ -9,6 +9,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
 import io.ktor.util.*
+import kotlinx.coroutines.isActive
 
 val UserAttributeKey = AttributeKey<User>("user")
 val UserFromPrincipal = createRouteScopedPlugin("UserFromPrincipal") {
@@ -19,6 +20,7 @@ val UserFromPrincipal = createRouteScopedPlugin("UserFromPrincipal") {
         println("Principal: $principal")
 
         principal?.let {
+            println("call job active? ${call.coroutineContext.isActive}")
             val user = ServiceProvider.userRepository.get(it.payload.subject) ?: return@on call.respond(
                 HttpStatusCode.Forbidden,
                 ApiError(error = "User not found or inactive")

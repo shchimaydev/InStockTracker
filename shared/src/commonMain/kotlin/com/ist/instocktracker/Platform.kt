@@ -5,3 +5,9 @@ interface Platform {
 }
 
 expect fun getPlatform(): Platform
+
+interface CustomerInfoWrapper {
+    val activeEntitlements: Set<String>
+    val isPremium: Boolean
+    val activeSubscriptions: Set<String>
+}

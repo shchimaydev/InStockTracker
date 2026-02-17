@@ -20,6 +20,7 @@ import com.ist.instocktracker.feature.linkitem.editScreens.EditStartAtScreen
 import com.ist.instocktracker.feature.main.MainListScreen
 import com.ist.instocktracker.feature.main.MainScaffold
 import com.ist.instocktracker.services.ServiceLocator.tokenStore
+import com.ist.instocktracker.ui.billing.PaywallScreen
 import com.ist.instocktracker.utils.LocalNavController
 
 /**
@@ -150,6 +151,19 @@ fun AppNavigation(
 
             }
 
+            composable<Route.Paywall> {
+                PaywallScreen(
+                    onDismiss = { navController.popBackStack() },
+                    onPurchaseSuccess = {
+                        // Handle successful purchase
+                        navController.popBackStack()
+                    },
+                    onRestoreSuccess = {
+                        // Handle successful restore
+                        navController.popBackStack()
+                    }
+                )
+            }
 
         }
     }

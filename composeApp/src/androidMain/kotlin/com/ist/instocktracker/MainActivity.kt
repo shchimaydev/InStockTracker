@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import com.ist.instocktracker.billing.RevenueCatManager
 import com.ist.instocktracker.navigation.AppNavigation
 import com.ist.instocktracker.services.ServiceLocator
 import com.ist.instocktracker.utils.extractUrlFromText
@@ -43,6 +44,9 @@ class MainActivity : ComponentActivity() {
         checkSharedUrlIntent(intent) { url -> viewModel.setSharedUrl(url) }
 
         ServiceLocator.init(applicationContext)
+
+        // Initialize RevenueCat
+        RevenueCatManager.initializeWithContext(application, BuildConfig.REVENUECAT_API_KEY)
 
         setContent {
             InStockApp()

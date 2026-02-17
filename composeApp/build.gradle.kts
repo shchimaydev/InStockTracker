@@ -30,6 +30,10 @@ kotlin {
             implementation("org.jetbrains.compose.material3:material3:1.9.0-alpha04")
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.messaging)
+            // RevenueCat
+            implementation(libs.revenuecat.purchases)
+            implementation(libs.revenuecat.purchases.kmp)
+            implementation(libs.revenuecat.purchases.ui)
 
         }
         commonMain.dependencies {
@@ -61,11 +65,15 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("String", "REVENUECAT_API_KEY", "\"test_FrGdTglizkPEdlPaZCdANrybnrR\"")
     }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+    buildFeatures {
+        buildConfig = true
     }
     buildTypes {
         getByName("release") {

@@ -77,9 +77,9 @@ fun Application.module() {
                 }
 
                 // Secured with Google OIDC
-                authenticate("google-oidc") {
-                    postCheck()
-                }
+                //authenticate("google-oidc") {
+                postCheck()
+                //}
             }
 
             authenticate("auth-jwt") {
