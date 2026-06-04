@@ -3,8 +3,11 @@ package com.ist.instocktracker.feature.main
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +28,7 @@ fun MainScaffold(content: @Composable (paddingValue: PaddingValues) -> Unit) {
     val sessionManager = ServiceLocator.sessionManager
     val context = LocalContext.current
 
+    val isAuthenticated by ServiceLocator.tokenStore.isAuthenticated().collectAsState(initial = false)
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -38,6 +42,25 @@ fun MainScaffold(content: @Composable (paddingValue: PaddingValues) -> Unit) {
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+
+
+                if (isAuthenticated) {
+                    NavigationDrawerItem(
+                        label = { Text("Subscribe") },
+                        icon = { Icon(imageVector = Icons.Default.Star, contentDescription = "Subscribe") },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                navController.navigate(Route.Paywall)
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
 
                 // Logout button
                 Button(

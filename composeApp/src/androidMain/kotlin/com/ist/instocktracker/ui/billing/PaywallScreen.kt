@@ -12,9 +12,11 @@ import androidx.compose.ui.unit.dp
 import com.revenuecat.purchases.CustomerInfo
 import com.revenuecat.purchases.PurchasesError
 import com.revenuecat.purchases.models.StoreTransaction
+import com.revenuecat.purchases.ui.revenuecatui.Paywall
 import com.revenuecat.purchases.ui.revenuecatui.PaywallDialog
 import com.revenuecat.purchases.ui.revenuecatui.PaywallDialogOptions
 import com.revenuecat.purchases.ui.revenuecatui.PaywallListener
+import com.revenuecat.purchases.ui.revenuecatui.PaywallOptions
 
 private const val TAG = "PaywallScreen"
 
@@ -31,7 +33,6 @@ fun PaywallScreen(
     onPurchaseSuccess: () -> Unit = {},
     onRestoreSuccess: () -> Unit = {}
 ) {
-    var showPaywallDialog by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
 
@@ -83,16 +84,16 @@ fun PaywallScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = {
                         errorMessage = null
-                        showPaywallDialog = true
                     }) {
                         Text("Retry")
                     }
                 }
             }
 
-            if (showPaywallDialog && errorMessage == null) {
-                PaywallDialog(
-                    paywallDialogOptions = PaywallDialogOptions.Builder()
+            if (errorMessage == null) {
+                Paywall(
+                    options = PaywallOptions.Builder(dismissRequest = onDismiss)
+                        .setShouldDisplayDismissButton(true)
                         .setListener(object : PaywallListener {
                             override fun onPurchaseStarted(rcPackage: com.revenuecat.purchases.Package) {
                                 Log.d(TAG, "Purchase started")
@@ -105,7 +106,6 @@ fun PaywallScreen(
                             ) {
                                 Log.d(TAG, "Purchase completed")
                                 isLoading = false
-                                showPaywallDialog = false
                                 onPurchaseSuccess()
                             }
 
@@ -123,7 +123,6 @@ fun PaywallScreen(
                             override fun onRestoreCompleted(customerInfo: CustomerInfo) {
                                 Log.d(TAG, "Restore completed")
                                 isLoading = false
-                                showPaywallDialog = false
                                 onRestoreSuccess()
                             }
 
@@ -145,13 +144,15 @@ fun PaywallScreen(
  * This uses the RevenueCat Paywall Dialog directly
  */
 @Composable
-fun PaywallDialog(
+fun SubscriptionPaywallDialog(
     onDismiss: () -> Unit,
     onPurchaseSuccess: () -> Unit = {},
     onRestoreSuccess: () -> Unit = {}
 ) {
     PaywallDialog(
         paywallDialogOptions = PaywallDialogOptions.Builder()
+            .setDismissRequest(onDismiss)
+            .setShouldDisplayDismissButton(true)
             .setListener(object : PaywallListener {
                 override fun onPurchaseStarted(rcPackage: com.revenuecat.purchases.Package) {
                     Log.d(TAG, "Purchase started")
