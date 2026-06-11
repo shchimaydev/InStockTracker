@@ -5,6 +5,9 @@
       "headers": {
         "Authorization": "Bearer sk_oCtRCswKuKjdDedVNiJntOiLSPGwt"
       }
+    },
+    "Figma_Desktop": {
+      "url": "http://127.0.0.1:3845/mcp"
     }
   }
 }
