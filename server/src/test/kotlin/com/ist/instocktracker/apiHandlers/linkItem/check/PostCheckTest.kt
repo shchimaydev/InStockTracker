@@ -42,6 +42,7 @@ class PostCheckTest {
         val testId = "test-item-123"
         val fakeLinkItem = LinkItem(
             id = testId,
+            userId = "test-user",
             link = "https://example.com/product/123",
             mode = Mode.IN_STOCK,
         )

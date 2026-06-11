@@ -11,6 +11,8 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.ist.instocktracker.MainActivityViewModel
 import com.ist.instocktracker.feature.auth.AuthScreen
+import com.ist.instocktracker.feature.billing.PaywallRoute
+import com.ist.instocktracker.feature.billing.PaywallScreen
 import com.ist.instocktracker.feature.linkitem.AddFromShareScreen
 import com.ist.instocktracker.feature.linkitem.LinkItemDetailsScreen
 import com.ist.instocktracker.feature.linkitem.editScreens.EditIntervalScreen
@@ -20,7 +22,6 @@ import com.ist.instocktracker.feature.linkitem.editScreens.EditStartAtScreen
 import com.ist.instocktracker.feature.main.MainListScreen
 import com.ist.instocktracker.feature.main.MainScaffold
 import com.ist.instocktracker.services.ServiceLocator.tokenStore
-import com.ist.instocktracker.ui.billing.PaywallScreen
 import com.ist.instocktracker.utils.LocalNavController
 
 /**
@@ -152,16 +153,10 @@ fun AppNavigation(
             }
 
             composable<Route.Paywall> {
-                PaywallScreen(
+                PaywallRoute(
                     onDismiss = { navController.popBackStack() },
-                    onPurchaseSuccess = {
-                        // Handle successful purchase
-                        navController.popBackStack()
-                    },
-                    onRestoreSuccess = {
-                        // Handle successful restore
-                        navController.popBackStack()
-                    }
+                    onPurchaseSuccess = { navController.popBackStack() },
+                    onRestoreSuccess = { navController.popBackStack() }
                 )
             }
 

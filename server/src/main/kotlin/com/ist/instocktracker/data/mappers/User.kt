@@ -1,6 +1,8 @@
 package com.ist.instocktracker.data.mappers
 
 import com.google.cloud.firestore.DocumentSnapshot
+import com.ist.instocktracker.data.DeviceToken
+import com.ist.instocktracker.data.Platform
 import com.ist.instocktracker.data.User
 
 fun DocumentSnapshot.toUser(): User? {
@@ -13,19 +15,30 @@ fun DocumentSnapshot.toUser(): User? {
         val id = this.id
         val name = data["name"] as? String // Safe cast returns null if "name" isn't a String or is missing
         val email = data["email"] as? String
-        val googleIdToken = data["googleIdToken"] as? String
+        val googleIdToken = data["googleIdToken"] as? String ?: ""
+        val trackableItemsLeft = (data["trackableItemsLeft"] as? Number)?.toInt() ?: 3
 
-        // You must have an ID and a token to create a valid user.
-        if (googleIdToken == null) {
-            println("Error: Document ${this.id} is missing 'googleIdToken'. Cannot map to User.")
-            return null
-        }
+        val deviceTokens = (data["deviceTokens"] as? List<Map<String, Any>>)?.mapNotNull { tokenData ->
+            val token = tokenData["token"] as? String
+            val platformStr = tokenData["platform"] as? String
+            val createdAt = tokenData["createdAt"] as? Long
+
+            if (token != null && platformStr != null && createdAt != null) {
+                try {
+                    DeviceToken(token, Platform.valueOf(platformStr), createdAt)
+                } catch (e: Exception) {
+                    null
+                }
+            } else null
+        } ?: emptyList()
 
         User(
             id = id,
             name = name,
             email = email,
-            googleIdToken = googleIdToken
+            googleIdToken = googleIdToken,
+            deviceTokens = deviceTokens,
+            trackableItemsLeft = trackableItemsLeft
         )
     } catch (e: Exception) {
         println("Error mapping snapshot to User: ${e.message}")

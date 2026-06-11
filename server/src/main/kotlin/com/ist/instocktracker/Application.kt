@@ -2,6 +2,8 @@ package com.ist.instocktracker
 
 import com.ist.instocktracker.apiHandlers.linkItem.*
 import com.ist.instocktracker.apiHandlers.linkItem.check.postCheck
+import com.ist.instocktracker.apiHandlers.user.putUserSyncLimits
+import com.ist.instocktracker.apiHandlers.user.getUserMe
 import com.ist.instocktracker.apiHandlers.postDeviceToken
 import com.ist.instocktracker.apiHandlers.postGoogleIdTokenVerification
 import com.ist.instocktracker.apiHandlers.postTokenRefresh
@@ -85,6 +87,10 @@ fun Application.module() {
             authenticate("auth-jwt") {
                 install(UserFromPrincipal)
                 postDeviceToken()
+                route("user") {
+                    getUserMe()
+                    putUserSyncLimits()
+                }
             }
 
             postGoogleIdTokenVerification(idTokenVerifierService)

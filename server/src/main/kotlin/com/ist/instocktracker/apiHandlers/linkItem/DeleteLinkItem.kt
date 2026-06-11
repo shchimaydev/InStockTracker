@@ -37,8 +37,10 @@ fun Route.deleteLinkItem() {
 
             // Delete the document
             withContext(Dispatchers.IO) {
-                reference?.delete()?.get()
+                reference.delete().get()
             }
+
+            ServiceProvider.userRepository.updateTrackableItemsLeft(linkItem.userId, 1)
 
             return@delete call.respond(HttpStatusCode.NoContent)
         } catch (e: Exception) {

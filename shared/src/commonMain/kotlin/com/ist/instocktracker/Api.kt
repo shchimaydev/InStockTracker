@@ -92,6 +92,15 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
         }
     }
 
+    suspend fun getCurrentUser(): com.ist.instocktracker.data.User {
+        val res = authClient.get("$host/api/v1/user/me")
+        if (res.status.isSuccess()) {
+            return res.body<com.ist.instocktracker.data.User>()
+        } else {
+            throw Exception("Failed to get current user: ${res.status}, error: ${res.bodyAsText()}")
+        }
+    }
+
     suspend fun getLinkItem(id: String): LinkItem {
         val res = authClient.get("$host/api/v1/link-items/$id")
         if (res.status.isSuccess()) {
@@ -141,6 +150,15 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
         }
         if (!res.status.isSuccess()) {
             throw Exception("Failed to send device token: ${res.status}")
+        }
+    }
+
+    suspend fun syncLimits(limit: Int) {
+        val res = authClient.put("$host/api/v1/user/sync-limits") {
+            parameter("limit", limit)
+        }
+        if (!res.status.isSuccess()) {
+            throw Exception("Failed to sync limits: ${res.status}, error: ${res.bodyAsText()}")
         }
     }
 }

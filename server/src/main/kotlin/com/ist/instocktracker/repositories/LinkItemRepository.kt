@@ -89,4 +89,15 @@ class LinkItemRepository(db: Firestore) {
             null // Return null on error
         }
     }
+
+    suspend fun count(userId: String): Int {
+        return try {
+            withContext(Dispatchers.IO) {
+                collection.whereEqualTo("userId", userId).get().get().size()
+            }
+        } catch (e: Exception) {
+            println("Error counting link items: ${e.message}")
+            0
+        }
+    }
 }

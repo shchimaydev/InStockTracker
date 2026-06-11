@@ -16,6 +16,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ist.instocktracker.feature.billing.SubscriptionViewModel
+import com.ist.instocktracker.data.SubscriptionTier
 import com.ist.instocktracker.navigation.Route
 import com.ist.instocktracker.services.ServiceLocator
 import com.ist.instocktracker.utils.LocalNavController
@@ -27,9 +30,12 @@ fun MainScaffold(content: @Composable (paddingValue: PaddingValues) -> Unit) {
     val navController = LocalNavController.current
     val scope = rememberCoroutineScope()
     val isAuthenticated by ServiceLocator.tokenStore.isAuthenticated().collectAsState(initial = false)
+    val subVm = viewModel<SubscriptionViewModel>()
+    val subState by subVm.subscriptionState.collectAsState()
 
     MainScaffoldContent(
         isAuthenticated = isAuthenticated,
+        currentTier = subState.tier,
         onLogout = {
             scope.launch {
                 ServiceLocator.sessionManager.signOut()
@@ -49,6 +55,7 @@ fun MainScaffold(content: @Composable (paddingValue: PaddingValues) -> Unit) {
 @Composable
 private fun MainScaffoldContent(
     isAuthenticated: Boolean,
+    currentTier: SubscriptionTier,
     onLogout: () -> Unit,
     onNavigateToPaywall: () -> Unit,
     content: @Composable (paddingValue: PaddingValues) -> Unit
@@ -73,7 +80,18 @@ private fun MainScaffoldContent(
 
                 if (isAuthenticated) {
                     NavigationDrawerItem(
-                        label = { Text(fontSize = 20.sp, fontWeight = FontWeight.Bold, text = "Subscribe") },
+                        label = { 
+                            Column {
+                                Text(fontSize = 20.sp, fontWeight = FontWeight.Bold, text = "Subscribe")
+                                if (currentTier != SubscriptionTier.FREE) {
+                                    Text(
+                                        text = "Current: ${currentTier.name}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        },
                         icon = {
                             Icon(
                                 imageVector = Icons.Default.Bolt,
@@ -142,6 +160,7 @@ private fun MainScaffoldContent(
 fun MainScaffoldPreview() {
     MainScaffoldContent(
         isAuthenticated = true,
+        currentTier = SubscriptionTier.FREE,
         onLogout = {},
         onNavigateToPaywall = {},
         content = { paddingValues ->

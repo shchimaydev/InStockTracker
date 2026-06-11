@@ -20,7 +20,12 @@ class AddFromSharedViewModel : ViewModel() {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             try {
-                val newLinkItem = LinkItemFactory.createLinkItemFromSharedUrl(url)
+                val user = ServiceLocator.api.getCurrentUser()
+                if (user.trackableItemsLeft <= 0) {
+                    throw IllegalStateException("You have reached your limit of trackable items. Please upgrade your subscription.")
+                }
+
+                val newLinkItem = LinkItemFactory.createLinkItemFromSharedUrl(url, user.id)
                 val createdLinkItem = ServiceLocator.api.createLinkItem(newLinkItem)
 
                 Log.d("AddFromShareViewModel", "New LinkItem: $newLinkItem")

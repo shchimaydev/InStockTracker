@@ -1,6 +1,7 @@
 package com.ist.instocktracker.repositories
 
 import com.google.cloud.firestore.Firestore
+import com.google.cloud.firestore.FieldValue
 import com.google.cloud.firestore.SetOptions
 import com.ist.instocktracker.data.User
 import com.ist.instocktracker.data.mappers.toUser
@@ -27,7 +28,7 @@ class UserRepository(db: Firestore) {
         return try {
             val docRef = collection.document(user.id)
             withContext(Dispatchers.IO) {
-                docRef.set(user, SetOptions.merge()).get()
+                docRef.set(user.toMap(), SetOptions.merge()).get()
             }
 
             val snapshot = withContext(Dispatchers.IO) {
@@ -55,5 +56,15 @@ class UserRepository(db: Firestore) {
         }
     }
 
+    suspend fun updateTrackableItemsLeft(userId: String, delta: Int) {
+        withContext(Dispatchers.IO) {
+            collection.document(userId).update("trackableItemsLeft", FieldValue.increment(delta.toLong())).get()
+        }
+    }
 
+    suspend fun setTrackableItemsLeft(userId: String, value: Int) {
+        withContext(Dispatchers.IO) {
+            collection.document(userId).set(mapOf("trackableItemsLeft" to value), SetOptions.merge()).get()
+        }
+    }
 }

@@ -16,21 +16,28 @@ import io.ktor.server.routing.*
 fun Route.postLinkItem() {
     post {
         val linkItemRepository = ServiceProvider.linkItemRepository
+        val userRepository = ServiceProvider.userRepository
         val schedulerService = ServiceProvider.schedulerService
         val linkItem = call.receive<LinkItem>()
         val currentUser = call.getUser()
 
+        if (currentUser.trackableItemsLeft <= 0) {
+            return@post call.respond(
+                HttpStatusCode.Forbidden,
+                ApiError(error = "You have reached your limit of trackable items. Please upgrade your subscription.")
+            )
+        }
 
         try {
             val updatedLinkItem = linkItem.copy(userId = currentUser.id)
             val linkItemFromDb = linkItemRepository.save(updatedLinkItem)
-
 
             linkItemFromDb
                 ?.let {
                     // Create a schedule for the LinkItem
                     val scheduleJobId = schedulerService.createSchedule(it)
                     linkItemRepository.save(it.copy(scheduleJobId = scheduleJobId))
+                    userRepository.updateTrackableItemsLeft(currentUser.id, -1)
                 }
                 ?: throw IllegalStateException("Failed to create link item")
 

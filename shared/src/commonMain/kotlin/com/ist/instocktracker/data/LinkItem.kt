@@ -44,7 +44,7 @@ fun Interval.getDisplayName(): String {
 data class LinkItem(
     @DocumentId
     val id: String = "",
-    val userId: String? = null,
+    val userId: String,
     val label: String? = null,
     val link: String = "",
     val mode: Mode = Mode.IN_STOCK,

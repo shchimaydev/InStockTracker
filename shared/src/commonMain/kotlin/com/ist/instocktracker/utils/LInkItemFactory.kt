@@ -8,9 +8,10 @@ import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.days
 
 object LinkItemFactory {
-    fun createLinkItemFromSharedUrl(url: String): LinkItem {
+    fun createLinkItemFromSharedUrl(url: String, userId: String): LinkItem {
         return LinkItem(
             link = url,
+            userId = userId,
             label = extractHostFromUrl(url),
             mode = Mode.IN_STOCK,
             startAt = (Clock.System.now() + 1.days).toString(),

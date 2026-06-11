@@ -8,8 +8,26 @@ data class User(
     val name: String?,
     val email: String?,
     val googleIdToken: String,
-    val deviceTokens: List<DeviceToken> = emptyList()
-)
+    val deviceTokens: List<DeviceToken> = emptyList(),
+    val trackableItemsLeft: Int = 3
+
+) {
+    fun toMap(): Map<String, Any?> {
+        return mapOf(
+            "name" to name,
+            "email" to email,
+            "googleIdToken" to googleIdToken,
+            "deviceTokens" to deviceTokens.map {
+                mapOf(
+                    "token" to it.token,
+                    "platform" to it.platform.name,
+                    "createdAt" to it.createdAt
+                )
+            },
+            "trackableItemsLeft" to trackableItemsLeft
+        )
+    }
+}
 
 fun User.hasDeviceToken(token: String): Boolean {
     return deviceTokens.any { it.token == token }

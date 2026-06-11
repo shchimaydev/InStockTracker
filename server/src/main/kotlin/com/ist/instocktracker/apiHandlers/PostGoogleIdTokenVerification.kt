@@ -39,11 +39,13 @@ fun Route.postGoogleIdTokenVerification(idTokenVerifierService: IdTokenVerifierS
             println("User id: $userId")
 
 
-            val user = User(id = userId, name = name, email = email, googleIdToken = id)
-            val userExists = userRepository.exists(userId)
-            if (!userExists) {
-                userRepository.save(user)
+            val existingUser = userRepository.get(userId)
+            val user = if (existingUser != null) {
+                existingUser.copy(name = name, email = email, googleIdToken = id)
+            } else {
+                User(id = userId, name = name, email = email, googleIdToken = id)
             }
+            userRepository.save(user)
 
             // Read JWT configuration
             val cfg = call.application.environment.config

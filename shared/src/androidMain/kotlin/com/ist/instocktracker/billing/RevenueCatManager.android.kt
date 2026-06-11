@@ -13,7 +13,6 @@ actual object RevenueCatManager : BaseRevenueCatManager() {
     }
 
     actual fun initialize(apiKey: String) {
-        // Updated CustomerInfo is automatically handled by other methods like identifyUser, fetchCustomerInfo, etc.
-        // In this version of KMP SDK, we don't have a direct setOnUpdatedCustomerInfoListener on the KMP Purchases object.
+        Purchases.sharedInstance.delegate = this
     }
 }

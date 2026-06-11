@@ -98,6 +98,7 @@ fun LinkItemCardPreview() {
     val sampleLinkItems = listOf(
         LinkItem(
             id = "1",
+            userId = "user1",
             label = "playStation 5",
             link = "https://example.com/ps5",
             mode = Mode.IN_STOCK,
@@ -107,6 +108,7 @@ fun LinkItemCardPreview() {
         ),
         LinkItem(
             id = "2",
+            userId = "user1",
             label = "Xbox Series X",
             link = "https://example.com/xbox",
             mode = Mode.PRE_ORDER,
@@ -116,6 +118,7 @@ fun LinkItemCardPreview() {
         ),
         LinkItem(
             id = "3",
+            userId = "user1",
             label = "Nintendo Switch OLED",
             link = "https://example.com/switch",
             mode = Mode.OUT_OF_STOCK,
