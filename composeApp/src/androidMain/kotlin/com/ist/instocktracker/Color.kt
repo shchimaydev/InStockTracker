@@ -38,6 +38,12 @@ val SurfaceTintedLow = Color(0xFFF7F8FA)
 /** Base BG — app background. */
 val BaseBg = Color(0xFFF5F6FA)
 
+/**
+ * App background — vertical gradient from the Figma design
+ * (white → tint → surface). Use with [androidx.compose.ui.graphics.Brush.verticalGradient].
+ */
+val AppBackgroundGradient = listOf(White, Color(0xFFF3F4F8), SurfaceTintedLow)
+
 // endregion
 
 // region ── Alpha tints (as authored in Figma, over white) ───────────────────

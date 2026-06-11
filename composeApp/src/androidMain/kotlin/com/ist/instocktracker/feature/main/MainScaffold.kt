@@ -1,5 +1,6 @@
 package com.ist.instocktracker.feature.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -8,8 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.ist.instocktracker.AppBackgroundGradient
+import com.ist.instocktracker.Ink
 import com.ist.instocktracker.feature.main.components.MainDrawerContent
 import com.ist.instocktracker.navigation.Route
 import com.ist.instocktracker.services.ServiceLocator
@@ -69,9 +73,18 @@ private fun MainScaffoldContent(
         }
     ) {
         Scaffold(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.verticalGradient(AppBackgroundGradient)),
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = {},
+                    title = {
+                        Text(
+                            text = "Links",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Ink
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(
@@ -82,12 +95,12 @@ private fun MainScaffoldContent(
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        titleContentColor = Ink
                     )
                 )
             },
             floatingActionButton = {},
-            containerColor = Color.White
+            containerColor = Color.Transparent
         ) { paddingValues ->
             content(paddingValues)
         }
