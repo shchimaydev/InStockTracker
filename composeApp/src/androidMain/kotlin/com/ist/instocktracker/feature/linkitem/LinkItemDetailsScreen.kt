@@ -97,7 +97,6 @@ fun LinkItemDetailsContent(
     viewModel: LinkItemDetailsViewModel = viewModel()
 ) {
     val clipboardManager = LocalClipboard.current
-    val navController = LocalNavController.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -147,7 +146,7 @@ fun LinkItemDetailsContent(
                                 val intent = Intent(Intent.ACTION_VIEW, linkItem.link.toUri())
                                 context.startActivity(intent)
                             },
-                        text = "Product Link",
+                        text = "Link",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF2196F3)
