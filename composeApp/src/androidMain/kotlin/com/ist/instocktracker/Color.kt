@@ -2,55 +2,144 @@ package com.ist.instocktracker
 
 import androidx.compose.ui.graphics.Color
 
-// Primary color palette based on #28569B
-val Primary = Color(0xFF28569B)
-val PrimaryLight = Color(0xFF5A7FBF)
-val PrimaryDark = Color(0xFF1A3F6F)
-val OnPrimary = Color(0xFFFFFFFF)
+/**
+ * Color tokens derived from the Figma "InStockTracker Design Kit"
+ * (Tech Utility palette — Strategy A).
+ *
+ * The design defines a small set of solid brand colors plus a series of
+ * alpha tints layered over white. The solid colors are mapped onto Material 3
+ * color-scheme roles in [AppTheme]; the raw tints are exposed here so that
+ * components (status chips, badges, borders) can reproduce the exact look.
+ */
 
-val PrimaryContainer = Color(0xFFD6E3FF)
-val OnPrimaryContainer = Color(0xFF001B3E)
+// region ── Brand palette (solid) ───────────────────────────────────────────
 
-// Secondary color palette (complementary blue-grey)
-val Secondary = Color(0xFF565E71)
-val SecondaryLight = Color(0xFF7A8296)
-val SecondaryDark = Color(0xFF3E4556)
-val OnSecondary = Color(0xFFFFFFFF)
+/** Primary — Cobalt / Indigo. */
+val Cobalt = Color(0xFF3D52D5)
 
-val SecondaryContainer = Color(0xFFDAE2F9)
-val OnSecondaryContainer = Color(0xFF131C2B)
+/** Nav Dark — deep indigo used for the navigation drawer / brand surfaces. */
+val NavDark = Color(0xFF1B2878)
 
-// Tertiary color palette (accent teal-blue)
-val Tertiary = Color(0xFF705575)
-val TertiaryLight = Color(0xFF9A7C9E)
-val TertiaryDark = Color(0xFF533D57)
-val OnTertiary = Color(0xFFFFFFFF)
+/** Success — Mint Green ("in stock" / positive). */
+val Mint = Color(0xFF1DB87A)
 
-val TertiaryContainer = Color(0xFFFAD8FD)
-val OnTertiaryContainer = Color(0xFF28132E)
+/** Danger / Warning — Coral Red. */
+val Coral = Color(0xFFE84D3D)
 
-// Error colors
-val Error = Color(0xFFBA1A1A)
-val ErrorContainer = Color(0xFFFFDAD6)
-val OnError = Color(0xFFFFFFFF)
-val OnErrorContainer = Color(0xFF410002)
+/** Ink — primary text / on-surface. */
+val Ink = Color(0xFF1A1D2E)
 
-// Background colors - Light theme
-val BackgroundLight = Color(0xFFFDFBFF)
-val OnBackgroundLight = Color(0xFF1A1C1E)
-val SurfaceLight = Color(0xFFFDFBFF)
-val OnSurfaceLight = Color(0xFF1A1C1E)
-val SurfaceVariantLight = Color(0xFFE0E2EC)
-val OnSurfaceVariantLight = Color(0xFF44474E)
+/** White — cards, sheets, top bars. */
+val White = Color(0xFFFFFFFF)
 
-// Background colors - Dark theme
-val BackgroundDark = Color(0xFF1A1C1E)
-val OnBackgroundDark = Color(0xFFE2E2E6)
-val SurfaceDark = Color(0xFF1A1C1E)
-val OnSurfaceDark = Color(0xFFE2E2E6)
-val SurfaceVariantDark = Color(0xFF44474E)
-val OnSurfaceVariantDark = Color(0xFFC4C6D0)
+/** Surface — slightly tinted off-white. */
+val SurfaceTintedLow = Color(0xFFF7F8FA)
 
-// Outline colors
-val OutlineLight = Color(0xFF74777F)
-val OutlineDark = Color(0xFF8E9099)
+/** Base BG — app background. */
+val BaseBg = Color(0xFFF5F6FA)
+
+// endregion
+
+// region ── Alpha tints (as authored in Figma, over white) ───────────────────
+
+val PrimaryTint06 = Color(0x0F3D52D5) // Primary Light  · rgba(61,82,213,0.06)
+val PrimaryTint18 = Color(0x2E3D52D5) // Primary Border · rgba(61,82,213,0.18)
+val PrimaryTint55 = Color(0x8C3D52D5) // Primary Text   · rgba(61,82,213,0.55)
+
+val SuccessTint10 = Color(0x1A1DB87A) // Success Light  · rgba(29,184,122,0.10)
+val SuccessTint30 = Color(0x4D1DB87A) // Success Border · rgba(29,184,122,0.30)
+
+val DangerTint08 = Color(0x14E84D3D)  // Danger Light   · rgba(232,77,61,0.08)
+val DangerTint30 = Color(0x4DE84D3D)  // Danger Border  · rgba(232,77,61,0.30)
+
+val InkMuted = Color(0x73000000)      // Ink Muted      · rgba(0,0,0,0.45)
+val InkFaint = Color(0x0F000000)      // Ink Faint      · rgba(0,0,0,0.06)
+val BorderHairline = Color(0x14000000)// Border         · rgba(0,0,0,0.08)
+
+// endregion
+
+// region ── Light scheme (flattened over white where containers are needed) ──
+
+val LightPrimary = Cobalt
+val LightOnPrimary = White
+val LightPrimaryContainer = Color(0xFFDCE0F7)   // Primary Border flattened on white
+val LightOnPrimaryContainer = NavDark
+
+val LightSecondary = NavDark
+val LightOnSecondary = White
+val LightSecondaryContainer = Color(0xFFDDE1F5)
+val LightOnSecondaryContainer = Color(0xFF121A4D)
+
+val LightTertiary = Mint
+val LightOnTertiary = White
+val LightTertiaryContainer = Color(0xFFC5EFDD)  // Success Border flattened on white
+val LightOnTertiaryContainer = Color(0xFF00432A)
+
+val LightError = Coral
+val LightOnError = White
+val LightErrorContainer = Color(0xFFFBD9D4)     // Danger Border flattened on white
+val LightOnErrorContainer = Color(0xFF5C140C)
+
+val LightBackground = BaseBg
+val LightOnBackground = Ink
+val LightSurface = White
+val LightOnSurface = Ink
+val LightSurfaceVariant = Color(0xFFECEEF3)
+val LightOnSurfaceVariant = Color(0xFF5C5F6B)   // Ink Muted, slightly tinted for legibility
+val LightOutline = Color(0xFFC6C8D0)
+val LightOutlineVariant = Color(0xFFE6E7ED)     // Border hairline flattened on white
+
+val LightSurfaceContainerLowest = White
+val LightSurfaceContainerLow = SurfaceTintedLow
+val LightSurfaceContainer = Color(0xFFF2F3F8)
+val LightSurfaceContainerHigh = Color(0xFFECEEF3)
+val LightSurfaceContainerHighest = Color(0xFFE6E8EE)
+
+val LightInverseSurface = Color(0xFF2E3140)
+val LightInverseOnSurface = Color(0xFFF2F3F7)
+val LightInversePrimary = Color(0xFFB8C1F5)
+
+// endregion
+
+// region ── Dark scheme (derived — the design kit is light-only) ─────────────
+
+val DarkPrimary = Color(0xFFB8C1F5)
+val DarkOnPrimary = NavDark
+val DarkPrimaryContainer = Color(0xFF2A3A9E)
+val DarkOnPrimaryContainer = Color(0xFFDCE0F7)
+
+val DarkSecondary = Color(0xFFAEB6E8)
+val DarkOnSecondary = Color(0xFF0E1A52)
+val DarkSecondaryContainer = Color(0xFF232C66)
+val DarkOnSecondaryContainer = Color(0xFFDDE1F5)
+
+val DarkTertiary = Color(0xFF5FD6A4)
+val DarkOnTertiary = Color(0xFF00331F)
+val DarkTertiaryContainer = Color(0xFF0C8A5A)
+val DarkOnTertiaryContainer = Color(0xFFC5EFDD)
+
+val DarkError = Color(0xFFFF8A7A)
+val DarkOnError = Color(0xFF5C140C)
+val DarkErrorContainer = Color(0xFFB23528)
+val DarkOnErrorContainer = Color(0xFFFBD9D4)
+
+val DarkBackground = Color(0xFF101220)
+val DarkOnBackground = Color(0xFFE4E5EC)
+val DarkSurface = Ink
+val DarkOnSurface = Color(0xFFE4E5EC)
+val DarkSurfaceVariant = Color(0xFF2A2D3E)
+val DarkOnSurfaceVariant = Color(0xFFC2C4D0)
+val DarkOutline = Color(0xFF4A4D5C)
+val DarkOutlineVariant = Color(0xFF2A2D3E)
+
+val DarkSurfaceContainerLowest = Color(0xFF0C0E1A)
+val DarkSurfaceContainerLow = Color(0xFF16192A)
+val DarkSurfaceContainer = Ink
+val DarkSurfaceContainerHigh = Color(0xFF24273A)
+val DarkSurfaceContainerHighest = Color(0xFF2E3145)
+
+val DarkInverseSurface = Color(0xFFE4E5EC)
+val DarkInverseOnSurface = Ink
+val DarkInversePrimary = Cobalt
+
+// endregion
