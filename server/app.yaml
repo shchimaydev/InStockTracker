@@ -6,3 +6,8 @@ handlers:
     script: this field is required, but ignored
 
 entrypoint: 'java -jar server-all.jar'
+
+# Production secrets are injected from a gitignored file at deploy time.
+# Copy env_secrets.yaml.example -> env_secrets.yaml and fill in real values.
+includes:
+  - env_secrets.yaml

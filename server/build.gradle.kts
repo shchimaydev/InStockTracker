@@ -73,6 +73,7 @@ dependencies {
 
     implementation(libs.selenium)
     implementation(libs.logback)
+    implementation(libs.dotenv.kotlin)
     implementation("io.ktor:ktor-client-logging:3.2.3")
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.testJunit)

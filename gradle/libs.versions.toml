@@ -96,6 +96,7 @@ revenuecat-purchases-ui = { module = "com.revenuecat.purchases:purchases-ui", ve
 junit = { module = "junit:junit", version.ref = "junit" }
 selenium = { module = "org.seleniumhq.selenium:selenium-java", version.ref = "selenium" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+dotenv-kotlin = { module = "io.github.cdimascio:dotenv-kotlin", version = "6.5.1" }
 
 
 [plugins]

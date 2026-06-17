@@ -22,7 +22,10 @@ import androidx.navigation.compose.rememberNavController
 import com.ist.instocktracker.BorderHairline
 import com.ist.instocktracker.R
 import com.ist.instocktracker.White
-import com.ist.instocktracker.data.*
+import com.ist.instocktracker.data.DurationUnit
+import com.ist.instocktracker.data.Interval
+import com.ist.instocktracker.data.LinkItem
+import com.ist.instocktracker.data.Mode
 import com.ist.instocktracker.navigation.Route
 import com.ist.instocktracker.utils.LocalNavController
 import com.ist.instocktracker.utils.capitalizeWords
@@ -31,17 +34,6 @@ import com.ist.instocktracker.utils.capitalizeWords
 fun LinkItemCard(linkItem: LinkItem) {
     val nav = LocalNavController.current
     val imageRes = R.drawable.placeholder_image
-
-
-    val subLabels = buildList {
-        add(LinkItemSubLabelItem(title = "Checking", value = linkItem.mode.displayName))
-        add(LinkItemSubLabelItem(title = "Runs", value = linkItem.interval.getDisplayName()))
-
-        linkItem.lastCheckResult?.let {
-            add(LinkItemSubLabelItem(title = "Last check was", value = lastCheckIntoLabel(it)))
-        }
-    }
-
 
     Card(
         modifier = Modifier
@@ -68,7 +60,7 @@ fun LinkItemCard(linkItem: LinkItem) {
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                LinkItemSubLabelsSection(subLabels = subLabels)
+                LinkItemAdditionalInfo(linkItem)
             }
             Spacer(modifier = Modifier.width(16.dp))
             Box(

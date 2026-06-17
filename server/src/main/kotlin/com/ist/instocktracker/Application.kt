@@ -45,9 +45,6 @@ fun Application.module() {
         }
     }
 
-    println("Gemini api key: ${environment.config.property("app.gemini.apiKey").getString()}")
-
-
     ServiceProvider.init(application = this)
 
     val idTokenVerifierService = ServiceProvider.idTokenVerifierService
