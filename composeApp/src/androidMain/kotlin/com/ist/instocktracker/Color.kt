@@ -49,6 +49,7 @@ val AppBackgroundGradient = listOf(White, Color(0xFFF3F4F8), SurfaceTintedLow)
 // region ── Alpha tints (as authored in Figma, over white) ───────────────────
 
 val PrimaryTint06 = Color(0x0F3D52D5) // Primary Light  · rgba(61,82,213,0.06)
+val PrimaryTint08 = Color(0x143D52D5) // Selection Pill Fill · rgba(61,82,213,0.08)
 val PrimaryTint18 = Color(0x2E3D52D5) // Primary Border · rgba(61,82,213,0.18)
 val PrimaryTint55 = Color(0x8C3D52D5) // Primary Text   · rgba(61,82,213,0.55)
 

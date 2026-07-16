@@ -9,7 +9,7 @@ data class User(
     val email: String?,
     val googleIdToken: String,
     val deviceTokens: List<DeviceToken> = emptyList(),
-    val trackableItemsLeft: Int = 3
+    val trackableItemsLeft: Int = 1
 
 ) {
     fun toMap(): Map<String, Any?> {

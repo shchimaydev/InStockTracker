@@ -16,7 +16,7 @@ fun DocumentSnapshot.toUser(): User? {
         val name = data["name"] as? String // Safe cast returns null if "name" isn't a String or is missing
         val email = data["email"] as? String
         val googleIdToken = data["googleIdToken"] as? String ?: ""
-        val trackableItemsLeft = (data["trackableItemsLeft"] as? Number)?.toInt() ?: 3
+        val trackableItemsLeft = (data["trackableItemsLeft"] as? Number)?.toInt() ?: 1
 
         val deviceTokens = (data["deviceTokens"] as? List<Map<String, Any>>)?.mapNotNull { tokenData ->
             val token = tokenData["token"] as? String
