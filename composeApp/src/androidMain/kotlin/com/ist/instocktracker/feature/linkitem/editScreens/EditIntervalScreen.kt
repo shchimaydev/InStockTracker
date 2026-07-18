@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -120,17 +121,15 @@ fun EditIntervalScreen(
                             style = MaterialTheme.typography.labelMedium
                         )
 
-                        // "Every" row — tapping it opens the number-wheel picker.
-                        Row(
+                        // "Every" field — tapping it opens the number-wheel picker.
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(24.dp))
                                 .background(White, RoundedCornerShape(24.dp))
                                 .border(1.dp, BorderHairline, RoundedCornerShape(24.dp))
                                 .clickable { showNumberPicker = true }
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                                .padding(16.dp)
                         ) {
                             Text(
                                 text = "Every",
@@ -140,8 +139,10 @@ fun EditIntervalScreen(
                             Text(
                                 text = intervalUnit.toString(),
                                 color = Cobalt,
-                                fontSize = 32.sp,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 40.sp,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
 

@@ -33,6 +33,8 @@ InStockTracker is a Kotlin Multiplatform (KMP) project for tracking inventory / 
 - Follow Kotlin coding conventions and document public APIs
 - Adhere strictly to the designs in `/designs` when implementing UI
 - Add tests for new functionality
+- After each change, look for corresponding unit tests and run them to verify they pass
+- If a change alters functional behavior, update the corresponding tests as well
 
 ## Skills
 
