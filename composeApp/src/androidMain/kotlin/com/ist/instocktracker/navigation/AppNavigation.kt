@@ -13,6 +13,8 @@ import com.ist.instocktracker.MainActivityViewModel
 import com.ist.instocktracker.feature.auth.AuthScreen
 import com.ist.instocktracker.feature.billing.PaywallRoute
 import com.ist.instocktracker.feature.billing.PaywallScreen
+import com.ist.instocktracker.feature.billing.SubscriptionViewModel
+import com.ist.instocktracker.feature.billing.SyncLimitsNoticeDialog
 import com.ist.instocktracker.feature.linkitem.AddFromShareScreen
 import com.ist.instocktracker.feature.linkitem.LinkItemDetailsScreen
 import com.ist.instocktracker.feature.linkitem.editScreens.EditIntervalScreen
@@ -37,11 +39,13 @@ import com.ist.instocktracker.utils.LocalNavController
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController(),
-    viewModel: MainActivityViewModel = viewModel { MainActivityViewModel() }
+    viewModel: MainActivityViewModel = viewModel { MainActivityViewModel() },
+    subscriptionViewModel: SubscriptionViewModel = viewModel { SubscriptionViewModel() }
 ) {
     val isAuthenticated by tokenStore.isAuthenticated().collectAsState(initial = null)
     val deepLinkState by viewModel.deepLink.collectAsState()
     val sharedUrlValue by viewModel.sharedUrl.collectAsState()
+    val syncLimitsNotice by subscriptionViewModel.syncLimitsNotice.collectAsState()
 
     val currentSharedUrl = sharedUrlValue
     val currentDeepLink = deepLinkState
@@ -156,11 +160,18 @@ fun AppNavigation(
                 PaywallRoute(
                     onDismiss = { navController.popBackStack() },
                     onPurchaseSuccess = { navController.popBackStack() },
-                    onRestoreSuccess = { navController.popBackStack() }
+                    onRestoreSuccess = { navController.popBackStack() },
+                    viewModel = subscriptionViewModel
                 )
             }
 
         }
     }
 
+    syncLimitsNotice?.let { notice ->
+        SyncLimitsNoticeDialog(
+            result = notice,
+            onDismiss = { subscriptionViewModel.dismissSyncLimitsNotice() }
+        )
+    }
 }

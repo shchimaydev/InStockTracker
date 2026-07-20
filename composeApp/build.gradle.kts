@@ -57,6 +57,8 @@ kotlin {
         androidUnitTest.dependencies {
             implementation("androidx.compose.ui:ui-test-junit4-android:1.9.0")
             implementation("org.robolectric:robolectric:4.14.1")
+            implementation(libs.mockk)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }

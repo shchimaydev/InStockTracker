@@ -4,6 +4,7 @@ import com.ist.instocktracker.data.DeviceToken
 import com.ist.instocktracker.data.LinkItem
 import com.ist.instocktracker.data.Platform
 import com.ist.instocktracker.data.PostGoogleIdVerificationBody
+import com.ist.instocktracker.data.SyncLimitsResult
 import com.ist.instocktracker.data.auth.RefreshTokenException
 import com.ist.instocktracker.data.auth.RefreshTokenRequest
 import com.ist.instocktracker.data.auth.TokenResponse
@@ -153,11 +154,13 @@ class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
         }
     }
 
-    suspend fun syncLimits(limit: Int) {
+    suspend fun syncLimits(limit: Int): SyncLimitsResult {
         val res = authClient.put("$host/api/v1/user/sync-limits") {
             parameter("limit", limit)
         }
-        if (!res.status.isSuccess()) {
+        if (res.status.isSuccess()) {
+            return res.body<SyncLimitsResult>()
+        } else {
             throw Exception("Failed to sync limits: ${res.status}, error: ${res.bodyAsText()}")
         }
     }

@@ -55,7 +55,9 @@ data class LinkItem(
     val scheduleJobId: String? = null,
     val lastCheckResult: Boolean? = null,
     val lastCheckDate: String? = null,
-    val placeholderImage: String? = null
+    val placeholderImage: String? = null,
+    val updatedAt: Long = 0L,
+    val isFrozen: Boolean = false
 
 ) {
 
@@ -95,7 +97,9 @@ data class LinkItem(
             "interval" to interval,
             "scheduleJobId" to scheduleJobId,
             "lastCheckResult" to lastCheckResult,
-            "lastCheckDate" to lastCheckDate
+            "lastCheckDate" to lastCheckDate,
+            "updatedAt" to updatedAt,
+            "isFrozen" to isFrozen
         )
     }
 

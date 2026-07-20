@@ -11,15 +11,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.ist.instocktracker.BorderHairline
+import com.ist.instocktracker.InkFaint
+import com.ist.instocktracker.InkMuted
 import com.ist.instocktracker.R
 import com.ist.instocktracker.White
 import com.ist.instocktracker.data.DurationUnit
@@ -34,17 +40,22 @@ import com.ist.instocktracker.utils.capitalizeWords
 fun LinkItemCard(linkItem: LinkItem) {
     val nav = LocalNavController.current
     val imageRes = R.drawable.placeholder_image
+    val isFrozen = linkItem.isFrozen
+
+    val cardModifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 4.dp)
+        .let {
+            if (isFrozen) it else it.clickable {
+                nav.navigate(Route.LinkItemDetails(linkItem.id))
+            }
+        }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable {
-                nav.navigate(Route.LinkItemDetails(linkItem.id))
-            },
+        modifier = cardModifier,
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(1.dp),
+        colors = CardDefaults.cardColors(containerColor = if (isFrozen) InkFaint else White),
+        elevation = CardDefaults.cardElevation(if (isFrozen) 0.dp else 1.dp),
         border = BorderStroke(1.dp, BorderHairline)
     ) {
         Row(
@@ -55,12 +66,19 @@ fun LinkItemCard(linkItem: LinkItem) {
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
+                if (isFrozen) {
+                    Text(
+                        text = "Paused",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                        color = InkMuted
+                    )
+                }
                 Text(
                     text = linkItem.label?.capitalizeWords() ?: "No label",
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = if (isFrozen) InkMuted else MaterialTheme.colorScheme.onSurface
                 )
-                LinkItemAdditionalInfo(linkItem)
+                LinkItemAdditionalInfo(linkItem, dimmed = isFrozen)
             }
             Spacer(modifier = Modifier.width(16.dp))
             Box(
@@ -69,13 +87,15 @@ fun LinkItemCard(linkItem: LinkItem) {
                     .height(80.dp)
                     .clip(RoundedCornerShape(12.dp))
             ) {
+                val grayscaleFilter = remember { ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) }) }
                 Image(
                     painter = painterResource(id = imageRes),
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    colorFilter = if (isFrozen) grayscaleFilter else null
                 )
             }
         }
@@ -118,6 +138,17 @@ fun LinkItemCardPreview() {
             interval = Interval(unit = 1, duration = DurationUnit.DAYS),
             lastCheckResult = null,
             isActive = false
+        ),
+        LinkItem(
+            id = "4",
+            userId = "user1",
+            label = "Steam Deck OLED",
+            link = "https://example.com/steamdeck",
+            mode = Mode.IN_STOCK,
+            interval = Interval(unit = 1, duration = DurationUnit.HOURS),
+            lastCheckResult = true,
+            isActive = true,
+            isFrozen = true
         )
     )
 

@@ -47,7 +47,7 @@ fun Route.putLinkItem() {
 
         // Update the document
         withContext(Dispatchers.IO) {
-            val updatedLinkItem = linkItem.copy(userId = currentUser.id)
+            val updatedLinkItem = linkItem.copy(userId = currentUser.id, updatedAt = System.currentTimeMillis())
             docRef.set(updatedLinkItem.toMap(), SetOptions.merge()).get()
         }
 

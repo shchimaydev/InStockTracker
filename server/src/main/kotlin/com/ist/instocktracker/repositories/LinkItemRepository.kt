@@ -90,6 +90,12 @@ class LinkItemRepository(db: Firestore) {
         }
     }
 
+    suspend fun setFrozen(id: String, frozen: Boolean) {
+        withContext(Dispatchers.IO) {
+            collection.document(id).update("isFrozen", frozen).get()
+        }
+    }
+
     suspend fun count(userId: String): Int {
         return try {
             withContext(Dispatchers.IO) {

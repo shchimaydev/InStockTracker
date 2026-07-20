@@ -30,5 +30,7 @@ fun DocumentSnapshot.toLinkItem(): LinkItem? {
         lastCheckResult = this.getBoolean("lastCheckResult"),
         lastCheckDate = this.getString("lastCheckDate"),
         placeholderImage = this.getString("placeholderImage"),
+        updatedAt = this.getLong("updatedAt") ?: 0L,
+        isFrozen = this.getBoolean("isFrozen") ?: false,
     )
 }

@@ -25,13 +25,14 @@ class MainVIewModel(val api: Api) : ViewModel() {
     /** Selected filter — defaults to showing only active items. */
     val filter = MutableStateFlow(LinkFilter.ACTIVE)
 
-    /** [linkItems] narrowed by the current [filter]. */
+    /** [linkItems] narrowed by the current [filter], with frozen items sorted to the bottom. */
     val visibleItems = combine(linkItems, filter) { items, f ->
-        when (f) {
+        val filtered = when (f) {
             LinkFilter.ACTIVE -> items.filter { it.isActive }
             LinkFilter.INACTIVE -> items.filter { !it.isActive }
             LinkFilter.ALL -> items
         }
+        filtered.sortedBy { it.isFrozen }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun setFilter(f: LinkFilter) {

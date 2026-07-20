@@ -31,12 +31,14 @@ fun MainListScreen(paddingValues: PaddingValues) {
 
     val visibleItems by mainVm.visibleItems.collectAsState()
     val filter by mainVm.filter.collectAsState()
+    val linkItemsChanged by ServiceLocator.linkItemsChanged.collectAsState()
 
     LaunchedEffect(visibleItems) {
         Log.d("MainScreen", "visibleItems: $visibleItems")
     }
 
-    LaunchedEffect(mainVm) {
+    // Also refetch when a subscription-driven freeze/unfreeze happens elsewhere in the app.
+    LaunchedEffect(mainVm, linkItemsChanged) {
         mainVm.getLinkItems()
     }
 

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.ist.instocktracker.CustomerInfoWrapper
 import com.ist.instocktracker.billing.RevenueCatManager
 import com.ist.instocktracker.data.SubscriptionTier
+import com.ist.instocktracker.data.SyncLimitsResult
 import com.ist.instocktracker.services.ServiceLocator
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,6 +38,14 @@ class SubscriptionViewModel : ViewModel() {
 
     private val _subscriptionState = MutableStateFlow(SubscriptionState())
     val subscriptionState: StateFlow<SubscriptionState> = _subscriptionState.asStateFlow()
+
+    private val _syncLimitsNotice = MutableStateFlow<SyncLimitsResult?>(null)
+    /** Non-null when the most recent limit sync froze or unfroze items — shown as a one-time notice. */
+    val syncLimitsNotice: StateFlow<SyncLimitsResult?> = _syncLimitsNotice.asStateFlow()
+
+    fun dismissSyncLimitsNotice() {
+        _syncLimitsNotice.value = null
+    }
 
     init {
         // Listen to CustomerInfo updates
@@ -137,10 +146,14 @@ class SubscriptionViewModel : ViewModel() {
     private fun syncLimitsWithServer(tier: SubscriptionTier) {
         viewModelScope.launch {
             try {
-                withContext(NonCancellable) {
+                val result = withContext(NonCancellable) {
                     ServiceLocator.api.syncLimits(tier.maxItems)
                 }
                 Log.d(TAG, "Successfully synced limits with server for tier: $tier")
+                if (result.frozenItems.isNotEmpty() || result.unfrozenItems.isNotEmpty()) {
+                    _syncLimitsNotice.value = result
+                    ServiceLocator.linkItemsChanged.value++
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to sync limits with server", e)
             }

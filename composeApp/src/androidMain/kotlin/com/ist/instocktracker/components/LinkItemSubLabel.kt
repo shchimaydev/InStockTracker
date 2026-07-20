@@ -13,6 +13,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ist.instocktracker.BorderHairline
+import com.ist.instocktracker.InkFaint
+import com.ist.instocktracker.InkMuted
 import com.ist.instocktracker.PrimaryTint06
 import com.ist.instocktracker.PrimaryTint18
 import com.ist.instocktracker.PrimaryTint55
@@ -35,13 +38,13 @@ fun lastCheckIntoLabel(lastCheckResult: Boolean): String {
  * is too wide for the current line, the enclosing [FlowRow] moves it down.
  */
 @Composable
-fun LinkItemChip(chipValue: String, modifier: Modifier = Modifier) {
+fun LinkItemChip(chipValue: String, modifier: Modifier = Modifier, dimmed: Boolean = false) {
     val shape = RoundedCornerShape(8.dp)
     Box(
         modifier = modifier
             .clip(shape)
-            .background(PrimaryTint06)
-            .border(BorderStroke(1.dp, PrimaryTint18), shape)
+            .background(if (dimmed) InkFaint else PrimaryTint06)
+            .border(BorderStroke(1.dp, if (dimmed) BorderHairline else PrimaryTint18), shape)
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Text(
@@ -51,19 +54,19 @@ fun LinkItemChip(chipValue: String, modifier: Modifier = Modifier) {
                 fontSize = 12.sp,
                 lineHeight = 18.sp
             ),
-            color = PrimaryTint55
+            color = if (dimmed) InkMuted else PrimaryTint55
         )
     }
 }
 
 @Composable
-fun LinkItemAdditionalInfo(linkItem: LinkItem) {
+fun LinkItemAdditionalInfo(linkItem: LinkItem, dimmed: Boolean = false) {
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        LinkItemChip(linkItem.mode.displayName)
-        LinkItemChip(linkItem.interval.getDisplayName())
+        LinkItemChip(linkItem.mode.displayName, dimmed = dimmed)
+        LinkItemChip(linkItem.interval.getDisplayName(), dimmed = dimmed)
     }
 }

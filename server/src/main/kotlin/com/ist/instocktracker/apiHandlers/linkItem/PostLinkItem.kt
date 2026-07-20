@@ -29,7 +29,7 @@ fun Route.postLinkItem() {
         }
 
         try {
-            val updatedLinkItem = linkItem.copy(userId = currentUser.id)
+            val updatedLinkItem = linkItem.copy(userId = currentUser.id, updatedAt = System.currentTimeMillis())
             val linkItemFromDb = linkItemRepository.save(updatedLinkItem)
 
             linkItemFromDb
