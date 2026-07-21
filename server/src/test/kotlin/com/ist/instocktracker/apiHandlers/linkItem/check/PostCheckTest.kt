@@ -2,19 +2,26 @@ package com.ist.instocktracker.apiHandlers.linkItem.check
 
 import com.google.api.core.ApiFuture
 import com.google.cloud.firestore.*
+import com.ist.instocktracker.apiHandlers.linkItem.check.precheck.CheckPipeline
+import com.ist.instocktracker.apiHandlers.linkItem.check.precheck.CheckPipelineResult
+import com.ist.instocktracker.apiHandlers.linkItem.check.precheck.PreCheckSource
+import com.ist.instocktracker.apiHandlers.linkItem.check.precheck.ResolvedVia
+import com.ist.instocktracker.data.CheckResponse
 import com.ist.instocktracker.data.LinkItem
 import com.ist.instocktracker.data.Mode
 import com.ist.instocktracker.module
+import com.ist.instocktracker.services.ServiceProvider
 import com.ist.instocktracker.services.db.FirestoreProvider
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.mockk.*
+import kotlinx.serialization.json.Json
 import org.junit.After
 import kotlin.test.Test
 import kotlin.test.assertEquals
-
+import kotlin.test.assertTrue
 
 class PostCheckTest {
 
@@ -33,10 +40,17 @@ class PostCheckTest {
                 "app.jwt.audience" to "test-audience",
                 "app.jwt.accessTokenTtlSec" to "3600",
                 "app.jwt.refreshTokenTtlSec" to "86400",
-                "app.gemini.apiKey" to "test-api-key"
+                "app.gemini.apiKey" to "test-api-key",
+                "storage.location" to "europe-west3"
             )
         }
         application { module() }
+        // Overrides the real CheckPipeline that module() -> ServiceProvider.init() just built,
+        // so this test never touches Browserless/Gemini/HTTP.
+        val fakePipeline = mockk<CheckPipeline>()
+        coEvery { fakePipeline.run(any()) } returns
+            CheckPipelineResult(result = true, resolvedVia = ResolvedVia.PRECHECK_TIER0, preCheckSource = PreCheckSource.JSON_LD)
+        application { ServiceProvider.checkPipeline = fakePipeline }
 
         // --- 1. Define Test Data ---
         val testId = "test-item-123"
@@ -46,28 +60,8 @@ class PostCheckTest {
             link = "https://example.com/product/123",
             mode = Mode.IN_STOCK,
         )
-        val fakeHtmlContent = "<html><body><h1>In Stock!</h1></body></html>"
-        val fakeAiResult = "The item is in stock."
 
-        // --- 2. Mock External Dependencies ---
-
-        // Mock static functions for scraping and AI.
-        mockkStatic("com.ist.instocktracker.apiHandlers.linkItem.check.PostCheckKt")
-
-        // Create a mock ScrapePageResponse with the fake HTML content
-        val fakeImageBytes = ByteArray(0) // Empty byte array for testing
-        val fakeScrapeResponse = ScrapePageResponse(
-            imagePath = null,
-            imageBytes = fakeImageBytes
-        )
-
-        // Mock the scrapePage function to return the fake response
-        coEvery { scrapePage(any(), any()) } returns fakeScrapeResponse
-
-        // Mock the evaluateWithAI function to return true
-        coEvery { evaluateWithAI(any(), any()) } returns true
-
-        // Mock the FirestoreProvider singleton and the chain of Firestore calls
+        // --- 2. Mock the FirestoreProvider singleton and the chain of Firestore calls ---
         mockkObject(FirestoreProvider)
         val mockFirestore = mockk<Firestore>()
         val mockCollectionRef = mockk<CollectionReference>()
@@ -82,26 +76,54 @@ class PostCheckTest {
         every { mockDocRef.get() } returns mockSnapshotFuture
         every { mockSnapshotFuture.get() } returns mockSnapshot
 
-        // Configure the mock snapshot to return our fake data.
-        // This allows your real `toLinkItem()` extension function to work on the mock.
+        // Configure the mock snapshot to return our fake data. `toLinkItem()` maps each field
+        // individually (getString/getBoolean/getLong), it does not use toObject().
         every { mockSnapshot.exists() } returns true
-        every { mockSnapshot.toObject(LinkItem::class.java) } returns fakeLinkItem // Assumes toLinkItem uses toObject
+        every { mockSnapshot.id } returns testId
+        every { mockSnapshot.getString("userId") } returns fakeLinkItem.userId
+        every { mockSnapshot.getString("label") } returns fakeLinkItem.label
+        every { mockSnapshot.getString("link") } returns fakeLinkItem.link
+        every { mockSnapshot.getString("startAt") } returns fakeLinkItem.startAt
+        every { mockSnapshot.getString("mode") } returns fakeLinkItem.mode.name
+        every { mockSnapshot.getString("additionalInstructions") } returns fakeLinkItem.additionalInstructions
+        every { mockSnapshot.getBoolean("isActive") } returns fakeLinkItem.isActive
+        every { mockSnapshot.get("interval") } returns null
+        every { mockSnapshot.getString("scheduleJobId") } returns fakeLinkItem.scheduleJobId
+        every { mockSnapshot.getBoolean("lastCheckResult") } returns fakeLinkItem.lastCheckResult
+        every { mockSnapshot.getString("lastCheckDate") } returns fakeLinkItem.lastCheckDate
+        every { mockSnapshot.getString("placeholderImage") } returns fakeLinkItem.placeholderImage
+        every { mockSnapshot.getLong("updatedAt") } returns fakeLinkItem.updatedAt
+        every { mockSnapshot.getBoolean("isFrozen") } returns fakeLinkItem.isFrozen
 
-        // Mock the write operations (update and log) to prevent real DB calls
-        val mockWriteFuture = mockk<ApiFuture<WriteResult>>(relaxed = true)
-        every { mockDocRef.update(any<Map<String, Any>>()) } returns mockWriteFuture
+        // Mock the write operations to prevent real DB calls. Persistence goes through a
+        // WriteBatch (db.batch().update(...)/.set(...).commit()), not direct docRef writes.
         every { mockDocRef.collection("logs") } returns mockCollectionRef
         every { mockCollectionRef.document(any<String>()) } returns mockDocRef
-        every { mockDocRef.set(any()) } returns mockWriteFuture
+
+        val mockBatch = mockk<WriteBatch>(relaxed = true)
+        val mockCommitFuture = mockk<ApiFuture<List<WriteResult>>>(relaxed = true)
+        every { mockFirestore.batch() } returns mockBatch
+        every { mockBatch.commit() } returns mockCommitFuture
 
         // --- 3. Execute the Request ---
-        val response = client.post("/api/v1/link-item/$testId/check")
+        val response = client.post("/api/v1/link-items/$testId/check")
 
         // --- 4. Assert the Results ---
         assertEquals(HttpStatusCode.OK, response.status)
-        val responseBody = response.bodyAsText()
-        assert(responseBody.contains(fakeAiResult))
-        assert(responseBody.contains("\"status\":\"success\""))
+        val checkResponse = Json.decodeFromString<CheckResponse>(response.bodyAsText())
+        assertEquals("success", checkResponse.status)
+        assertEquals(true, checkResponse.result)
+        assertEquals(testId, checkResponse.linkItemId)
+
+        // The pipeline result (and its resolvedVia/preCheckSource) must reach Firestore.
+        verify {
+            mockBatch.set(
+                mockDocRef,
+                match<Map<String, Any?>> {
+                    it["resolvedVia"] == "PRECHECK_TIER0" && it["preCheckSource"] == "JSON_LD"
+                }
+            )
+        }
     }
 
 
@@ -115,7 +137,8 @@ class PostCheckTest {
                 "app.jwt.audience" to "test-audience",
                 "app.jwt.accessTokenTtlSec" to "3600",
                 "app.jwt.refreshTokenTtlSec" to "86400",
-                "app.gemini.apiKey" to "test-api-key"
+                "app.gemini.apiKey" to "test-api-key",
+                "storage.location" to "europe-west3"
             )
         }
         // Configure the application
@@ -124,13 +147,13 @@ class PostCheckTest {
         }
 
         // Test with an invalid ID
-        val response = client.post("/api/v1/link-item/invalid-id/check")
+        val response = client.post("/api/v1/link-items/invalid-id/check")
 
         // Since we can't mock the Firestore database, this will likely return an error
         // The exact status code will depend on how the application handles non-existent documents
         // It could be NotFound (404) or InternalServerError (500)
         // We'll just check that it's not OK (200)
-        assert(response.status != HttpStatusCode.OK)
+        assertTrue(response.status != HttpStatusCode.OK)
     }
 
     @Test
@@ -143,7 +166,8 @@ class PostCheckTest {
                 "app.jwt.audience" to "test-audience",
                 "app.jwt.accessTokenTtlSec" to "3600",
                 "app.jwt.refreshTokenTtlSec" to "86400",
-                "app.gemini.apiKey" to "test-api-key"
+                "app.gemini.apiKey" to "test-api-key",
+                "storage.location" to "europe-west3"
             )
         }
         // Configure the application
@@ -152,14 +176,14 @@ class PostCheckTest {
         }
 
         // Test with a missing ID
-        val response = client.post("/api/v1/link-item//check")
+        val response = client.post("/api/v1/link-items//check")
 
         // This should return a BadRequest (400) status
         assertEquals(HttpStatusCode.NotFound, response.status)
     }
 
     // Note: We can't effectively test the successful case without mocking
-    // the Firestore database, Bright Data scraping, and GenAI client.
+    // the Firestore database and ServiceProvider.checkPipeline.
     // A more comprehensive test would require setting up proper mocks
     // for these dependencies.
 }

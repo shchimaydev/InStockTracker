@@ -56,6 +56,8 @@ dependencies {
     implementation(libs.ktor.auth.jwt)
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.encoding)
+    implementation(libs.jsoup)
 
 
     implementation(libs.kotlinx.serialization.json)
@@ -78,4 +80,5 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.testJunit)
     testImplementation(libs.mockk)
+    testImplementation("io.ktor:ktor-client-mock:3.2.3")
 }

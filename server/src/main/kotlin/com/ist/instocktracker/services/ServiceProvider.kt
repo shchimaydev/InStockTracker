@@ -1,6 +1,7 @@
 package com.ist.instocktracker.services
 
 import com.google.cloud.firestore.Firestore
+import com.ist.instocktracker.apiHandlers.linkItem.check.precheck.CheckPipeline
 import com.ist.instocktracker.repositories.LinkItemRepository
 import com.ist.instocktracker.repositories.UserRepository
 import com.ist.instocktracker.services.config.AppConfig
@@ -8,6 +9,8 @@ import com.ist.instocktracker.services.config.JwtConfig
 import com.ist.instocktracker.services.db.FirestoreProvider
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -26,6 +29,7 @@ object ServiceProvider {
     lateinit var notificationService: NotificationService
     lateinit var schedulerService: SchedulerService
     lateinit var httpClient: HttpClient
+    lateinit var checkPipeline: CheckPipeline
 
     fun init(application: Application) {
         config = AppConfig(application)
@@ -47,7 +51,15 @@ object ServiceProvider {
                     Json { ignoreUnknownKeys = true; isLenient = true }
                 )
             }
+            install(ContentEncoding) {
+                gzip()
+                deflate()
+            }
+            install(HttpTimeout) {
+                requestTimeoutMillis = 30_000
+            }
         }
+        checkPipeline = CheckPipeline()
     }
 
     fun stop() {

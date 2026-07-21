@@ -12,7 +12,6 @@ import androidx.navigation.toRoute
 import com.ist.instocktracker.MainActivityViewModel
 import com.ist.instocktracker.feature.auth.AuthScreen
 import com.ist.instocktracker.feature.billing.PaywallRoute
-import com.ist.instocktracker.feature.billing.PaywallScreen
 import com.ist.instocktracker.feature.billing.SubscriptionViewModel
 import com.ist.instocktracker.feature.billing.SyncLimitsNoticeDialog
 import com.ist.instocktracker.feature.linkitem.AddFromShareScreen
@@ -52,18 +51,6 @@ fun AppNavigation(
 
     LaunchedEffect(isAuthenticated, sharedUrlValue, deepLinkState) {
         isAuthenticated?.let { authed ->
-            println("AppNavigation: AppNavigation isAuthenticated: $authed")
-
-//            if (authed && currentSharedUrl != null) {
-//                println("AppNavigation: Navigate to ${Route.AddFromShare(currentSharedUrl)}")
-//                navController.navigate(Route.AddFromShare(currentSharedUrl)) {
-//                    popUpTo(Route.Auth) { inclusive = true }  // Clear everything
-//                }
-//                viewModel.consumeSharedUrl()
-//                viewModel.consumedDeepLink() // in case both exist, consume all but process only shared url intent
-//                return@LaunchedEffect
-//            }
-
             if (authed) {
                 if (currentSharedUrl != null) {
                     println("AppNavigation: Navigate to ${Route.AddFromShare(currentSharedUrl)}")
