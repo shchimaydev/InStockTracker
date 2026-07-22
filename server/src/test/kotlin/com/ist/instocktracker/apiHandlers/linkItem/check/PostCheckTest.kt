@@ -182,6 +182,34 @@ class PostCheckTest {
         assertEquals(HttpStatusCode.NotFound, response.status)
     }
 
+    @Test
+    fun testCheckEndpointRejectsUnauthenticatedOutsideDevelopment() = testApplication {
+        // testApplication defaults developmentMode to true regardless of the
+        // "ktor.development" config value below, so it must be set here directly
+        // to exercise the non-development (OIDC-gated) branch in Application.kt.
+        serverConfig { developmentMode = false }
+        environment {
+            config = io.ktor.server.config.MapApplicationConfig(
+                // Outside development mode, /check is gated behind Google OIDC
+                // (see Application.kt) — a request with no token must be rejected
+                // before it ever reaches Firestore/the check pipeline.
+                "ktor.development" to "false",
+                "app.jwt.secret" to "test-secret-key",
+                "app.jwt.issuer" to "test-issuer",
+                "app.jwt.audience" to "test-audience",
+                "app.jwt.accessTokenTtlSec" to "3600",
+                "app.jwt.refreshTokenTtlSec" to "86400",
+                "app.gemini.apiKey" to "test-api-key",
+                "storage.location" to "europe-west3"
+            )
+        }
+        application { module() }
+
+        val response = client.post("/api/v1/link-items/test-item-123/check")
+
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
+    }
+
     // Note: We can't effectively test the successful case without mocking
     // the Firestore database and ServiceProvider.checkPipeline.
     // A more comprehensive test would require setting up proper mocks

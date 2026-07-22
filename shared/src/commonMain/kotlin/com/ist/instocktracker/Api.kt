@@ -25,7 +25,7 @@ import kotlin.time.ExperimentalTime
 
 
 class Api(private val tokenStore: TokenStore, isDev: Boolean = true) {
-    private val prodHost = "https://instocktracker-464721.ey.r.appspot.com"
+    private val prodHost = "https://instocktracker-server-646354819394.europe-west3.run.app"
     private val localHost = "http://10.0.2.2:8080"
     private val host = if (isDev) localHost else prodHost
 

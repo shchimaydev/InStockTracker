@@ -22,22 +22,44 @@ application {
 
 // build.gradle
 
-tasks.register<Exec>("gcloudDeploy") {
+tasks.register<Exec>("cloudRunDeploy") {
     group = "Deployment"
-    description = "Deploys the server application to Google App Engine."
+    description = "Builds the fat jar and deploys it to Cloud Run."
 
     // This task should run after the jar has been built.
     dependsOn("buildFatJar")
 
     // The command to execute.
     // Make sure 'gcloud' is available in your system's PATH.
+    //
+    // --source . uses the Dockerfile in this directory (built via Cloud Build,
+    // no local Docker needed) to containerize the already-built fat jar.
+    // Secrets are pulled from Secret Manager at deploy time rather than
+    // baked into the image.
     commandLine(
-        "/Users/illya/y/google-cloud-sdk/bin/gcloud",
-        "app",
+        "gcloud",
+        "run",
         "deploy",
-        "build/libs/server-all.jar", // Path to the JAR within the server module
+        "instocktracker-server",
+        "--source",
+        ".",
+        "--region",
+        "europe-west3",
         "--project",
         "instocktracker-464721",
+        "--allow-unauthenticated",
+        "--memory",
+        "512Mi",
+        "--cpu",
+        "1",
+        "--concurrency",
+        "10",
+        "--min-instances",
+        "0",
+        "--max-instances",
+        "3",
+        "--set-secrets",
+        "GEMINI_API_KEY=GEMINI_API_KEY:latest,BROWSERLESSIO_TOKEN=BROWSERLESSIO_TOKEN:latest,SCHEDULER_CALLER_SA=SCHEDULER_CALLER_SA:latest",
         "--quiet"
     )
 }

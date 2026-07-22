@@ -75,10 +75,16 @@ fun Application.module() {
                     deleteLinkItem()
                 }
 
-                // Secured with Google OIDC
-                //authenticate("google-oidc") {
-                postCheck()
-                //}
+                // Secured with Google OIDC in every real deployment; local dev
+                // (developmentMode = true) skips it so /check can be hit with
+                // a plain curl instead of a minted Google-signed token.
+                if (application.developmentMode) {
+                    postCheck()
+                } else {
+                    authenticate(AuthNames.JWT_GOOGLE_OIDC) {
+                        postCheck()
+                    }
+                }
             }
 
             authenticate("auth-jwt") {

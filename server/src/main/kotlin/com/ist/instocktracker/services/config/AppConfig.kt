@@ -32,7 +32,7 @@ class AppConfig(application: Application) {
 
     val location: String = config.property("storage.location").getString()
 
-    val serverUrl: String = "https://$projectId.ey.r.appspot.com"
+    val serverUrl: String = "https://instocktracker-server-646354819394.europe-west3.run.app"
 
     val browserlessToken: String = secret("BROWSERLESSIO_TOKEN", "app.browserlessioToken")
     val genAIToken: String = secret("GEMINI_API_KEY", "app.gemini.apiKey")

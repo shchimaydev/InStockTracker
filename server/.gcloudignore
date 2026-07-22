@@ -15,3 +15,21 @@
 
 # Target directory for maven builds
 target/
+
+# Gradle's build/ output (build/distributions/ tar+zip archives, the plain
+# unshaded jar, classes/, reports/, etc.) is ~460MB, but the Dockerfile only
+# needs the fat jar. Ignore everything under build/ except that one file, to
+# keep the Cloud Build upload (used by `gcloud run deploy --source`) small.
+build/*
+!build/libs
+build/libs/*
+!build/libs/server-all.jar
+
+# Local-dev-only files: no reason to ship these. .env holds the same real
+# secrets as Secret Manager — shipping it too just duplicates plaintext
+# credentials in the deployment source for no benefit.
+.env
+.env.example
+*.http
+.DS_Store
+src/test/
